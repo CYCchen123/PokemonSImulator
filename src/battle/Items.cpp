@@ -174,6 +174,11 @@ std::string getItemName(ItemType type) {
         case ItemType::CellBattery: return "Cell Battery";
         case ItemType::LuminousMoss: return "Luminous Moss";
         case ItemType::Snowball: return "Snowball";
+        case ItemType::LaxIncense: return "Lax Incense";
+        case ItemType::LaggingTail: return "Lagging Tail";
+        case ItemType::RoseIncense: return "Rose Incense";
+        case ItemType::WaveIncense: return "Wave Incense";
+        case ItemType::OddIncense: return "Odd Incense";
         default: return "None";
     }
 }
@@ -1069,6 +1074,32 @@ Item createSnowball() {
     return item;
 }
 
+Item createLaxIncense() {
+    Item item(ItemType::LaxIncense, "Lax Incense");
+    item.passive.evasionBoost = 1.05f;
+    return item;
+}
+Item createLaggingTail() {
+    Item item(ItemType::LaggingTail, "Lagging Tail");
+    item.passive.alwaysMovesLast = true;
+    return item;
+}
+Item createRoseIncense() {
+    Item item(ItemType::RoseIncense, "Rose Incense");
+    item.statModifiers.push_back({ItemStatModifier::Stat::SpAttack, 1.2f});
+    return item;
+}
+Item createWaveIncense() {
+    Item item(ItemType::WaveIncense, "Wave Incense");
+    item.statModifiers.push_back({ItemStatModifier::Stat::SpAttack, 1.2f});
+    return item;
+}
+Item createOddIncense() {
+    Item item(ItemType::OddIncense, "Odd Incense");
+    item.statModifiers.push_back({ItemStatModifier::Stat::SpAttack, 1.2f});
+    return item;
+}
+
 Item createChestoBerry() {
     Item item(ItemType::ChestoBerry, "Chesto Berry");
     item.isConsumable = true;
@@ -1477,6 +1508,11 @@ void initializeCoreItems(GameRegistry& registry) {
     reg(ItemType::CellBattery,   createCellBattery);
     reg(ItemType::LuminousMoss,  createLuminousMoss);
     reg(ItemType::Snowball,      createSnowball);
+    reg(ItemType::LaxIncense,    createLaxIncense);
+    reg(ItemType::LaggingTail,   createLaggingTail);
+    reg(ItemType::RoseIncense,   createRoseIncense);
+    reg(ItemType::WaveIncense,   createWaveIncense);
+    reg(ItemType::OddIncense,    createOddIncense);
 }
 
 // === Item logic helpers ===
@@ -1555,6 +1591,10 @@ bool itemEnsuresCanSwitch(ItemType type) {
 
 bool itemHalvesSpeedAndGrounds(ItemType type) {
     return GameRegistry::instance().getItem(type).passive.halvesSpeedAndGrounds;
+}
+
+bool itemAlwaysMovesLast(ItemType type) {
+    return GameRegistry::instance().getItem(type).passive.alwaysMovesLast;
 }
 
 bool tryQuickClawActivation(ItemType type, int& priority) {

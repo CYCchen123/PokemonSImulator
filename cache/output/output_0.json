@@ -16,7 +16,7 @@
         "name": "Player",
         "pokemons": [
           {
-            "abilityId": 8,
+            "abilityId": 16,
             "fainted": false,
             "hp": 175,
             "inBattleStatus": [],
@@ -59,7 +59,7 @@
         "name": "Opponent",
         "pokemons": [
           {
-            "abilityId": 8,
+            "abilityId": 16,
             "fainted": false,
             "hp": 175,
             "inBattleStatus": [],

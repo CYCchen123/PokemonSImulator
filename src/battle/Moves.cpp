@@ -1917,4 +1917,44 @@ void initializeCoreMoveRules(GameRegistry& registry) {
         }
         return true;
     });
+
+    // Round 8: 5 new status moves
+    registry.registerMoveRule("floralhealing", [](BattleContext& ctx, Pokemon* attacker, Pokemon* defender, const Move&) {
+        if (!defender) return true;
+        int heal = defender->getMaxHP() / 2;
+        if (ctx.getField().type == FieldType::Grassy) heal = defender->getMaxHP() * 2 / 3;
+        defender->setCurrentHP(std::min(defender->getMaxHP(), defender->getCurrentHP() + heal));
+        return true;
+    });
+
+    registry.registerMoveRule("junglehealing", [](BattleContext& ctx, Pokemon* attacker, Pokemon*, const Move&) {
+        if (!attacker) return true;
+        Side* side = ctx.findSideForPokemon(attacker);
+        if (!side) return true;
+        for (int i = 0; i < side->getPokemonCount(); ++i) {
+            Pokemon* p = side->getTeam()[i];
+            if (p && p->getCurrentHP() > 0) {
+                p->setCurrentHP(std::min(p->getMaxHP(), p->getCurrentHP() + p->getMaxHP() / 4));
+                p->clearStatuses();
+            }
+        }
+        return true;
+    });
+
+    registry.registerMoveRule("magicpowder", [](BattleContext&, Pokemon*, Pokemon* defender, const Move&) {
+        if (!defender) return true;
+        defender->setTypes(Type::Psychic, Type::Count);
+        return true;
+    });
+
+    registry.registerMoveRule("reflecttype", [](BattleContext&, Pokemon* attacker, Pokemon* defender, const Move&) {
+        if (!attacker || !defender) return true;
+        attacker->setTypes(defender->getType1(), defender->getType2());
+        return true;
+    });
+
+    registry.registerMoveRule("holdhands", [](BattleContext&, Pokemon* attacker, Pokemon*, const Move&) {
+        // Hold Hands has no effect in singles battle (used in doubles to support ally)
+        return true;
+    });
 }

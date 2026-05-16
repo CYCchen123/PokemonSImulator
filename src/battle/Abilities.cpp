@@ -255,6 +255,11 @@ std::string getAbilityName(AbilityType type) {
         case AbilityType::Unburden: return "Unburden";
         case AbilityType::AngerPoint: return "Anger Point";
         case AbilityType::Gluttony: return "Gluttony";
+        case AbilityType::EffectSpore: return "Effect Spore";
+        case AbilityType::WaterVeil: return "Water Veil";
+        case AbilityType::MagmaArmor: return "Magma Armor";
+        case AbilityType::LiquidOoze: return "Liquid Ooze";
+        case AbilityType::SandVeil: return "Sand Veil";
         default: return "None";
     }
 }
@@ -396,6 +401,11 @@ AbilityType getAbilityTypeByName(const std::string& name) {
     if (key == "unburden") return AbilityType::Unburden;
     if (key == "angerpoint") return AbilityType::AngerPoint;
     if (key == "gluttony") return AbilityType::Gluttony;
+    if (key == "effectspore") return AbilityType::EffectSpore;
+    if (key == "waterveil") return AbilityType::WaterVeil;
+    if (key == "magmaarmor") return AbilityType::MagmaArmor;
+    if (key == "liquidooze") return AbilityType::LiquidOoze;
+    if (key == "sandveil") return AbilityType::SandVeil;
     return AbilityType::None;
 }
 
@@ -650,6 +660,26 @@ bool abilityAttackMaxedOnCrit(AbilityType abilityType) {
 
 bool abilityEarlyBerryConsumption(AbilityType abilityType) {
     return GameRegistry::instance().getAbility(abilityType).passive.earlyBerryConsumption;
+}
+
+bool abilityInflictsRandomContactStatus(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.inflictsRandomContactStatus;
+}
+
+bool abilityPreventsBurn(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.preventsBurn;
+}
+
+bool abilityPreventsFreeze(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.preventsFreeze;
+}
+
+bool abilityInvertsDrainingHeal(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.invertsDrainingHeal;
+}
+
+bool abilityBoostsEvasionInSand(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.boostsEvasionInSand;
 }
 
 std::string abilityTypeImmunityEventReason(AbilityType abilityType) {
@@ -1374,6 +1404,30 @@ void initializeCoreAbilities(GameRegistry& registry) {
 
     // Gluttony: consumes pinch berries at 1/2 HP instead of 1/4
     regPassive(AbilityType::Gluttony, [](auto& p) { p.earlyBerryConsumption = true; });
+
+    // Effect Spore: 30% to inflict random status on contact
+    registry.registerAbilityBuilder(AbilityType::EffectSpore,
+        [](Ability& a, AddTypeImmunity, AddStatusImmunity) {
+            a.passive.inflictsRandomContactStatus = true;
+        });
+
+    // Water Veil: prevents burn
+    registry.registerAbilityBuilder(AbilityType::WaterVeil,
+        [](Ability&, AddTypeImmunity, AddStatusImmunity addS) {
+            addS(StatusType::Burn);
+        });
+
+    // Magma Armor: prevents freeze
+    registry.registerAbilityBuilder(AbilityType::MagmaArmor,
+        [](Ability&, AddTypeImmunity, AddStatusImmunity addS) {
+            addS(StatusType::Freeze);
+        });
+
+    // Liquid Ooze: inverts draining moves (damage instead of heal)
+    regPassive(AbilityType::LiquidOoze, [](auto& p) { p.invertsDrainingHeal = true; });
+
+    // Sand Veil: evasion boosted in sandstorm
+    regPassive(AbilityType::SandVeil, [](auto& p) { p.boostsEvasionInSand = true; });
 }
 
 std::vector<Ability> getAbilitiesForPokemon(AbilityType type) {

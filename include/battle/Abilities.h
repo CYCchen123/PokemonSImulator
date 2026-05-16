@@ -151,6 +151,11 @@ enum class AbilityType {
     Unburden,
     AngerPoint,
     Gluttony,
+    EffectSpore,
+    WaterVeil,
+    MagmaArmor,
+    LiquidOoze,
+    SandVeil,
     Count
 };
 
@@ -255,6 +260,11 @@ public:
         bool speedDoubledWithoutItem = false;
         bool attackMaxedOnCrit = false;
         bool earlyBerryConsumption = false;
+        bool inflictsRandomContactStatus = false;
+        bool preventsBurn = false;
+        bool preventsFreeze = false;
+        bool invertsDrainingHeal = false;
+        bool boostsEvasionInSand = false;
 
         float stabBonusMultiplier = 1.5f;
         int statusMovePriorityBonus = 0;
@@ -364,6 +374,11 @@ bool abilityHalvesSleepTurns(AbilityType abilityType);
 bool abilitySpeedDoubledWithoutItem(AbilityType abilityType);
 bool abilityAttackMaxedOnCrit(AbilityType abilityType);
 bool abilityEarlyBerryConsumption(AbilityType abilityType);
+bool abilityInflictsRandomContactStatus(AbilityType abilityType);
+bool abilityPreventsBurn(AbilityType abilityType);
+bool abilityPreventsFreeze(AbilityType abilityType);
+bool abilityInvertsDrainingHeal(AbilityType abilityType);
+bool abilityBoostsEvasionInSand(AbilityType abilityType);
 
 // Convert between ability enum and canonical display name.
 std::string getAbilityName(AbilityType type);

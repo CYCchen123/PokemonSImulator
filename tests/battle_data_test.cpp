@@ -5984,3 +5984,54 @@ TEST(ItemDataTest, CellBatteryBoostsAtkOnElectricHit) {
     EXPECT_EQ(source.getStatStage(StatIndex::Attack), 1);
     EXPECT_EQ(source.getItemType(), ItemType::None);
 }
+
+// --- New ability tests (batch 8) ---
+TEST(AbilityDataTest, EffectSporeNameMapsToEffectSporeType) {
+    AbilityData es = getAbilityDataByName("effect-spore");
+    EXPECT_EQ(es.type, AbilityType::EffectSpore);
+    Ability a = getAbility(AbilityType::EffectSpore);
+    EXPECT_TRUE(a.passive.inflictsRandomContactStatus);
+}
+
+TEST(AbilityDataTest, WaterVeilPreventsBurnStatus) {
+    AbilityData wv = getAbilityDataByName("water-veil");
+    EXPECT_EQ(wv.type, AbilityType::WaterVeil);
+    Ability a = getAbility(AbilityType::WaterVeil);
+    EXPECT_EQ(a.statusImmunities.size(), 1u);
+    EXPECT_EQ(a.statusImmunities[0].statusId, static_cast<int>(StatusType::Burn));
+}
+
+TEST(AbilityDataTest, MagmaArmorPreventsFreezeStatus) {
+    Ability a = getAbility(AbilityType::MagmaArmor);
+    EXPECT_EQ(a.statusImmunities.size(), 1u);
+    EXPECT_EQ(a.statusImmunities[0].statusId, static_cast<int>(StatusType::Freeze));
+}
+
+// --- New move tests ---
+TEST(MoveBehaviorTest, ReflectTypeCopiesTargetsType) {
+    Species species = makeSpecies(9201, "ReflectTypeUser", Type::Normal, Type::Count, AbilityType::None, AbilityType::None);
+    Species targetSpecies = makeSpecies(9202, "Target", Type::Fire, Type::Water, AbilityType::None, AbilityType::None);
+    Pokemon user = makePokemon(species, AbilityType::None);
+    Pokemon target = makePokemon(targetSpecies, AbilityType::None);
+    Side sideA("A"), sideB("B");
+    sideA.addPokemon(&user); sideB.addPokemon(&target);
+    Battle battle(sideA, sideB);
+    Move reflectType("Reflect Type", Type::Normal, Category::Status, 0, 100, 15, MoveEffect::None, 100);
+    battle.processMoveEffects(&user, &target, reflectType);
+    EXPECT_EQ(user.getType1(), Type::Fire);
+    EXPECT_EQ(user.getType2(), Type::Water);
+}
+
+TEST(MoveBehaviorTest, FloralHealingHealsTargetHalfHp) {
+    Species species = makeSpecies(9203, "Healer", Type::Grass, Type::Count, AbilityType::None, AbilityType::None);
+    Pokemon user = makePokemon(species, AbilityType::None);
+    Pokemon target = makePokemon(species, AbilityType::None);
+    target.setCurrentHP(1);
+    int maxHp = target.getMaxHP();
+    Side sideA("A"), sideB("B");
+    sideA.addPokemon(&user); sideB.addPokemon(&target);
+    Battle battle(sideA, sideB);
+    Move floralHealing("Floral Healing", Type::Fairy, Category::Status, 0, 100, 10, MoveEffect::None, 100);
+    battle.processMoveEffects(&user, &target, floralHealing);
+    EXPECT_NEAR(target.getCurrentHP(), 1 + maxHp / 2, 2);
+}

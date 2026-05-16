@@ -204,6 +204,11 @@ enum class ItemType {
     CellBattery,
     LuminousMoss,
     Snowball,
+    LaxIncense,
+    LaggingTail,
+    RoseIncense,
+    WaveIncense,
+    OddIncense,
 
     Count
 };
@@ -314,6 +319,7 @@ public:
         bool extendsTrappingMoves = false;     // GripClaw
         bool ensuresCanSwitch = false;         // ShedShell
         bool halvesSpeedAndGrounds = false;    // IronBall
+        bool alwaysMovesLast = false;          // LaggingTail
     } passive;
     
     // 6. 一次性使用标记
@@ -556,6 +562,11 @@ Item createAbsorbBulb();
 Item createCellBattery();
 Item createLuminousMoss();
 Item createSnowball();
+Item createLaxIncense();
+Item createLaggingTail();
+Item createRoseIncense();
+Item createWaveIncense();
+Item createOddIncense();
 
 // 辅助函数
 std::string getItemName(ItemType type);
@@ -591,6 +602,7 @@ bool itemBoostsBindingMoves(ItemType type);
 bool itemExtendsTrappingMoves(ItemType type);
 bool itemEnsuresCanSwitch(ItemType type);
 bool itemHalvesSpeedAndGrounds(ItemType type);
+bool itemAlwaysMovesLast(ItemType type);
 
 // Quick Claw: 20% chance to move first; modifies priority in-place, returns true if activated
 bool tryQuickClawActivation(ItemType type, int& priority);
