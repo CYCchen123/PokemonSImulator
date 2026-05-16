@@ -6035,3 +6035,32 @@ TEST(MoveBehaviorTest, FloralHealingHealsTargetHalfHp) {
     battle.processMoveEffects(&user, &target, floralHealing);
     EXPECT_NEAR(target.getCurrentHP(), 1 + maxHp / 2, 2);
 }
+
+// --- Ability tests (batch 9) ---
+TEST(AbilityDataTest, StenchNameMapsToStenchType) {
+    AbilityData s = getAbilityDataByName("stench");
+    EXPECT_EQ(s.type, AbilityType::Stench);
+    Ability a = getAbility(AbilityType::Stench);
+    EXPECT_TRUE(a.passive.flinchOnHit);
+}
+
+TEST(AbilityDataTest, SteadfastNameMapsToSteadfastType) {
+    AbilityData sf = getAbilityDataByName("steadfast");
+    EXPECT_EQ(sf.type, AbilityType::Steadfast);
+    Ability a = getAbility(AbilityType::Steadfast);
+    EXPECT_TRUE(a.passive.speedBoostWhenFlinched);
+}
+
+// --- Move test ---
+TEST(MoveBehaviorTest, DoodleCopiesOpponentAbility) {
+    Species userSpecies = makeSpecies(9301, "DoodleUser", Type::Normal, Type::Count, AbilityType::None, AbilityType::None);
+    Species targetSpecies = makeSpecies(9302, "DoodleTarget", Type::Normal, Type::Count, AbilityType::Blaze, AbilityType::None);
+    Pokemon user = makePokemon(userSpecies, AbilityType::None);
+    Pokemon target = makePokemon(targetSpecies, AbilityType::Blaze);
+    Side sideA("A"), sideB("B");
+    sideA.addPokemon(&user); sideB.addPokemon(&target);
+    Battle battle(sideA, sideB);
+    Move doodle("Doodle", Type::Normal, Category::Status, 0, 100, 10, MoveEffect::None, 100);
+    battle.processMoveEffects(&user, &target, doodle);
+    EXPECT_EQ(user.getAbility(), AbilityType::Blaze);
+}

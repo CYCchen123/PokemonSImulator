@@ -156,6 +156,11 @@ enum class AbilityType {
     MagmaArmor,
     LiquidOoze,
     SandVeil,
+    Stench,
+    CuteCharm,
+    Steadfast,
+    TangledFeet,
+    Rivalry,
     Count
 };
 
@@ -265,6 +270,11 @@ public:
         bool preventsFreeze = false;
         bool invertsDrainingHeal = false;
         bool boostsEvasionInSand = false;
+        bool flinchOnHit = false;
+        bool infatuatesOnContact = false;
+        bool speedBoostWhenFlinched = false;
+        bool evasionDoubleWhenConfused = false;
+        bool rivalryDamageModifier = false;
 
         float stabBonusMultiplier = 1.5f;
         int statusMovePriorityBonus = 0;
@@ -379,6 +389,11 @@ bool abilityPreventsBurn(AbilityType abilityType);
 bool abilityPreventsFreeze(AbilityType abilityType);
 bool abilityInvertsDrainingHeal(AbilityType abilityType);
 bool abilityBoostsEvasionInSand(AbilityType abilityType);
+bool abilityFlinchOnHit(AbilityType abilityType);
+bool abilityInfatuatesOnContact(AbilityType abilityType);
+bool abilitySpeedBoostWhenFlinched(AbilityType abilityType);
+bool abilityEvasionDoubleWhenConfused(AbilityType abilityType);
+bool abilityRivalryDamageModifier(AbilityType abilityType);
 
 // Convert between ability enum and canonical display name.
 std::string getAbilityName(AbilityType type);

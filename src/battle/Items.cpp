@@ -179,6 +179,11 @@ std::string getItemName(ItemType type) {
         case ItemType::RoseIncense: return "Rose Incense";
         case ItemType::WaveIncense: return "Wave Incense";
         case ItemType::OddIncense: return "Odd Incense";
+        case ItemType::FloatStone: return "Float Stone";
+        case ItemType::RazorClaw: return "Razor Claw";
+        case ItemType::RazorFang: return "Razor Fang";
+        case ItemType::FullIncense: return "Full Incense";
+        case ItemType::SmokeBall: return "Smoke Ball";
         default: return "None";
     }
 }
@@ -1100,6 +1105,31 @@ Item createOddIncense() {
     return item;
 }
 
+Item createFloatStone() {
+    Item item(ItemType::FloatStone, "Float Stone");
+    item.passive.halvesWeight = true;
+    return item;
+}
+Item createRazorClaw() {
+    Item item(ItemType::RazorClaw, "Razor Claw");
+    item.passive.critStageBoost = true;
+    return item;
+}
+Item createRazorFang() {
+    Item item(ItemType::RazorFang, "Razor Fang");
+    item.passive.flinchOnHit = true;
+    return item;
+}
+Item createFullIncense() {
+    Item item(ItemType::FullIncense, "Full Incense");
+    item.passive.alwaysMovesLast = true;
+    return item;
+}
+Item createSmokeBall() {
+    Item item(ItemType::SmokeBall, "Smoke Ball");
+    return item;
+}
+
 Item createChestoBerry() {
     Item item(ItemType::ChestoBerry, "Chesto Berry");
     item.isConsumable = true;
@@ -1513,6 +1543,11 @@ void initializeCoreItems(GameRegistry& registry) {
     reg(ItemType::RoseIncense,   createRoseIncense);
     reg(ItemType::WaveIncense,   createWaveIncense);
     reg(ItemType::OddIncense,    createOddIncense);
+    reg(ItemType::FloatStone,    createFloatStone);
+    reg(ItemType::RazorClaw,     createRazorClaw);
+    reg(ItemType::RazorFang,     createRazorFang);
+    reg(ItemType::FullIncense,   createFullIncense);
+    reg(ItemType::SmokeBall,     createSmokeBall);
 }
 
 // === Item logic helpers ===
@@ -1595,6 +1630,18 @@ bool itemHalvesSpeedAndGrounds(ItemType type) {
 
 bool itemAlwaysMovesLast(ItemType type) {
     return GameRegistry::instance().getItem(type).passive.alwaysMovesLast;
+}
+
+bool itemHalvesWeight(ItemType type) {
+    return GameRegistry::instance().getItem(type).passive.halvesWeight;
+}
+
+bool itemCritStageBoost(ItemType type) {
+    return GameRegistry::instance().getItem(type).passive.critStageBoost;
+}
+
+bool itemFlinchOnHit(ItemType type) {
+    return GameRegistry::instance().getItem(type).passive.flinchOnHit;
 }
 
 bool tryQuickClawActivation(ItemType type, int& priority) {

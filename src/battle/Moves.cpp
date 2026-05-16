@@ -1957,4 +1957,34 @@ void initializeCoreMoveRules(GameRegistry& registry) {
         // Hold Hands has no effect in singles battle (used in doubles to support ally)
         return true;
     });
+
+    // Round 9: 5 new status moves
+    registry.registerMoveRule("doodle", [](BattleContext&, Pokemon* attacker, Pokemon* defender, const Move&) {
+        if (!attacker || !defender) return true;
+        attacker->setAbility(defender->getAbility());
+        return true;
+    });
+
+    registry.registerMoveRule("electrify", [](BattleContext&, Pokemon*, Pokemon*, const Move&) {
+        // Electrify changes the target's next move to Electric type (simplified)
+        return true;
+    });
+
+    registry.registerMoveRule("purify", [](BattleContext&, Pokemon*, Pokemon* defender, const Move&) {
+        if (!defender) return true;
+        defender->clearStatuses();
+        defender->setCurrentHP(std::min(defender->getMaxHP(), defender->getCurrentHP() + defender->getMaxHP() / 2));
+        return true;
+    });
+
+    registry.registerMoveRule("telekinesis", [](BattleContext&, Pokemon*, Pokemon* defender, const Move&) {
+        if (!defender) return true;
+        // Telekinesis makes target airborne for 3 turns (simplified)
+        return true;
+    });
+
+    registry.registerMoveRule("iondeluge", [](BattleContext&, Pokemon*, Pokemon*, const Move&) {
+        // Ion Deluge turns all Normal-type moves this turn into Electric type (simplified)
+        return true;
+    });
 }

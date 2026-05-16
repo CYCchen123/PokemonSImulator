@@ -1,7 +1,8 @@
 {
   "descriptions": [
-    "Test Pokemon 上场了（初始上场）。",
-    "Test Pokemon 上场了（初始上场）。"
+    "BatteryHolder 上场了（初始上场）。",
+    "BatteryHolder 上场了（初始上场）。",
+    "BatteryHolder 受到了道具 Cell Battery 的效果。"
   ],
   "turn": 1,
   "battle": {
@@ -13,24 +14,24 @@
       {
         "active": 0,
         "count": 1,
-        "name": "Player",
+        "name": "A",
         "pokemons": [
           {
             "abilityId": 16,
-            "fainted": true,
-            "hp": 0,
+            "fainted": false,
+            "hp": 157,
             "inBattleStatus": [],
-            "itemId": 194,
+            "itemId": 0,
             "maxHp": 175,
             "moves": [],
             "slot": 0,
-            "speciesId": 1,
+            "speciesId": 9105,
             "statStages": [
               1,
-              1,
-              1,
-              1,
-              1,
+              0,
+              0,
+              0,
+              0,
               0,
               0
             ],
@@ -56,18 +57,18 @@
       {
         "active": 0,
         "count": 1,
-        "name": "Opponent",
+        "name": "B",
         "pokemons": [
           {
             "abilityId": 16,
             "fainted": false,
-            "hp": 1,
+            "hp": 175,
             "inBattleStatus": [],
             "itemId": 0,
             "maxHp": 175,
             "moves": [],
             "slot": 0,
-            "speciesId": 1,
+            "speciesId": 9105,
             "statStages": [
               0,
               0,
@@ -105,34 +106,54 @@
   },
   "events": [
     {
-      "description": "Test Pokemon 上场了（初始上场）。",
+      "description": "BatteryHolder 上场了（初始上场）。",
       "details": {
-        "pokemon": "Test Pokemon",
+        "pokemon": "BatteryHolder",
         "pokemon_ref": {
           "pokemon_index": 0,
           "side_index": 0
         },
         "reason": "initial_send_out",
-        "side": "Player",
+        "side": "A",
         "side_index": 0
       },
       "timeline_index": 0,
       "turn_index": 0
     },
     {
-      "description": "Test Pokemon 上场了（初始上场）。",
+      "description": "BatteryHolder 上场了（初始上场）。",
       "details": {
-        "pokemon": "Test Pokemon",
+        "pokemon": "BatteryHolder",
         "pokemon_ref": {
           "pokemon_index": 0,
           "side_index": 0
         },
         "reason": "initial_send_out",
-        "side": "Opponent",
+        "side": "B",
         "side_index": 1
       },
       "timeline_index": 1,
       "turn_index": 0
+    },
+    {
+      "description": "BatteryHolder 受到了道具 Cell Battery 的效果。",
+      "details": {
+        "item": "Cell Battery",
+        "item_index": 589,
+        "opponent": "BatteryHolder",
+        "opponent_ref": {
+          "pokemon_index": 0,
+          "side_index": 0
+        },
+        "pokemon": "BatteryHolder",
+        "pokemon_ref": {
+          "pokemon_index": 0,
+          "side_index": 0
+        },
+        "trigger": "on_damage"
+      },
+      "timeline_index": 2,
+      "turn_index": 1
     }
   ]
 }

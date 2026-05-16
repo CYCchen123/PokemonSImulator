@@ -209,6 +209,11 @@ enum class ItemType {
     RoseIncense,
     WaveIncense,
     OddIncense,
+    FloatStone,
+    RazorClaw,
+    RazorFang,
+    FullIncense,
+    SmokeBall,
 
     Count
 };
@@ -320,6 +325,9 @@ public:
         bool ensuresCanSwitch = false;         // ShedShell
         bool halvesSpeedAndGrounds = false;    // IronBall
         bool alwaysMovesLast = false;          // LaggingTail
+        bool halvesWeight = false;             // FloatStone
+        bool critStageBoost = false;           // RazorClaw
+        bool flinchOnHit = false;              // RazorFang
     } passive;
     
     // 6. 一次性使用标记
@@ -567,6 +575,11 @@ Item createLaggingTail();
 Item createRoseIncense();
 Item createWaveIncense();
 Item createOddIncense();
+Item createFloatStone();
+Item createRazorClaw();
+Item createRazorFang();
+Item createFullIncense();
+Item createSmokeBall();
 
 // 辅助函数
 std::string getItemName(ItemType type);
@@ -603,6 +616,9 @@ bool itemExtendsTrappingMoves(ItemType type);
 bool itemEnsuresCanSwitch(ItemType type);
 bool itemHalvesSpeedAndGrounds(ItemType type);
 bool itemAlwaysMovesLast(ItemType type);
+bool itemHalvesWeight(ItemType type);
+bool itemCritStageBoost(ItemType type);
+bool itemFlinchOnHit(ItemType type);
 
 // Quick Claw: 20% chance to move first; modifies priority in-place, returns true if activated
 bool tryQuickClawActivation(ItemType type, int& priority);

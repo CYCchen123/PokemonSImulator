@@ -260,6 +260,11 @@ std::string getAbilityName(AbilityType type) {
         case AbilityType::MagmaArmor: return "Magma Armor";
         case AbilityType::LiquidOoze: return "Liquid Ooze";
         case AbilityType::SandVeil: return "Sand Veil";
+        case AbilityType::Stench: return "Stench";
+        case AbilityType::CuteCharm: return "Cute Charm";
+        case AbilityType::Steadfast: return "Steadfast";
+        case AbilityType::TangledFeet: return "Tangled Feet";
+        case AbilityType::Rivalry: return "Rivalry";
         default: return "None";
     }
 }
@@ -406,6 +411,11 @@ AbilityType getAbilityTypeByName(const std::string& name) {
     if (key == "magmaarmor") return AbilityType::MagmaArmor;
     if (key == "liquidooze") return AbilityType::LiquidOoze;
     if (key == "sandveil") return AbilityType::SandVeil;
+    if (key == "stench") return AbilityType::Stench;
+    if (key == "cutecharm") return AbilityType::CuteCharm;
+    if (key == "steadfast") return AbilityType::Steadfast;
+    if (key == "tangledfeet") return AbilityType::TangledFeet;
+    if (key == "rivalry") return AbilityType::Rivalry;
     return AbilityType::None;
 }
 
@@ -680,6 +690,26 @@ bool abilityInvertsDrainingHeal(AbilityType abilityType) {
 
 bool abilityBoostsEvasionInSand(AbilityType abilityType) {
     return GameRegistry::instance().getAbility(abilityType).passive.boostsEvasionInSand;
+}
+
+bool abilityFlinchOnHit(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.flinchOnHit;
+}
+
+bool abilityInfatuatesOnContact(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.infatuatesOnContact;
+}
+
+bool abilitySpeedBoostWhenFlinched(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.speedBoostWhenFlinched;
+}
+
+bool abilityEvasionDoubleWhenConfused(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.evasionDoubleWhenConfused;
+}
+
+bool abilityRivalryDamageModifier(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.rivalryDamageModifier;
 }
 
 std::string abilityTypeImmunityEventReason(AbilityType abilityType) {
@@ -1428,6 +1458,21 @@ void initializeCoreAbilities(GameRegistry& registry) {
 
     // Sand Veil: evasion boosted in sandstorm
     regPassive(AbilityType::SandVeil, [](auto& p) { p.boostsEvasionInSand = true; });
+
+    // Stench: 10% flinch chance on damaging moves
+    regPassive(AbilityType::Stench, [](auto& p) { p.flinchOnHit = true; });
+
+    // Cute Charm: 30% infatuation on contact
+    regPassive(AbilityType::CuteCharm, [](auto& p) { p.infatuatesOnContact = true; });
+
+    // Steadfast: +1 Speed when flinched
+    regPassive(AbilityType::Steadfast, [](auto& p) { p.speedBoostWhenFlinched = true; });
+
+    // Tangled Feet: evasion doubled when confused
+    regPassive(AbilityType::TangledFeet, [](auto& p) { p.evasionDoubleWhenConfused = true; });
+
+    // Rivalry: +/-25% damage based on gender
+    regPassive(AbilityType::Rivalry, [](auto& p) { p.rivalryDamageModifier = true; });
 }
 
 std::vector<Ability> getAbilitiesForPokemon(AbilityType type) {
