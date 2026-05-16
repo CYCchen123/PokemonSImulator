@@ -12,12 +12,16 @@
 
 namespace {
 const std::set<std::string> kImplementedStatusNameRules = {
+    "afteryou",
     "batonpass",
     "encore",
     "flash",
+    "gastroacid",
     "haze",
+    "laserfocus",
     "leechseed",
     "lightscreen",
+    "magicroom",
     "milkdrink",
     "reflect",
     "sandattack",
@@ -31,6 +35,8 @@ const std::set<std::string> kImplementedStatusNameRules = {
     "sweetscent",
     "switcheroo",
     "guardswap",
+    "wonderroom",
+    "worryseed",
 };
 
 std::string toLower(std::string value) {

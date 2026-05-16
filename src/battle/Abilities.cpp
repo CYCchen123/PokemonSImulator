@@ -234,6 +234,11 @@ std::string getAbilityName(AbilityType type) {
         case AbilityType::ShedSkin: return "Shed Skin";
         case AbilityType::MagicBounce: return "Magic Bounce";
         case AbilityType::Hustle: return "Hustle";
+        case AbilityType::Pressure: return "Pressure";
+        case AbilityType::WonderGuard: return "Wonder Guard";
+        case AbilityType::ShadowTag: return "Shadow Tag";
+        case AbilityType::LightningRod: return "Lightning Rod";
+        case AbilityType::Soundproof: return "Soundproof";
         default: return "None";
     }
 }
@@ -354,6 +359,11 @@ AbilityType getAbilityTypeByName(const std::string& name) {
     if (key == "shedskin") return AbilityType::ShedSkin;
     if (key == "magicbounce") return AbilityType::MagicBounce;
     if (key == "hustle") return AbilityType::Hustle;
+    if (key == "pressure") return AbilityType::Pressure;
+    if (key == "wonderguard") return AbilityType::WonderGuard;
+    if (key == "shadowtag") return AbilityType::ShadowTag;
+    if (key == "lightningrod") return AbilityType::LightningRod;
+    if (key == "soundproof") return AbilityType::Soundproof;
     return AbilityType::None;
 }
 
@@ -529,6 +539,26 @@ bool abilityReflectsStatusMoves(AbilityType abilityType) {
     return GameRegistry::instance().getAbility(abilityType).passive.reflectsStatusMoves;
 }
 
+bool abilityDrainsOpponentPP(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.drainsOpponentPP;
+}
+
+bool abilityHasWonderGuard(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.wonderGuard;
+}
+
+bool abilityTrapsOpponent(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.trapsOpponent;
+}
+
+bool abilityRedirectsElectricMoves(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.redirectsElectricMoves;
+}
+
+bool abilityBlocksSoundMoves(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.blocksSoundMoves;
+}
+
 std::string abilityTypeImmunityEventReason(AbilityType abilityType) {
     if (abilityType == AbilityType::WaterAbsorb) return "water_absorb";
     if (abilityType == AbilityType::VoltAbsorb) return "volt_absorb";
@@ -693,6 +723,22 @@ bool isBallBombMove(const Move& move) {
         || key == "pyroball" || key == "rockblast" || key == "rockwrecker"
         || key == "seedbomb" || key == "secretsword" || key == "shadowball"
         || key == "sludgebomb" || key == "weatherball" || key == "zapcannon";
+}
+
+bool isSoundMove(const Move& move) {
+    const std::string key = normalizeToken(move.getName());
+    return key == "boomburst" || key == "bugbuzz" || key == "chatter"
+        || key == "clangoroussoul" || key == "clangoroussoulblaze" || key == "confide"
+        || key == "disarmingvoice" || key == "echoedvoice" || key == "fairywind"
+        || key == "grasswhistle" || key == "growl" || key == "healbell"
+        || key == "howl" || key == "hypervoice" || key == "metalvoice"
+        || key == "nobleroar" || key == "overdrive" || key == "partingshot"
+        || key == "perishsong" || key == "psychicnoise" || key == "relicsong"
+        || key == "roar" || key == "round" || key == "screech"
+        || key == "shadowpanis" || key == "sing" || key == "snarl"
+        || key == "snore" || key == "sparklingaria" || key == "supersonic"
+        || key == "torchsong" || key == "uproar" || key == "yawn"
+        || key == "throatchop";
 }
 }
 
@@ -1159,6 +1205,31 @@ void initializeCoreAbilities(GameRegistry& registry) {
     regPassive(AbilityType::SupremeOverlord, [](auto& p) {});
     regPassive(AbilityType::Steelworker, [](auto& p) {});
     regPassive(AbilityType::Bulletproof, [](auto& p) {});
+
+    // Pressure: opponent loses 1 extra PP when targeting this Pokemon
+    regPassive(AbilityType::Pressure, [](auto& p) { p.drainsOpponentPP = true; });
+
+    // Wonder Guard: only hit by super-effective moves (checked in damage calc)
+    regPassive(AbilityType::WonderGuard, [](auto& p) { p.wonderGuard = true; });
+
+    // Shadow Tag: prevents opponent from switching out
+    registry.registerAbilityBuilder(AbilityType::ShadowTag,
+        [](Ability& a, AddTypeImmunity, AddStatusImmunity) {
+            a.passive.trapsOpponent = true;
+        });
+
+    // Lightning Rod: redirects Electric moves, boosts SpAtk
+    registry.registerAbilityBuilder(AbilityType::LightningRod,
+        [](Ability& a, AddTypeImmunity addT, AddStatusImmunity) {
+            a.passive.redirectsElectricMoves = true;
+            addT(Type::Electric, false, 0);
+        });
+
+    // Soundproof: immune to sound-based moves
+    registry.registerAbilityBuilder(AbilityType::Soundproof,
+        [](Ability& a, AddTypeImmunity, AddStatusImmunity) {
+            a.passive.blocksSoundMoves = true;
+        });
 }
 
 std::vector<Ability> getAbilitiesForPokemon(AbilityType type) {

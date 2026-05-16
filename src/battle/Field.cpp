@@ -12,6 +12,8 @@ void Field::tick() {
             type = FieldType::None;
         }
     }
+    if (magicRoomTurns > 0) --magicRoomTurns;
+    if (wonderRoomTurns > 0) --wonderRoomTurns;
 }
 
 bool Field::isActive() const {

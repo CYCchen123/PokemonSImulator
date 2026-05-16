@@ -130,6 +130,11 @@ enum class AbilityType {
     ShedSkin,
     MagicBounce,
     Hustle,
+    Pressure,
+    WonderGuard,
+    ShadowTag,
+    LightningRod,
+    Soundproof,
     Count
 };
 
@@ -215,6 +220,11 @@ public:
         bool sturdyEndure = false;
         bool blocksCriticalHits = false;
         bool reflectsStatusMoves = false;
+        bool drainsOpponentPP = false;
+        bool wonderGuard = false;
+        bool trapsOpponent = false;
+        bool redirectsElectricMoves = false;
+        bool blocksSoundMoves = false;
 
         float stabBonusMultiplier = 1.5f;
         int statusMovePriorityBonus = 0;
@@ -304,6 +314,11 @@ bool abilityPreventsTaunt(AbilityType abilityType);
 bool abilityPreventsInfatuation(AbilityType abilityType);
 bool abilityBlocksCriticalHits(AbilityType abilityType);
 bool abilityReflectsStatusMoves(AbilityType abilityType);
+bool abilityDrainsOpponentPP(AbilityType abilityType);
+bool abilityHasWonderGuard(AbilityType abilityType);
+bool abilityTrapsOpponent(AbilityType abilityType);
+bool abilityRedirectsElectricMoves(AbilityType abilityType);
+bool abilityBlocksSoundMoves(AbilityType abilityType);
 
 // Convert between ability enum and canonical display name.
 std::string getAbilityName(AbilityType type);

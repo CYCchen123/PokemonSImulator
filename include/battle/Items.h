@@ -184,6 +184,11 @@ enum class ItemType {
     HeatRock,
     IcyRock,
     SmoothRock,
+    BrightPowder,
+    FocusBand,
+    CustapBerry,
+    EnigmaBerry,
+    BindingBand,
 
     Count
 };
@@ -286,6 +291,11 @@ public:
         bool extendsScreens = false;           // LightClay
         bool blocksWeatherPowder = false;      // SafetyGoggles
         bool extendsWeather = false;           // Weather Rocks
+        bool hasFocusBand = false;             // FocusBand
+        bool hasCustapBerry = false;           // CustapBerry
+        float evasionBoost = 1.0f;             // BrightPowder
+        bool healsOnSuperEffective = false;    // EnigmaBerry
+        bool boostsBindingMoves = false;       // BindingBand
     } passive;
     
     // 6. 一次性使用标记
@@ -508,6 +518,11 @@ Item createDampRock();
 Item createHeatRock();
 Item createIcyRock();
 Item createSmoothRock();
+Item createBrightPowder();
+Item createFocusBand();
+Item createCustapBerry();
+Item createEnigmaBerry();
+Item createBindingBand();
 
 // 辅助函数
 std::string getItemName(ItemType type);
@@ -535,6 +550,11 @@ bool itemIgnoresWeather(ItemType type);
 bool itemExtendsScreens(ItemType type);
 bool itemBlocksWeatherPowder(ItemType type);
 bool itemExtendsWeather(ItemType type);
+bool itemHasFocusBand(ItemType type);
+bool itemHasCustapBerry(ItemType type);
+float itemEvasionBoost(ItemType type);
+bool itemHealsOnSuperEffective(ItemType type);
+bool itemBoostsBindingMoves(ItemType type);
 
 // Quick Claw: 20% chance to move first; modifies priority in-place, returns true if activated
 bool tryQuickClawActivation(ItemType type, int& priority);

@@ -154,6 +154,11 @@ std::string getItemName(ItemType type) {
         case ItemType::HeatRock: return "Heat Rock";
         case ItemType::IcyRock: return "Icy Rock";
         case ItemType::SmoothRock: return "Smooth Rock";
+        case ItemType::BrightPowder: return "Bright Powder";
+        case ItemType::FocusBand: return "Focus Band";
+        case ItemType::CustapBerry: return "Custap Berry";
+        case ItemType::EnigmaBerry: return "Enigma Berry";
+        case ItemType::BindingBand: return "Binding Band";
         default: return "None";
     }
 }
@@ -889,6 +894,38 @@ Item createSmoothRock() {
     return item;
 }
 
+Item createBrightPowder() {
+    Item item(ItemType::BrightPowder, "Bright Powder");
+    item.passive.evasionBoost = 1.111f;
+    return item;
+}
+
+Item createFocusBand() {
+    Item item(ItemType::FocusBand, "Focus Band");
+    item.passive.hasFocusBand = true;
+    return item;
+}
+
+Item createCustapBerry() {
+    Item item(ItemType::CustapBerry, "Custap Berry");
+    item.isConsumable = true;
+    item.passive.hasCustapBerry = true;
+    return item;
+}
+
+Item createEnigmaBerry() {
+    Item item(ItemType::EnigmaBerry, "Enigma Berry");
+    item.isConsumable = true;
+    item.passive.healsOnSuperEffective = true;
+    return item;
+}
+
+Item createBindingBand() {
+    Item item(ItemType::BindingBand, "Binding Band");
+    item.passive.boostsBindingMoves = true;
+    return item;
+}
+
 Item createChestoBerry() {
     Item item(ItemType::ChestoBerry, "Chesto Berry");
     item.isConsumable = true;
@@ -1277,6 +1314,11 @@ void initializeCoreItems(GameRegistry& registry) {
     reg(ItemType::HeatRock,        createHeatRock);
     reg(ItemType::IcyRock,         createIcyRock);
     reg(ItemType::SmoothRock,      createSmoothRock);
+    reg(ItemType::BrightPowder,   createBrightPowder);
+    reg(ItemType::FocusBand,      createFocusBand);
+    reg(ItemType::CustapBerry,    createCustapBerry);
+    reg(ItemType::EnigmaBerry,    createEnigmaBerry);
+    reg(ItemType::BindingBand,    createBindingBand);
 }
 
 // === Item logic helpers ===
@@ -1323,6 +1365,26 @@ bool itemBlocksWeatherPowder(ItemType type) {
 
 bool itemExtendsWeather(ItemType type) {
     return GameRegistry::instance().getItem(type).passive.extendsWeather;
+}
+
+bool itemHasFocusBand(ItemType type) {
+    return GameRegistry::instance().getItem(type).passive.hasFocusBand;
+}
+
+bool itemHasCustapBerry(ItemType type) {
+    return GameRegistry::instance().getItem(type).passive.hasCustapBerry;
+}
+
+float itemEvasionBoost(ItemType type) {
+    return GameRegistry::instance().getItem(type).passive.evasionBoost;
+}
+
+bool itemHealsOnSuperEffective(ItemType type) {
+    return GameRegistry::instance().getItem(type).passive.healsOnSuperEffective;
+}
+
+bool itemBoostsBindingMoves(ItemType type) {
+    return GameRegistry::instance().getItem(type).passive.boostsBindingMoves;
 }
 
 bool tryQuickClawActivation(ItemType type, int& priority) {

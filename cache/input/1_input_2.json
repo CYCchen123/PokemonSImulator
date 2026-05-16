@@ -1,5 +1,5 @@
 {
-  "move_index": 0,
   "side": "a",
-  "type": "attack"
+  "target_index": 1,
+  "type": "switch"
 }

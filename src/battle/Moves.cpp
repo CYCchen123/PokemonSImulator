@@ -1786,4 +1786,35 @@ void initializeCoreMoveRules(GameRegistry& registry) {
         ctx.getRuntimeMoveState().afterYouTarget = defender;
         return true;
     });
+
+    // Round 4: 5 new status moves
+    registry.registerMoveRule("gastroacid", [](BattleContext&, Pokemon*, Pokemon* defender, const Move&) {
+        if (!defender) return true;
+        // Suppress target's ability
+        defender->setAbility(AbilityType::None);
+        return true;
+    });
+
+    registry.registerMoveRule("worryseed", [](BattleContext&, Pokemon*, Pokemon* defender, const Move&) {
+        if (!defender) return true;
+        // Change target's ability to Insomnia
+        defender->setAbility(AbilityType::Insomnia);
+        return true;
+    });
+
+    registry.registerMoveRule("magicroom", [](BattleContext& ctx, Pokemon*, Pokemon*, const Move&) {
+        ctx.getField().setMagicRoomTurns(5);
+        return true;
+    });
+
+    registry.registerMoveRule("wonderroom", [](BattleContext& ctx, Pokemon*, Pokemon*, const Move&) {
+        ctx.getField().setWonderRoomTurns(5);
+        return true;
+    });
+
+    registry.registerMoveRule("laserfocus", [](BattleContext& ctx, Pokemon* attacker, Pokemon*, const Move&) {
+        if (!attacker) return true;
+        ctx.getRuntimeMoveState().criticalHitStage[attacker] = 4;
+        return true;
+    });
 }
