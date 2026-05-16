@@ -146,6 +146,11 @@ enum class AbilityType {
     ArenaTrap,
     RainDish,
     StickyHold,
+    Damp,
+    EarlyBird,
+    Unburden,
+    AngerPoint,
+    Gluttony,
     Count
 };
 
@@ -245,6 +250,11 @@ public:
         bool trapsGrounded = false;
         bool healsInRain = false;
         bool preventsItemLoss = false;
+        bool preventsExplosion = false;
+        bool halvesSleepTurns = false;
+        bool speedDoubledWithoutItem = false;
+        bool attackMaxedOnCrit = false;
+        bool earlyBerryConsumption = false;
 
         float stabBonusMultiplier = 1.5f;
         int statusMovePriorityBonus = 0;
@@ -349,6 +359,11 @@ bool abilityTrapsSteelTypes(AbilityType abilityType);
 bool abilityTrapsGrounded(AbilityType abilityType);
 bool abilityHealsInRain(AbilityType abilityType);
 bool abilityPreventsItemLoss(AbilityType abilityType);
+bool abilityPreventsExplosion(AbilityType abilityType);
+bool abilityHalvesSleepTurns(AbilityType abilityType);
+bool abilitySpeedDoubledWithoutItem(AbilityType abilityType);
+bool abilityAttackMaxedOnCrit(AbilityType abilityType);
+bool abilityEarlyBerryConsumption(AbilityType abilityType);
 
 // Convert between ability enum and canonical display name.
 std::string getAbilityName(AbilityType type);

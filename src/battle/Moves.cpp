@@ -1881,4 +1881,40 @@ void initializeCoreMoveRules(GameRegistry& registry) {
         attacker->changeStatStage(StatIndex::Speed, 1);
         return true;
     });
+
+    // Round 7: 5 new status moves
+    registry.registerMoveRule("healorder", [](BattleContext&, Pokemon* attacker, Pokemon*, const Move&) {
+        if (!attacker) return true;
+        attacker->setCurrentHP(std::min(attacker->getMaxHP(), attacker->getCurrentHP() + attacker->getMaxHP() / 2));
+        return true;
+    });
+
+    registry.registerMoveRule("defendorder", [](BattleContext&, Pokemon* attacker, Pokemon*, const Move&) {
+        if (!attacker) return true;
+        attacker->changeStatStage(StatIndex::Defense, 1);
+        attacker->changeStatStage(StatIndex::SpecialDefense, 1);
+        return true;
+    });
+
+    registry.registerMoveRule("attackorder", [](BattleContext&, Pokemon* attacker, Pokemon*, const Move&) {
+        if (!attacker) return true;
+        attacker->changeStatStage(StatIndex::Attack, 1);
+        attacker->changeStatStage(StatIndex::SpecialAttack, 1);
+        return true;
+    });
+
+    registry.registerMoveRule("quash", [](BattleContext& ctx, Pokemon*, Pokemon* defender, const Move&) {
+        if (!defender) return true;
+        ctx.getRuntimeMoveState().afterYouTarget = defender; // reuse afterYouTarget for quash (target moves last)
+        return true;
+    });
+
+    registry.registerMoveRule("bestow", [](BattleContext&, Pokemon* attacker, Pokemon* defender, const Move&) {
+        if (!attacker || !defender) return true;
+        if (attacker->getItemType() != ItemType::None && defender->getItemType() == ItemType::None) {
+            defender->setItemType(attacker->getItemType());
+            attacker->removeItem();
+        }
+        return true;
+    });
 }

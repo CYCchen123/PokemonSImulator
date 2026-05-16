@@ -5873,3 +5873,114 @@ TEST(BattleFlowIntegrationTest, ThreeVThreeTwoMovesThenSwitchSimulation) {
         BattleToJson::battleAllInfoToJson(battle),
         "output_" + std::to_string(battle.getTurnNumber()) + ".json");
 }
+
+// --- New ability registration tests ---
+TEST(AbilityDataTest, DampNameMapsToDampType) {
+    AbilityData damp = getAbilityDataByName("damp");
+    EXPECT_EQ(damp.type, AbilityType::Damp);
+    EXPECT_FALSE(damp.name.empty());
+    Ability a = getAbility(AbilityType::Damp);
+    EXPECT_TRUE(a.passive.preventsExplosion);
+}
+
+TEST(AbilityDataTest, EarlyBirdNameMapsToEarlyBirdType) {
+    AbilityData eb = getAbilityDataByName("early-bird");
+    EXPECT_EQ(eb.type, AbilityType::EarlyBird);
+    Ability a = getAbility(AbilityType::EarlyBird);
+    EXPECT_TRUE(a.passive.halvesSleepTurns);
+}
+
+TEST(AbilityDataTest, UnburdenNameMapsToUnburdenType) {
+    AbilityData ub = getAbilityDataByName("unburden");
+    EXPECT_EQ(ub.type, AbilityType::Unburden);
+    Ability a = getAbility(AbilityType::Unburden);
+    EXPECT_TRUE(a.passive.speedDoubledWithoutItem);
+}
+
+TEST(AbilityDataTest, AngerPointNameMapsToAngerPointType) {
+    AbilityData ap = getAbilityDataByName("anger-point");
+    EXPECT_EQ(ap.type, AbilityType::AngerPoint);
+    Ability a = getAbility(AbilityType::AngerPoint);
+    EXPECT_TRUE(a.passive.attackMaxedOnCrit);
+}
+
+TEST(AbilityDataTest, GluttonyNameMapsToGluttonyType) {
+    AbilityData gl = getAbilityDataByName("gluttony");
+    EXPECT_EQ(gl.type, AbilityType::Gluttony);
+    Ability a = getAbility(AbilityType::Gluttony);
+    EXPECT_TRUE(a.passive.earlyBerryConsumption);
+}
+
+// --- New move behavior tests ---
+TEST(MoveBehaviorTest, HealOrderHealsUserByHalfMaxHp) {
+    Species species = makeSpecies(9101, "Healer", Type::Bug, Type::Count, AbilityType::None, AbilityType::None);
+    Pokemon source = makePokemon(species, AbilityType::None);
+    Pokemon target = makePokemon(species, AbilityType::None);
+    source.setCurrentHP(1);
+    int maxHp = source.getMaxHP();
+    Side sideA("A"), sideB("B");
+    sideA.addPokemon(&source); sideB.addPokemon(&target);
+    Battle battle(sideA, sideB);
+    Move healOrder("Heal Order", Type::Bug, Category::Status, 0, 100, 10, MoveEffect::None, 100);
+    battle.processMoveEffects(&source, &target, healOrder);
+    EXPECT_NEAR(source.getCurrentHP(), 1 + maxHp / 2, 2);
+}
+
+TEST(MoveBehaviorTest, DefendOrderBoostsBothDefenses) {
+    Species species = makeSpecies(9102, "Defender", Type::Bug, Type::Count, AbilityType::None, AbilityType::None);
+    Pokemon source = makePokemon(species, AbilityType::None);
+    Pokemon target = makePokemon(species, AbilityType::None);
+    Side sideA("A"), sideB("B");
+    sideA.addPokemon(&source); sideB.addPokemon(&target);
+    Battle battle(sideA, sideB);
+    Move defendOrder("Defend Order", Type::Bug, Category::Status, 0, 100, 10, MoveEffect::None, 100);
+    battle.processMoveEffects(&source, &target, defendOrder);
+    EXPECT_EQ(source.getStatStage(StatIndex::Defense), 1);
+    EXPECT_EQ(source.getStatStage(StatIndex::SpecialDefense), 1);
+}
+
+TEST(MoveBehaviorTest, AttackOrderBoostsBothOffenses) {
+    Species species = makeSpecies(9103, "Attacker", Type::Bug, Type::Count, AbilityType::None, AbilityType::None);
+    Pokemon source = makePokemon(species, AbilityType::None);
+    Pokemon target = makePokemon(species, AbilityType::None);
+    Side sideA("A"), sideB("B");
+    sideA.addPokemon(&source); sideB.addPokemon(&target);
+    Battle battle(sideA, sideB);
+    Move attackOrder("Attack Order", Type::Bug, Category::Status, 0, 100, 10, MoveEffect::None, 100);
+    battle.processMoveEffects(&source, &target, attackOrder);
+    EXPECT_EQ(source.getStatStage(StatIndex::Attack), 1);
+    EXPECT_EQ(source.getStatStage(StatIndex::SpecialAttack), 1);
+}
+
+// --- New item registration tests ---
+TEST(ItemDataTest, AbsorbBulbBoostsSpAtkOnWaterHit) {
+    Species species = makeSpecies(9104, "BulbHolder", Type::Normal, Type::Count, AbilityType::None, AbilityType::None);
+    Pokemon source = makePokemon(species, AbilityType::None);
+    Pokemon target = makePokemon(species, AbilityType::None);
+    source.holdItem(ItemType::AbsorbBulb);
+    Side sideA("A"), sideB("B");
+    sideA.addPokemon(&source); sideB.addPokemon(&target);
+    Battle battle(sideA, sideB);
+    EXPECT_EQ(source.getItemType(), ItemType::AbsorbBulb);
+    Move waterGun = createMoveByName("Water Gun");
+    battle.enqueueAction(BattleAction::makeAttack(&target, &source, waterGun));
+    battle.processTurn();
+    // After being hit by Water Gun, SpAtk should be +1 and item consumed
+    EXPECT_EQ(source.getStatStage(StatIndex::SpecialAttack), 1);
+    EXPECT_EQ(source.getItemType(), ItemType::None);
+}
+
+TEST(ItemDataTest, CellBatteryBoostsAtkOnElectricHit) {
+    Species species = makeSpecies(9105, "BatteryHolder", Type::Normal, Type::Count, AbilityType::None, AbilityType::None);
+    Pokemon source = makePokemon(species, AbilityType::None);
+    Pokemon target = makePokemon(species, AbilityType::None);
+    source.holdItem(ItemType::CellBattery);
+    Side sideA("A"), sideB("B");
+    sideA.addPokemon(&source); sideB.addPokemon(&target);
+    Battle battle(sideA, sideB);
+    Move thunderShock = createMoveByName("Thunder Shock");
+    battle.enqueueAction(BattleAction::makeAttack(&target, &source, thunderShock));
+    battle.processTurn();
+    EXPECT_EQ(source.getStatStage(StatIndex::Attack), 1);
+    EXPECT_EQ(source.getItemType(), ItemType::None);
+}

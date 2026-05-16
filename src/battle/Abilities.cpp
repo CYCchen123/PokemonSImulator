@@ -250,6 +250,11 @@ std::string getAbilityName(AbilityType type) {
         case AbilityType::ArenaTrap: return "Arena Trap";
         case AbilityType::RainDish: return "Rain Dish";
         case AbilityType::StickyHold: return "Sticky Hold";
+        case AbilityType::Damp: return "Damp";
+        case AbilityType::EarlyBird: return "Early Bird";
+        case AbilityType::Unburden: return "Unburden";
+        case AbilityType::AngerPoint: return "Anger Point";
+        case AbilityType::Gluttony: return "Gluttony";
         default: return "None";
     }
 }
@@ -386,6 +391,11 @@ AbilityType getAbilityTypeByName(const std::string& name) {
     if (key == "arenatrap") return AbilityType::ArenaTrap;
     if (key == "raindish") return AbilityType::RainDish;
     if (key == "stickyhold") return AbilityType::StickyHold;
+    if (key == "damp") return AbilityType::Damp;
+    if (key == "earlybird") return AbilityType::EarlyBird;
+    if (key == "unburden") return AbilityType::Unburden;
+    if (key == "angerpoint") return AbilityType::AngerPoint;
+    if (key == "gluttony") return AbilityType::Gluttony;
     return AbilityType::None;
 }
 
@@ -620,6 +630,26 @@ bool abilityHealsInRain(AbilityType abilityType) {
 
 bool abilityPreventsItemLoss(AbilityType abilityType) {
     return GameRegistry::instance().getAbility(abilityType).passive.preventsItemLoss;
+}
+
+bool abilityPreventsExplosion(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.preventsExplosion;
+}
+
+bool abilityHalvesSleepTurns(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.halvesSleepTurns;
+}
+
+bool abilitySpeedDoubledWithoutItem(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.speedDoubledWithoutItem;
+}
+
+bool abilityAttackMaxedOnCrit(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.attackMaxedOnCrit;
+}
+
+bool abilityEarlyBerryConsumption(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.earlyBerryConsumption;
 }
 
 std::string abilityTypeImmunityEventReason(AbilityType abilityType) {
@@ -1329,6 +1359,21 @@ void initializeCoreAbilities(GameRegistry& registry) {
 
     // Sticky Hold: prevents item loss
     regPassive(AbilityType::StickyHold, [](auto& p) { p.preventsItemLoss = true; });
+
+    // Damp: prevents SelfDestruct and Explosion
+    regPassive(AbilityType::Damp, [](auto& p) { p.preventsExplosion = true; });
+
+    // Early Bird: halves sleep duration
+    regPassive(AbilityType::EarlyBird, [](auto& p) { p.halvesSleepTurns = true; });
+
+    // Unburden: doubles Speed when item is consumed/lost
+    regPassive(AbilityType::Unburden, [](auto& p) { p.speedDoubledWithoutItem = true; });
+
+    // Anger Point: maxes Attack when hit by a critical hit
+    regPassive(AbilityType::AngerPoint, [](auto& p) { p.attackMaxedOnCrit = true; });
+
+    // Gluttony: consumes pinch berries at 1/2 HP instead of 1/4
+    regPassive(AbilityType::Gluttony, [](auto& p) { p.earlyBerryConsumption = true; });
 }
 
 std::vector<Ability> getAbilitiesForPokemon(AbilityType type) {

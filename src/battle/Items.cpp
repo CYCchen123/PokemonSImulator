@@ -169,6 +169,11 @@ std::string getItemName(ItemType type) {
         case ItemType::StarfBerry: return "Starf Berry";
         case ItemType::ShedShell: return "Shed Shell";
         case ItemType::GripClaw: return "Grip Claw";
+        case ItemType::IronBall: return "Iron Ball";
+        case ItemType::AbsorbBulb: return "Absorb Bulb";
+        case ItemType::CellBattery: return "Cell Battery";
+        case ItemType::LuminousMoss: return "Luminous Moss";
+        case ItemType::Snowball: return "Snowball";
         default: return "None";
     }
 }
@@ -1022,6 +1027,48 @@ Item createGripClaw() {
     return item;
 }
 
+Item createIronBall() {
+    Item item(ItemType::IronBall, "Iron Ball");
+    item.passive.halvesSpeedAndGrounds = true;
+    return item;
+}
+Item createAbsorbBulb() {
+    Item item(ItemType::AbsorbBulb, "Absorb Bulb");
+    item.isConsumable = true;
+    item.addEffect(ItemTrigger::OnDamage, [](Pokemon* self, Pokemon*, BattleContext&, void* context) {
+        const ItemDamageContext* dc = toDamageContext(context);
+        if (dc && dc->move && dc->move->getType() == Type::Water && dc->damage > 0) { self->changeStatStage(StatIndex::SpecialAttack, 1); self->removeItem(); }
+    });
+    return item;
+}
+Item createCellBattery() {
+    Item item(ItemType::CellBattery, "Cell Battery");
+    item.isConsumable = true;
+    item.addEffect(ItemTrigger::OnDamage, [](Pokemon* self, Pokemon*, BattleContext&, void* context) {
+        const ItemDamageContext* dc = toDamageContext(context);
+        if (dc && dc->move && dc->move->getType() == Type::Electric && dc->damage > 0) { self->changeStatStage(StatIndex::Attack, 1); self->removeItem(); }
+    });
+    return item;
+}
+Item createLuminousMoss() {
+    Item item(ItemType::LuminousMoss, "Luminous Moss");
+    item.isConsumable = true;
+    item.addEffect(ItemTrigger::OnDamage, [](Pokemon* self, Pokemon*, BattleContext&, void* context) {
+        const ItemDamageContext* dc = toDamageContext(context);
+        if (dc && dc->move && dc->move->getType() == Type::Water && dc->damage > 0) { self->changeStatStage(StatIndex::SpecialDefense, 1); self->removeItem(); }
+    });
+    return item;
+}
+Item createSnowball() {
+    Item item(ItemType::Snowball, "Snowball");
+    item.isConsumable = true;
+    item.addEffect(ItemTrigger::OnDamage, [](Pokemon* self, Pokemon*, BattleContext&, void* context) {
+        const ItemDamageContext* dc = toDamageContext(context);
+        if (dc && dc->move && dc->move->getType() == Type::Ice && dc->damage > 0) { self->changeStatStage(StatIndex::Attack, 1); self->removeItem(); }
+    });
+    return item;
+}
+
 Item createChestoBerry() {
     Item item(ItemType::ChestoBerry, "Chesto Berry");
     item.isConsumable = true;
@@ -1425,6 +1472,11 @@ void initializeCoreItems(GameRegistry& registry) {
     reg(ItemType::StarfBerry,    createStarfBerry);
     reg(ItemType::ShedShell,     createShedShell);
     reg(ItemType::GripClaw,      createGripClaw);
+    reg(ItemType::IronBall,      createIronBall);
+    reg(ItemType::AbsorbBulb,    createAbsorbBulb);
+    reg(ItemType::CellBattery,   createCellBattery);
+    reg(ItemType::LuminousMoss,  createLuminousMoss);
+    reg(ItemType::Snowball,      createSnowball);
 }
 
 // === Item logic helpers ===
@@ -1499,6 +1551,10 @@ bool itemExtendsTrappingMoves(ItemType type) {
 
 bool itemEnsuresCanSwitch(ItemType type) {
     return GameRegistry::instance().getItem(type).passive.ensuresCanSwitch;
+}
+
+bool itemHalvesSpeedAndGrounds(ItemType type) {
+    return GameRegistry::instance().getItem(type).passive.halvesSpeedAndGrounds;
 }
 
 bool tryQuickClawActivation(ItemType type, int& priority) {
