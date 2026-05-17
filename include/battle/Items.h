@@ -219,6 +219,8 @@ enum class ItemType {
     DreadPlate,
     RockIncense,
     LuckIncense,
+    MachoBrace,
+    PowerBracer,
 
     Count
 };
@@ -590,6 +592,8 @@ Item createDracoPlate();
 Item createDreadPlate();
 Item createRockIncense();
 Item createLuckIncense();
+Item createMachoBrace();
+Item createPowerBracer();
 
 // 辅助函数
 std::string getItemName(ItemType type);

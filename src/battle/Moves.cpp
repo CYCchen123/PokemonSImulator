@@ -2012,4 +2012,25 @@ void initializeCoreMoveRules(GameRegistry& registry) {
         // Ion Deluge turns all Normal-type moves this turn into Electric type (simplified)
         return true;
     });
+
+    // Round 11: 3 new status moves
+    registry.registerMoveRule("chillyreception", [](BattleContext& ctx, Pokemon* attacker, Pokemon*, const Move&) {
+        if (!attacker) return true;
+        ctx.getWeather().setWeather(WeatherType::Hail, 5);
+        Side* side = ctx.findSideForPokemon(attacker);
+        if (side && side->canSwitch()) side->autoSwitchNext();
+        return true;
+    });
+
+    registry.registerMoveRule("snowscape", [](BattleContext& ctx, Pokemon*, Pokemon*, const Move&) {
+        ctx.getWeather().setWeather(WeatherType::Hail, 5);
+        return true;
+    });
+
+    registry.registerMoveRule("safeguard", [](BattleContext& ctx, Pokemon* attacker, Pokemon*, const Move&) {
+        if (!attacker) return true;
+        Side* side = ctx.findSideForPokemon(attacker);
+        if (side) side->setSafeguardTurns(5);
+        return true;
+    });
 }

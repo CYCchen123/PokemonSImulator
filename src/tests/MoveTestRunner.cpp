@@ -65,6 +65,10 @@ const std::set<std::string> kImplementedStatusNameRules = {
     "matblock",
     "spotlight",
     "victorydance",
+    "celebrate",
+    "chillyreception",
+    "safeguard",
+    "snowscape",
     "wonderroom",
     "worryseed",
 };

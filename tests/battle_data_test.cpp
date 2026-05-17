@@ -6078,3 +6078,10 @@ TEST(MoveBehaviorTest, DoodleCopiesOpponentAbility) {
     battle.processMoveEffects(&user, &target, doodle);
     EXPECT_EQ(user.getAbility(), AbilityType::Blaze);
 }
+
+TEST(AbilityDataTest, SniperNameMapsToSniperType) {
+    AbilityData sn = getAbilityDataByName("sniper");
+    EXPECT_EQ(sn.type, AbilityType::Sniper);
+    Ability a = getAbility(AbilityType::Sniper);
+    EXPECT_TRUE(a.passive.sniperCritBoost);
+}

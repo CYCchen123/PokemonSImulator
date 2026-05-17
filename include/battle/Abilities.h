@@ -166,6 +166,16 @@ enum class AbilityType {
     Heatproof,
     AirLock,
     SnowCloak,
+    Sniper,
+    NoGuard,
+    SkillLink,
+    Hydration,
+    PoisonHeal,
+    Download,
+    Normalize,
+    TintedLens,
+    Klutz,
+    SlowStart,
     Count
 };
 
@@ -285,6 +295,16 @@ public:
         bool fireResistance = false;
         bool negatesWeather = false;
         bool evasionInSnow = false;
+        bool sniperCritBoost = false;
+        bool noGuardAlwaysHit = false;
+        bool skillLinkMaxHits = false;
+        bool hydrationHealsStatus = false;
+        bool poisonHealRecovery = false;
+        bool downloadStatBoost = false;
+        bool normalizeAllNormal = false;
+        bool tintedLensBoost = false;
+        bool klutzNoItem = false;
+        bool slowStartHalved = false;
 
         float stabBonusMultiplier = 1.5f;
         int statusMovePriorityBonus = 0;
@@ -409,6 +429,16 @@ bool abilityColorChangeOnHit(AbilityType abilityType);
 bool abilityFireResistance(AbilityType abilityType);
 bool abilityNegatesWeather(AbilityType abilityType);
 bool abilityEvasionInSnow(AbilityType abilityType);
+bool abilitySniperCritBoost(AbilityType abilityType);
+bool abilityNoGuardAlwaysHit(AbilityType abilityType);
+bool abilitySkillLinkMaxHits(AbilityType abilityType);
+bool abilityHydrationHealsStatus(AbilityType abilityType);
+bool abilityPoisonHealRecovery(AbilityType abilityType);
+bool abilityDownloadStatBoost(AbilityType abilityType);
+bool abilityNormalizeAllNormal(AbilityType abilityType);
+bool abilityTintedLensBoost(AbilityType abilityType);
+bool abilityKlutzNoItem(AbilityType abilityType);
+bool abilitySlowStartHalved(AbilityType abilityType);
 
 // Convert between ability enum and canonical display name.
 std::string getAbilityName(AbilityType type);

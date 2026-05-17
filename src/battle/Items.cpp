@@ -189,6 +189,8 @@ std::string getItemName(ItemType type) {
         case ItemType::DreadPlate: return "Dread Plate";
         case ItemType::RockIncense: return "Rock Incense";
         case ItemType::LuckIncense: return "Luck Incense";
+        case ItemType::MachoBrace: return "Macho Brace";
+        case ItemType::PowerBracer: return "Power Bracer";
         default: return "None";
     }
 }
@@ -1160,6 +1162,17 @@ Item createLuckIncense() {
     return item;
 }
 
+Item createMachoBrace() {
+    Item item(ItemType::MachoBrace, "Macho Brace");
+    item.passive.alwaysMovesLast = true;
+    return item;
+}
+Item createPowerBracer() {
+    Item item(ItemType::PowerBracer, "Power Bracer");
+    item.passive.alwaysMovesLast = true;
+    return item;
+}
+
 Item createChestoBerry() {
     Item item(ItemType::ChestoBerry, "Chesto Berry");
     item.isConsumable = true;
@@ -1583,6 +1596,8 @@ void initializeCoreItems(GameRegistry& registry) {
     reg(ItemType::DreadPlate,    createDreadPlate);
     reg(ItemType::RockIncense,   createRockIncense);
     reg(ItemType::LuckIncense,   createLuckIncense);
+    reg(ItemType::MachoBrace,    createMachoBrace);
+    reg(ItemType::PowerBracer,   createPowerBracer);
 }
 
 // === Item logic helpers ===

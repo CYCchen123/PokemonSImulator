@@ -270,6 +270,16 @@ std::string getAbilityName(AbilityType type) {
         case AbilityType::Heatproof: return "Heatproof";
         case AbilityType::AirLock: return "Air Lock";
         case AbilityType::SnowCloak: return "Snow Cloak";
+        case AbilityType::Sniper: return "Sniper";
+        case AbilityType::NoGuard: return "No Guard";
+        case AbilityType::SkillLink: return "Skill Link";
+        case AbilityType::Hydration: return "Hydration";
+        case AbilityType::PoisonHeal: return "Poison Heal";
+        case AbilityType::Download: return "Download";
+        case AbilityType::Normalize: return "Normalize";
+        case AbilityType::TintedLens: return "Tinted Lens";
+        case AbilityType::Klutz: return "Klutz";
+        case AbilityType::SlowStart: return "Slow Start";
         default: return "None";
     }
 }
@@ -426,6 +436,16 @@ AbilityType getAbilityTypeByName(const std::string& name) {
     if (key == "heatproof") return AbilityType::Heatproof;
     if (key == "airlock") return AbilityType::AirLock;
     if (key == "snowcloak") return AbilityType::SnowCloak;
+    if (key == "sniper") return AbilityType::Sniper;
+    if (key == "noguard") return AbilityType::NoGuard;
+    if (key == "skilllink") return AbilityType::SkillLink;
+    if (key == "hydration") return AbilityType::Hydration;
+    if (key == "poisonheal") return AbilityType::PoisonHeal;
+    if (key == "download") return AbilityType::Download;
+    if (key == "normalize") return AbilityType::Normalize;
+    if (key == "tintedlens") return AbilityType::TintedLens;
+    if (key == "klutz") return AbilityType::Klutz;
+    if (key == "slowstart") return AbilityType::SlowStart;
     return AbilityType::None;
 }
 
@@ -740,6 +760,46 @@ bool abilityNegatesWeather(AbilityType abilityType) {
 
 bool abilityEvasionInSnow(AbilityType abilityType) {
     return GameRegistry::instance().getAbility(abilityType).passive.evasionInSnow;
+}
+
+bool abilitySniperCritBoost(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.sniperCritBoost;
+}
+
+bool abilityNoGuardAlwaysHit(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.noGuardAlwaysHit;
+}
+
+bool abilitySkillLinkMaxHits(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.skillLinkMaxHits;
+}
+
+bool abilityHydrationHealsStatus(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.hydrationHealsStatus;
+}
+
+bool abilityPoisonHealRecovery(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.poisonHealRecovery;
+}
+
+bool abilityDownloadStatBoost(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.downloadStatBoost;
+}
+
+bool abilityNormalizeAllNormal(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.normalizeAllNormal;
+}
+
+bool abilityTintedLensBoost(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.tintedLensBoost;
+}
+
+bool abilityKlutzNoItem(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.klutzNoItem;
+}
+
+bool abilitySlowStartHalved(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.slowStartHalved;
 }
 
 std::string abilityTypeImmunityEventReason(AbilityType abilityType) {
@@ -1518,6 +1578,36 @@ void initializeCoreAbilities(GameRegistry& registry) {
 
     // Snow Cloak: evasion boosted in hail/snow
     regPassive(AbilityType::SnowCloak, [](auto& p) { p.evasionInSnow = true; });
+
+    // Sniper: critical hits deal x2.25 instead of x1.5
+    regPassive(AbilityType::Sniper, [](auto& p) { p.sniperCritBoost = true; });
+
+    // No Guard: all moves always hit (both sides)
+    regPassive(AbilityType::NoGuard, [](auto& p) { p.noGuardAlwaysHit = true; });
+
+    // Skill Link: multi-hit moves always hit max times
+    regPassive(AbilityType::SkillLink, [](auto& p) { p.skillLinkMaxHits = true; });
+
+    // Hydration: heals status conditions in rain
+    regPassive(AbilityType::Hydration, [](auto& p) { p.hydrationHealsStatus = true; });
+
+    // Poison Heal: heals 1/8 max HP per turn when poisoned
+    regPassive(AbilityType::PoisonHeal, [](auto& p) { p.poisonHealRecovery = true; });
+
+    // Download: +1 Atk or SpAtk on entry based on foe's defenses
+    regPassive(AbilityType::Download, [](auto& p) { p.downloadStatBoost = true; });
+
+    // Normalize: all moves become Normal type
+    regPassive(AbilityType::Normalize, [](auto& p) { p.normalizeAllNormal = true; });
+
+    // Tinted Lens: not-very-effective moves deal x2 damage
+    regPassive(AbilityType::TintedLens, [](auto& p) { p.tintedLensBoost = true; });
+
+    // Klutz: held item has no effect
+    regPassive(AbilityType::Klutz, [](auto& p) { p.klutzNoItem = true; });
+
+    // Slow Start: Atk and Speed halved for first 5 turns
+    regPassive(AbilityType::SlowStart, [](auto& p) { p.slowStartHalved = true; });
 }
 
 std::vector<Ability> getAbilitiesForPokemon(AbilityType type) {
