@@ -86,6 +86,16 @@ const std::set<std::string> kImplementedStatusNameRules = {
     "nastyplot",
     "quiverdance",
     "tailglow",
+    "confide",
+    "eerieimpulse",
+    "featherdance",
+    "flatter",
+    "growl",
+    "leer",
+    "nobleroar",
+    "playnice",
+    "tailwhip",
+    "babydolleyes",
 };
 
 std::string toLower(std::string value) {

@@ -206,6 +206,26 @@ enum class AbilityType {
     Rattled,
     SandForce,
     VictoryStar,
+    Plus,
+    Minus,
+    Forecast,
+    FlowerGift,
+    BadDreams,
+    Moody,
+    Imposter,
+    Turboblaze,
+    Teravolt,
+    AromaVeil,
+    FurCoat,
+    Magician,
+    Refrigerate,
+    SweetVeil,
+    GaleWings,
+    MegaLauncher,
+    Pixilate,
+    Gooey,
+    Aerilate,
+    ParentalBond,
     Count
 };
 
@@ -365,6 +385,24 @@ public:
         bool rattledSpeedBoost = false;
         bool sandForceBoost = false;
         bool victoryStarAccuracy = false;
+        bool plusMinusSpAtk = false;
+        bool forecastWeather = false;
+        bool flowerGiftBoost = false;
+        bool badDreamsDamage = false;
+        bool moodyRandomBoost = false;
+        bool imposterTransform = false;
+        bool moldBreakerLike = false;
+        bool aromaVeilProtection = false;
+        bool furCoatDefense = false;
+        bool magicianSteal = false;
+        bool refrigerateNormal = false;
+        bool sweetVeilPreventSleep = false;
+        bool galeWingsPriority = false;
+        bool megaLauncherBoost = false;
+        bool pixilateNormal = false;
+        bool gooeySlow = false;
+        bool aerilateNormal = false;
+        bool parentalBond = false;
 
         float stabBonusMultiplier = 1.5f;
         int statusMovePriorityBonus = 0;
@@ -529,6 +567,24 @@ bool abilityJustifiedDarkBoost(AbilityType abilityType);
 bool abilityRattledSpeedBoost(AbilityType abilityType);
 bool abilitySandForceBoost(AbilityType abilityType);
 bool abilityVictoryStarAccuracy(AbilityType abilityType);
+bool abilityPlusMinusSpAtk(AbilityType abilityType);
+bool abilityForecastWeather(AbilityType abilityType);
+bool abilityFlowerGiftBoost(AbilityType abilityType);
+bool abilityBadDreamsDamage(AbilityType abilityType);
+bool abilityMoodyRandomBoost(AbilityType abilityType);
+bool abilityImposterTransform(AbilityType abilityType);
+bool abilityMoldBreakerLike(AbilityType abilityType);
+bool abilityAromaVeilProtection(AbilityType abilityType);
+bool abilityFurCoatDefense(AbilityType abilityType);
+bool abilityMagicianSteal(AbilityType abilityType);
+bool abilityRefrigerateNormal(AbilityType abilityType);
+bool abilitySweetVeilPreventSleep(AbilityType abilityType);
+bool abilityGaleWingsPriority(AbilityType abilityType);
+bool abilityMegaLauncherBoost(AbilityType abilityType);
+bool abilityPixilateNormal(AbilityType abilityType);
+bool abilityGooeySlow(AbilityType abilityType);
+bool abilityAerilateNormal(AbilityType abilityType);
+bool abilityParentalBond(AbilityType abilityType);
 
 // Convert between ability enum and canonical display name.
 std::string getAbilityName(AbilityType type);

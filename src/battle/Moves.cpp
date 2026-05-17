@@ -2118,4 +2118,58 @@ void initializeCoreMoveRules(GameRegistry& registry) {
         attacker->changeStatStage(StatIndex::SpecialAttack, 3);
         return true;
     });
+
+    // Round 14: 10 stat-lowering moves
+    registry.registerMoveRule("confide", [](BattleContext&, Pokemon*, Pokemon* defender, const Move&) {
+        if (!defender) return true;
+        defender->changeStatStage(StatIndex::SpecialAttack, -1);
+        return true;
+    });
+    registry.registerMoveRule("featherdance", [](BattleContext&, Pokemon*, Pokemon* defender, const Move&) {
+        if (!defender) return true;
+        defender->changeStatStage(StatIndex::Attack, -2);
+        return true;
+    });
+    registry.registerMoveRule("leer", [](BattleContext&, Pokemon*, Pokemon* defender, const Move&) {
+        if (!defender) return true;
+        defender->changeStatStage(StatIndex::Defense, -1);
+        return true;
+    });
+    registry.registerMoveRule("tailwhip", [](BattleContext&, Pokemon*, Pokemon* defender, const Move&) {
+        if (!defender) return true;
+        defender->changeStatStage(StatIndex::Defense, -1);
+        return true;
+    });
+    registry.registerMoveRule("growl", [](BattleContext&, Pokemon*, Pokemon* defender, const Move&) {
+        if (!defender) return true;
+        defender->changeStatStage(StatIndex::Attack, -1);
+        return true;
+    });
+    registry.registerMoveRule("playnice", [](BattleContext&, Pokemon*, Pokemon* defender, const Move&) {
+        if (!defender) return true;
+        defender->changeStatStage(StatIndex::Attack, -1);
+        return true;
+    });
+    registry.registerMoveRule("babydolleyes", [](BattleContext&, Pokemon*, Pokemon* defender, const Move&) {
+        if (!defender) return true;
+        defender->changeStatStage(StatIndex::Attack, -1);
+        return true;
+    });
+    registry.registerMoveRule("eerieimpulse", [](BattleContext&, Pokemon*, Pokemon* defender, const Move&) {
+        if (!defender) return true;
+        defender->changeStatStage(StatIndex::SpecialAttack, -2);
+        return true;
+    });
+    registry.registerMoveRule("flatter", [](BattleContext&, Pokemon*, Pokemon* defender, const Move&) {
+        if (!defender) return true;
+        defender->changeStatStage(StatIndex::SpecialAttack, 1);
+        defender->addStatus(StatusType::Confusion);
+        return true;
+    });
+    registry.registerMoveRule("nobleroar", [](BattleContext&, Pokemon*, Pokemon* defender, const Move&) {
+        if (!defender) return true;
+        defender->changeStatStage(StatIndex::Attack, -1);
+        defender->changeStatStage(StatIndex::SpecialAttack, -1);
+        return true;
+    });
 }

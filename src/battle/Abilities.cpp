@@ -310,6 +310,26 @@ std::string getAbilityName(AbilityType type) {
         case AbilityType::Rattled: return "Rattled";
         case AbilityType::SandForce: return "Sand Force";
         case AbilityType::VictoryStar: return "Victory Star";
+        case AbilityType::Plus: return "Plus";
+        case AbilityType::Minus: return "Minus";
+        case AbilityType::Forecast: return "Forecast";
+        case AbilityType::FlowerGift: return "Flower Gift";
+        case AbilityType::BadDreams: return "Bad Dreams";
+        case AbilityType::Moody: return "Moody";
+        case AbilityType::Imposter: return "Imposter";
+        case AbilityType::Turboblaze: return "Turboblaze";
+        case AbilityType::Teravolt: return "Teravolt";
+        case AbilityType::AromaVeil: return "Aroma Veil";
+        case AbilityType::FurCoat: return "Fur Coat";
+        case AbilityType::Magician: return "Magician";
+        case AbilityType::Refrigerate: return "Refrigerate";
+        case AbilityType::SweetVeil: return "Sweet Veil";
+        case AbilityType::GaleWings: return "Gale Wings";
+        case AbilityType::MegaLauncher: return "Mega Launcher";
+        case AbilityType::Pixilate: return "Pixilate";
+        case AbilityType::Gooey: return "Gooey";
+        case AbilityType::Aerilate: return "Aerilate";
+        case AbilityType::ParentalBond: return "Parental Bond";
         default: return "None";
     }
 }
@@ -506,6 +526,26 @@ AbilityType getAbilityTypeByName(const std::string& name) {
     if (key == "rattled") return AbilityType::Rattled;
     if (key == "sandforce") return AbilityType::SandForce;
     if (key == "victorystar") return AbilityType::VictoryStar;
+    if (key == "plus") return AbilityType::Plus;
+    if (key == "minus") return AbilityType::Minus;
+    if (key == "forecast") return AbilityType::Forecast;
+    if (key == "flowergift") return AbilityType::FlowerGift;
+    if (key == "baddreams") return AbilityType::BadDreams;
+    if (key == "moody") return AbilityType::Moody;
+    if (key == "imposter") return AbilityType::Imposter;
+    if (key == "turboblaze") return AbilityType::Turboblaze;
+    if (key == "teravolt") return AbilityType::Teravolt;
+    if (key == "aromaveil") return AbilityType::AromaVeil;
+    if (key == "furcoat") return AbilityType::FurCoat;
+    if (key == "magician") return AbilityType::Magician;
+    if (key == "refrigerate") return AbilityType::Refrigerate;
+    if (key == "sweetveil") return AbilityType::SweetVeil;
+    if (key == "galewings") return AbilityType::GaleWings;
+    if (key == "megalauncher") return AbilityType::MegaLauncher;
+    if (key == "pixilate") return AbilityType::Pixilate;
+    if (key == "gooey") return AbilityType::Gooey;
+    if (key == "aerilate") return AbilityType::Aerilate;
+    if (key == "parentalbond") return AbilityType::ParentalBond;
     return AbilityType::None;
 }
 
@@ -980,6 +1020,78 @@ bool abilitySandForceBoost(AbilityType abilityType) {
 
 bool abilityVictoryStarAccuracy(AbilityType abilityType) {
     return GameRegistry::instance().getAbility(abilityType).passive.victoryStarAccuracy;
+}
+
+bool abilityPlusMinusSpAtk(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.plusMinusSpAtk;
+}
+
+bool abilityForecastWeather(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.forecastWeather;
+}
+
+bool abilityFlowerGiftBoost(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.flowerGiftBoost;
+}
+
+bool abilityBadDreamsDamage(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.badDreamsDamage;
+}
+
+bool abilityMoodyRandomBoost(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.moodyRandomBoost;
+}
+
+bool abilityImposterTransform(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.imposterTransform;
+}
+
+bool abilityMoldBreakerLike(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.moldBreakerLike;
+}
+
+bool abilityAromaVeilProtection(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.aromaVeilProtection;
+}
+
+bool abilityFurCoatDefense(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.furCoatDefense;
+}
+
+bool abilityMagicianSteal(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.magicianSteal;
+}
+
+bool abilityRefrigerateNormal(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.refrigerateNormal;
+}
+
+bool abilitySweetVeilPreventSleep(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.sweetVeilPreventSleep;
+}
+
+bool abilityGaleWingsPriority(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.galeWingsPriority;
+}
+
+bool abilityMegaLauncherBoost(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.megaLauncherBoost;
+}
+
+bool abilityPixilateNormal(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.pixilateNormal;
+}
+
+bool abilityGooeySlow(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.gooeySlow;
+}
+
+bool abilityAerilateNormal(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.aerilateNormal;
+}
+
+bool abilityParentalBond(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.parentalBond;
 }
 
 std::string abilityTypeImmunityEventReason(AbilityType abilityType) {
@@ -1878,6 +1990,66 @@ void initializeCoreAbilities(GameRegistry& registry) {
 
     // Victory Star: ally accuracy x1.1
     regPassive(AbilityType::VictoryStar, [](auto& p) { p.victoryStarAccuracy = true; });
+
+    // Plus: SpAtk x1.5 if ally has Plus/Minus
+    regPassive(AbilityType::Plus, [](auto& p) { p.plusMinusSpAtk = true; });
+
+    // Minus: SpAtk x1.5 if ally has Plus/Minus
+    regPassive(AbilityType::Minus, [](auto& p) { p.plusMinusSpAtk = true; });
+
+    // Forecast: changes type with weather
+    regPassive(AbilityType::Forecast, [](auto& p) { p.forecastWeather = true; });
+
+    // Flower Gift: boosts ally Atk/SpDef in sun
+    regPassive(AbilityType::FlowerGift, [](auto& p) { p.flowerGiftBoost = true; });
+
+    // Bad Dreams: sleeping foes lose 1/8 HP per turn
+    regPassive(AbilityType::BadDreams, [](auto& p) { p.badDreamsDamage = true; });
+
+    // Moody: +2 one stat, -1 another at end of turn
+    regPassive(AbilityType::Moody, [](auto& p) { p.moodyRandomBoost = true; });
+
+    // Imposter: transforms into opponent on entry
+    regPassive(AbilityType::Imposter, [](auto& p) { p.imposterTransform = true; });
+
+    // Turboblaze: ignores opponent abilities
+    regPassive(AbilityType::Turboblaze, [](auto& p) { p.moldBreakerLike = true; });
+
+    // Teravolt: ignores opponent abilities
+    regPassive(AbilityType::Teravolt, [](auto& p) { p.moldBreakerLike = true; });
+
+    // Aroma Veil: protects from Taunt/Torment/Encore etc
+    regPassive(AbilityType::AromaVeil, [](auto& p) { p.aromaVeilProtection = true; });
+
+    // Fur Coat: doubles Defense
+    regPassive(AbilityType::FurCoat, [](auto& p) { p.furCoatDefense = true; });
+
+    // Magician: steals opponent's item on contact
+    regPassive(AbilityType::Magician, [](auto& p) { p.magicianSteal = true; });
+
+    // Refrigerate: Normal moves become Ice, x1.2
+    regPassive(AbilityType::Refrigerate, [](auto& p) { p.refrigerateNormal = true; });
+
+    // Sweet Veil: prevents sleep
+    regPassive(AbilityType::SweetVeil, [](auto& p) { p.sweetVeilPreventSleep = true; });
+
+    // Gale Wings: +1 priority to Flying moves at full HP
+    regPassive(AbilityType::GaleWings, [](auto& p) { p.galeWingsPriority = true; });
+
+    // Mega Launcher: pulse/aura moves x1.5
+    regPassive(AbilityType::MegaLauncher, [](auto& p) { p.megaLauncherBoost = true; });
+
+    // Pixilate: Normal moves become Fairy, x1.2
+    regPassive(AbilityType::Pixilate, [](auto& p) { p.pixilateNormal = true; });
+
+    // Gooey: -1 Speed on contact
+    regPassive(AbilityType::Gooey, [](auto& p) { p.gooeySlow = true; });
+
+    // Aerilate: Normal moves become Flying, x1.2
+    regPassive(AbilityType::Aerilate, [](auto& p) { p.aerilateNormal = true; });
+
+    // Parental Bond: damaging moves hit twice (second at 25%)
+    regPassive(AbilityType::ParentalBond, [](auto& p) { p.parentalBond = true; });
 }
 
 std::vector<Ability> getAbilitiesForPokemon(AbilityType type) {
