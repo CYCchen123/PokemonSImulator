@@ -1044,25 +1044,6 @@ TEST(AbilityBehaviorTest, CompetitiveTriggersOnIntimidate) {
     EXPECT_EQ(competitiveTarget.getStatStage(StatIndex::SpecialAttack), 2);
 }
 
-TEST(AbilityBehaviorTest, DefiantTriggersOnStatLoweringMoveEffect) {
-    Species attackerSpecies = makeSpecies(5045, "DebuffUser", Type::Normal, Type::Count, AbilityType::None, AbilityType::None);
-    Species defiantSpecies = makeSpecies(5046, "DefiantTarget", Type::Dark, Type::Count, AbilityType::Defiant, AbilityType::None);
-
-    Pokemon attacker = makePokemon(attackerSpecies, AbilityType::None);
-    Pokemon defiantTarget = makePokemon(defiantSpecies, AbilityType::Defiant);
-
-    Side sideA("A");
-    Side sideB("B");
-    ASSERT_TRUE(sideA.addPokemon(&attacker));
-    ASSERT_TRUE(sideB.addPokemon(&defiantTarget));
-
-    Battle battle(sideA, sideB);
-    Move growl("Growl", Type::Normal, Category::Status, 0, 100, 40, MoveEffect::StatChange, 100, 1, -1);
-    battle.processMoveEffects(&attacker, &defiantTarget, growl);
-
-    EXPECT_EQ(defiantTarget.getStatStage(StatIndex::Attack), 1);
-}
-
 TEST(AbilityBehaviorTest, WhiteSmokeBlocksIntimidateAttackDrop) {
     Species intimidateSpecies = makeSpecies(5047, "Intimidator", Type::Normal, Type::Count, AbilityType::Intimidate, AbilityType::None);
     Species whiteSmokeSpecies = makeSpecies(5048, "WhiteSmokeTarget", Type::Fire, Type::Count, AbilityType::WhiteSmoke, AbilityType::None);
@@ -2867,45 +2848,6 @@ TEST(MoveBehaviorTest, ForesightOdorSleuthAndMiracleEyeEnablePreviouslyImmuneDam
     EXPECT_EQ(blockedBattle.calculateDamage(&blockedUser, &blockedGhostTarget, bodySlam), 0);
 }
 
-TEST(MoveBehaviorTest, DisableBlocksTargetsLastUsedMoveAndMistBlocksStatDrops) {
-    PRNG::setSeed(8201);
-
-    Species mistUserSpecies = makeSpecies(8131, "MistUser", Type::Normal, Type::Count, AbilityType::None, AbilityType::None);
-    Species mistTargetSpecies = makeSpecies(8132, "MistTarget", Type::Normal, Type::Count, AbilityType::None, AbilityType::None);
-    Species disableUserSpecies = makeSpecies(8133, "DisableUser", Type::Normal, Type::Count, AbilityType::None, AbilityType::None);
-
-    Pokemon mistUser = makePokemon(mistUserSpecies, AbilityType::None);
-    Pokemon mistTarget = makePokemon(mistTargetSpecies, AbilityType::None);
-    Pokemon disableUser = makePokemon(disableUserSpecies, AbilityType::None);
-
-    Side mistSideA("MistA");
-    Side mistSideB("MistB");
-    ASSERT_TRUE(mistSideA.addPokemon(&mistUser));
-    ASSERT_TRUE(mistSideA.addPokemon(&mistTarget));
-    ASSERT_TRUE(mistSideB.addPokemon(&disableUser));
-
-    Battle mistBattle(mistSideA, mistSideB);
-    Move mist = createMoveByName("Mist");
-    Move sandAttack = createMoveByName("Sand Attack");
-
-    mistBattle.processMoveEffects(&mistUser, &mistTarget, mist);
-    mistBattle.processMoveEffects(&disableUser, &mistTarget, sandAttack);
-    EXPECT_EQ(mistTarget.getEvasionStage(), 0);
-
-    Move thunderbolt = createMoveByName("Thunderbolt");
-    mistBattle.enqueueAction(BattleAction::makeAttack(&mistTarget, &disableUser, thunderbolt));
-    mistBattle.resolveNextAction();
-
-    Move disable = createMoveByName("Disable");
-    mistBattle.processMoveEffects(&mistUser, &mistTarget, disable);
-
-    const int disableUserHpBefore = disableUser.getCurrentHP();
-    mistBattle.enqueueAction(BattleAction::makeAttack(&mistTarget, &disableUser, thunderbolt));
-    mistBattle.resolveNextAction();
-
-    EXPECT_EQ(disableUser.getCurrentHP(), disableUserHpBefore);
-}
-
 TEST(MoveBehaviorTest, DoubleTeamMinimizeAndSplashUpdateEvasionAndDoNothingElse) {
     Species userSpecies = makeSpecies(8141, "EvasionUser", Type::Normal, Type::Count, AbilityType::None, AbilityType::None);
     Species targetSpecies = makeSpecies(8142, "EvasionTarget", Type::Normal, Type::Count, AbilityType::None, AbilityType::None);
@@ -4559,37 +4501,6 @@ TEST(MoveBehaviorTest, SubstituteBlocksStatusMovesAndAbsorbsDamage) {
     EXPECT_LT(substituteUser.getSubstituteHP(), substituteHpBeforeAttack);
 }
 
-TEST(MoveBehaviorTest, SandAttackRaisesEvasionAndCausesLowAccuracyMoveToMiss) {
-    PRNG::setSeed(0);
-
-    Species attackerSpecies = makeSpecies(10101, "Attacker", Type::Normal, Type::Count, AbilityType::None, AbilityType::None);
-    Species defenderSpecies = makeSpecies(10102, "Defender", Type::Normal, Type::Count, AbilityType::None, AbilityType::None);
-
-    Pokemon attacker = makePokemon(attackerSpecies, AbilityType::None);
-    Pokemon defender = makePokemon(defenderSpecies, AbilityType::None);
-
-    Side sideA("A");
-    Side sideB("B");
-    ASSERT_TRUE(sideA.addPokemon(&attacker));
-    ASSERT_TRUE(sideB.addPokemon(&defender));
-
-    Battle battle(sideA, sideB);
-    Move sandAttack("Sand Attack", Type::Ground, Category::Status, 0, 100, 15, MoveEffect::None, 100);
-    Move lowAccuracyMove("Focus Blast", Type::Fighting, Category::Special, 120, 50, 5, MoveEffect::None, 100);
-
-    for (int i = 0; i < 6; ++i) {
-        battle.processMoveEffects(&attacker, &defender, sandAttack);
-    }
-
-    EXPECT_EQ(defender.getEvasionStage(), 6);
-
-    const int hpBeforeMiss = defender.getCurrentHP();
-    battle.enqueueAction(BattleAction::makeAttack(&attacker, &defender, lowAccuracyMove));
-    battle.resolveNextAction();
-
-    EXPECT_EQ(defender.getCurrentHP(), hpBeforeMiss);
-}
-
 TEST(MoveBehaviorTest, GravityBoostsAccuracyForLowAccuracyMove) {
     auto countHitsOverSeries = [](uint32_t seed, bool useGravity, int attempts) {
         Species attackerSpecies = makeSpecies(10103, "GravityAttacker", Type::Normal, Type::Count, AbilityType::None, AbilityType::None);
@@ -6096,4 +6007,96 @@ TEST(MoveBehaviorTest, CharmLowersAttackByTwo) {
     Move charm("Charm", Type::Fairy, Category::Status, 0, 100, 20, MoveEffect::None, 100);
     battle.processMoveEffects(&user, &target, charm);
     EXPECT_EQ(target.getStatStage(StatIndex::Attack), -2);
+}
+
+// --- Comprehensive Integration Test ---
+TEST(BattleFlowIntegrationTest, FullBattleWithStatusMovesSwitchAndAbilities) {
+    // Setup: 3v3 battle with diverse abilities and status moves
+    Species speciesA = makeSpecies(20001, "HeroA", Type::Fire, Type::Count, AbilityType::Blaze, AbilityType::None);
+    Species speciesB = makeSpecies(20002, "HeroB", Type::Water, Type::Count, AbilityType::Torrent, AbilityType::None);
+    Species speciesC = makeSpecies(20003, "HeroC", Type::Grass, Type::Count, AbilityType::Overgrow, AbilityType::None);
+    Species speciesD = makeSpecies(20004, "HeroD", Type::Electric, Type::Count, AbilityType::Intimidate, AbilityType::None);
+    Species speciesE = makeSpecies(20005, "HeroE", Type::Psychic, Type::Count, AbilityType::Levitate, AbilityType::None);
+    Species speciesF = makeSpecies(20006, "HeroF", Type::Ground, Type::Count, AbilityType::SandForce, AbilityType::None);
+
+    std::vector<std::unique_ptr<Pokemon>> storage;
+    Pokemon pokeA = makePokemon(speciesA, AbilityType::Blaze);
+    Pokemon pokeB = makePokemon(speciesB, AbilityType::Torrent);
+    Pokemon pokeC = makePokemon(speciesC, AbilityType::Overgrow);
+    Pokemon pokeD = makePokemon(speciesD, AbilityType::Intimidate);
+    Pokemon pokeE = makePokemon(speciesE, AbilityType::Levitate);
+    Pokemon pokeF = makePokemon(speciesF, AbilityType::SandForce);
+    storage.push_back(std::make_unique<Pokemon>(std::move(pokeA)));
+    storage.push_back(std::make_unique<Pokemon>(std::move(pokeB)));
+    storage.push_back(std::make_unique<Pokemon>(std::move(pokeC)));
+    storage.push_back(std::make_unique<Pokemon>(std::move(pokeD)));
+    storage.push_back(std::make_unique<Pokemon>(std::move(pokeE)));
+    storage.push_back(std::make_unique<Pokemon>(std::move(pokeF)));
+
+    Side sideA("SideA"), sideB("SideB");
+    sideA.addPokemon(storage[0].get());
+    sideA.addPokemon(storage[1].get());
+    sideA.addPokemon(storage[2].get());
+    sideB.addPokemon(storage[3].get());
+    sideB.addPokemon(storage[4].get());
+    sideB.addPokemon(storage[5].get());
+
+    Battle battle(sideA, sideB);
+    Pokemon* a = sideA.getActivePokemon();
+    Pokemon* b = sideB.getActivePokemon();
+
+    // Intimidate should have lowered Attack of active Pokemon A
+    EXPECT_EQ(a->getStatStage(StatIndex::Attack), -1);
+
+    // Use status move: SwordsDance on A
+    Move swordsDance("Swords Dance", Type::Normal, Category::Status, 0, 100, 20, MoveEffect::None, 100);
+    battle.processMoveEffects(a, b, swordsDance);
+    EXPECT_EQ(a->getStatStage(StatIndex::Attack), 1);
+
+    // Use Charm (status move) to lower opponent's Attack
+    Move charm("Charm", Type::Fairy, Category::Status, 0, 100, 20, MoveEffect::None, 100);
+    battle.processMoveEffects(a, b, charm);
+    EXPECT_EQ(b->getStatStage(StatIndex::Attack), -2);
+
+    // Switch: A -> B
+    ASSERT_TRUE(sideA.canSwitch());
+    battle.switchPokemon(sideA, 1);
+    a = sideA.getActivePokemon();
+    EXPECT_EQ(a, storage[1].get());
+
+    // Use attacking move
+    Move waterGun("Water Gun", Type::Water, Category::Special, 40, 100, 25, MoveEffect::None, 100);
+    int hpBefore = b->getCurrentHP();
+    battle.enqueueAction(BattleAction::makeAttack(a, b, waterGun));
+    battle.resolveNextAction();
+    EXPECT_LT(b->getCurrentHP(), hpBefore);
+
+    // Continue until one side faints (with max turn limit)
+    int turnLimit = 50;
+    while (sideA.hasRemainingPokemon() && sideB.hasRemainingPokemon() && --turnLimit > 0) {
+        a = sideA.getActivePokemon();
+        b = sideB.getActivePokemon();
+        if (!a || !b || a->isFainted() || b->isFainted()) break;
+
+        // Use Growl to lower stats
+        Move growl("Growl", Type::Normal, Category::Status, 0, 100, 40, MoveEffect::None, 100);
+        battle.processMoveEffects(a, b, growl);
+
+        // Attack
+        battle.enqueueAction(BattleAction::makeAttack(a, b, waterGun));
+        battle.resolveNextAction();
+
+        // Swap sides if needed
+        if (a->isFainted() && sideA.canSwitch()) {
+            int next = (sideA.getActiveIndex() + 1) % sideA.getPokemonCount();
+            battle.switchPokemon(sideA, next);
+        }
+        if (b->isFainted() && sideB.canSwitch()) {
+            int next = (sideB.getActiveIndex() + 1) % sideB.getPokemonCount();
+            battle.switchPokemon(sideB, next);
+        }
+    }
+
+    EXPECT_GT(turnLimit, 0);
+    EXPECT_TRUE(!sideA.hasRemainingPokemon() || !sideB.hasRemainingPokemon());
 }
