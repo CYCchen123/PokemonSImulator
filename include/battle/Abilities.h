@@ -326,6 +326,46 @@ enum class AbilityType {
     MindsEye,
     SupersweetSyrup,
     Hospitality,
+    ToxicChain,
+    EmbodyAspect,
+    TeraShift,
+    TeraShell,
+    TeraformZero,
+    PoisonPuppeteer,
+    Mountaineer,
+    WaveRider,
+    Skater,
+    Thrust,
+    Perception,
+    Parry,
+    Instinct,
+    Dodge,
+    JaggedEdge,
+    Frostbite,
+    Tenacity,
+    Pride,
+    DeepSleep,
+    PowerNap,
+    Spirit,
+    WarmBlanket,
+    Gulp,
+    Herbivore,
+    Sandpit,
+    HotBlooded,
+    Medic,
+    LifeForce,
+    Lunchbox,
+    Nurse,
+    Melee,
+    Sponge,
+    Bodyguard,
+    Hero,
+    LastBastion,
+    Stealth,
+    Vanguard,
+    Nomad,
+    Sequence,
+    GrassCloak,
     Count
 };
 
@@ -603,6 +643,8 @@ public:
         bool mindsEye = false;
         bool supersweetSyrup = false;
         bool hospitality = false;
+        bool toxicChain = false;
+        bool genericPassive = false; // last batch catch-all
 
         float stabBonusMultiplier = 1.5f;
         int statusMovePriorityBonus = 0;

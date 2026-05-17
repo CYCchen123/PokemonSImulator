@@ -16,7 +16,7 @@
         "name": "A",
         "pokemons": [
           {
-            "abilityId": 35,
+            "abilityId": 302,
             "fainted": false,
             "hp": 175,
             "inBattleStatus": [],
@@ -59,7 +59,7 @@
         "name": "B",
         "pokemons": [
           {
-            "abilityId": 35,
+            "abilityId": 302,
             "fainted": false,
             "hp": 175,
             "inBattleStatus": [],

@@ -390,6 +390,46 @@ std::string getAbilityName(AbilityType type) {
         case AbilityType::GulpMissile: return "Gulp Missile";
         case AbilityType::Stalwart: return "Stalwart";
         case AbilityType::SteamEngine: return "Steam Engine";
+        case AbilityType::PunkRock: return "Punk Rock";
+        case AbilityType::SandSpit: return "Sand Spit";
+        case AbilityType::IceScales: return "Ice Scales";
+        case AbilityType::Ripen: return "Ripen";
+        case AbilityType::IceFace: return "Ice Face";
+        case AbilityType::PowerSpot: return "Power Spot";
+        case AbilityType::Mimicry: return "Mimicry";
+        case AbilityType::ScreenCleaner: return "Screen Cleaner";
+        case AbilityType::SteelySpirit: return "Steely Spirit";
+        case AbilityType::PerishBody: return "Perish Body";
+        case AbilityType::WanderingSpirit: return "Wandering Spirit";
+        case AbilityType::GorillaTactics: return "Gorilla Tactics";
+        case AbilityType::NeutralizingGas: return "Neutralizing Gas";
+        case AbilityType::PastelVeil: return "Pastel Veil";
+        case AbilityType::HungerSwitch: return "Hunger Switch";
+        case AbilityType::QuickDraw: return "Quick Draw";
+        case AbilityType::UnseenFist: return "Unseen Fist";
+        case AbilityType::CuriousMedicine: return "Curious Medicine";
+        case AbilityType::Transistor: return "Transistor";
+        case AbilityType::DragonsMaw: return "Dragon's Maw";
+        case AbilityType::ChillingNeigh: return "Chilling Neigh";
+        case AbilityType::GrimNeigh: return "Grim Neigh";
+        case AbilityType::AsOneGlastrier: return "As One (Glastrier)";
+        case AbilityType::AsOneSpectrier: return "As One (Spectrier)";
+        case AbilityType::SeedSower: return "Seed Sower";
+        case AbilityType::ThermalExchange: return "Thermal Exchange";
+        case AbilityType::AngerShell: return "Anger Shell";
+        case AbilityType::GuardDog: return "Guard Dog";
+        case AbilityType::RockyPayload: return "Rocky Payload";
+        case AbilityType::WindPower: return "Wind Power";
+        case AbilityType::ZeroToHero: return "Zero to Hero";
+        case AbilityType::Commander: return "Commander";
+        case AbilityType::Electromorphosis: return "Electromorphosis";
+        case AbilityType::OrichalcumPulse: return "Orichalcum Pulse";
+        case AbilityType::Opportunist: return "Opportunist";
+        case AbilityType::Costar: return "Costar";
+        case AbilityType::MyceliumMight: return "Mycelium Might";
+        case AbilityType::MindsEye: return "Mind's Eye";
+        case AbilityType::SupersweetSyrup: return "Supersweet Syrup";
+        case AbilityType::Hospitality: return "Hospitality";
         default: return "None";
     }
 }
@@ -666,6 +706,46 @@ AbilityType getAbilityTypeByName(const std::string& name) {
     if (key == "gulpmissile") return AbilityType::GulpMissile;
     if (key == "stalwart") return AbilityType::Stalwart;
     if (key == "steamengine") return AbilityType::SteamEngine;
+    if (key == "punkrock") return AbilityType::PunkRock;
+    if (key == "sandspit") return AbilityType::SandSpit;
+    if (key == "icescales") return AbilityType::IceScales;
+    if (key == "ripen") return AbilityType::Ripen;
+    if (key == "iceface") return AbilityType::IceFace;
+    if (key == "powerspot") return AbilityType::PowerSpot;
+    if (key == "mimicry") return AbilityType::Mimicry;
+    if (key == "screencleaner") return AbilityType::ScreenCleaner;
+    if (key == "steelyspirit") return AbilityType::SteelySpirit;
+    if (key == "perishbody") return AbilityType::PerishBody;
+    if (key == "wanderingspirit") return AbilityType::WanderingSpirit;
+    if (key == "gorillatactics") return AbilityType::GorillaTactics;
+    if (key == "neutralizinggas") return AbilityType::NeutralizingGas;
+    if (key == "pastelveil") return AbilityType::PastelVeil;
+    if (key == "hungerswitch") return AbilityType::HungerSwitch;
+    if (key == "quickdraw") return AbilityType::QuickDraw;
+    if (key == "unseenfist") return AbilityType::UnseenFist;
+    if (key == "curiousmedicine") return AbilityType::CuriousMedicine;
+    if (key == "transistor") return AbilityType::Transistor;
+    if (key == "dragonsmaw") return AbilityType::DragonsMaw;
+    if (key == "chillingneigh") return AbilityType::ChillingNeigh;
+    if (key == "grimneigh") return AbilityType::GrimNeigh;
+    if (key == "asoneglastrier") return AbilityType::AsOneGlastrier;
+    if (key == "asonespectrier") return AbilityType::AsOneSpectrier;
+    if (key == "seedsower") return AbilityType::SeedSower;
+    if (key == "thermalexchange") return AbilityType::ThermalExchange;
+    if (key == "angershell") return AbilityType::AngerShell;
+    if (key == "guarddog") return AbilityType::GuardDog;
+    if (key == "rockypayload") return AbilityType::RockyPayload;
+    if (key == "windpower") return AbilityType::WindPower;
+    if (key == "zerotohero") return AbilityType::ZeroToHero;
+    if (key == "commander") return AbilityType::Commander;
+    if (key == "electromorphosis") return AbilityType::Electromorphosis;
+    if (key == "orichalcumpulse") return AbilityType::OrichalcumPulse;
+    if (key == "opportunist") return AbilityType::Opportunist;
+    if (key == "costar") return AbilityType::Costar;
+    if (key == "myceliummight") return AbilityType::MyceliumMight;
+    if (key == "mindseye") return AbilityType::MindsEye;
+    if (key == "supersweetsyrup") return AbilityType::SupersweetSyrup;
+    if (key == "hospitality") return AbilityType::Hospitality;
     return AbilityType::None;
 }
 
@@ -1452,6 +1532,166 @@ bool abilityStalwart(AbilityType abilityType) {
 
 bool abilitySteamEngine(AbilityType abilityType) {
     return GameRegistry::instance().getAbility(abilityType).passive.steamEngine;
+}
+
+bool abilityPunkRockSound(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.punkRockSound;
+}
+
+bool abilitySandSpitSand(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.sandSpitSand;
+}
+
+bool abilityIceScales(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.iceScales;
+}
+
+bool abilityRipenBerry(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.ripenBerry;
+}
+
+bool abilityIceFaceBlock(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.iceFaceBlock;
+}
+
+bool abilityPowerSpotAlly(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.powerSpotAlly;
+}
+
+bool abilityMimicry(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.mimicry;
+}
+
+bool abilityScreenCleaner(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.screenCleaner;
+}
+
+bool abilitySteelySpirit(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.steelySpirit;
+}
+
+bool abilityPerishBody(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.perishBody;
+}
+
+bool abilityWanderingSpirit(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.wanderingSpirit;
+}
+
+bool abilityGorillaTactics(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.gorillaTactics;
+}
+
+bool abilityNeutralizingGas(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.neutralizingGas;
+}
+
+bool abilityPastelVeil(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.pastelVeil;
+}
+
+bool abilityHungerSwitch(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.hungerSwitch;
+}
+
+bool abilityQuickDraw(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.quickDraw;
+}
+
+bool abilityUnseenFist(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.unseenFist;
+}
+
+bool abilityCuriousMedicine(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.curiousMedicine;
+}
+
+bool abilityTransistor(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.transistor;
+}
+
+bool abilityDragonsMaw(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.dragonsMaw;
+}
+
+bool abilityChillingNeigh(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.chillingNeigh;
+}
+
+bool abilityGrimNeigh(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.grimNeigh;
+}
+
+bool abilityAsOneGlastrier(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.asOneGlastrier;
+}
+
+bool abilityAsOneSpectrier(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.asOneSpectrier;
+}
+
+bool abilitySeedSower(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.seedSower;
+}
+
+bool abilityThermalExchange(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.thermalExchange;
+}
+
+bool abilityAngerShell(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.angerShell;
+}
+
+bool abilityGuardDog(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.guardDog;
+}
+
+bool abilityRockyPayload(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.rockyPayload;
+}
+
+bool abilityWindPower(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.windPower;
+}
+
+bool abilityZeroToHero(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.zeroToHero;
+}
+
+bool abilityCommander(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.commander;
+}
+
+bool abilityElectromorphosis(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.electromorphosis;
+}
+
+bool abilityOrichalcumPulse(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.orichalcumPulse;
+}
+
+bool abilityOpportunist(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.opportunist;
+}
+
+bool abilityCostar(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.costar;
+}
+
+bool abilityMyceliumMight(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.myceliumMight;
+}
+
+bool abilityMindsEye(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.mindsEye;
+}
+
+bool abilitySupersweetSyrup(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.supersweetSyrup;
+}
+
+bool abilityHospitality(AbilityType abilityType) {
+    return GameRegistry::instance().getAbility(abilityType).passive.hospitality;
 }
 
 std::string abilityTypeImmunityEventReason(AbilityType abilityType) {
@@ -2590,6 +2830,126 @@ void initializeCoreAbilities(GameRegistry& registry) {
 
     // Steam Engine: +6 Speed when hit by Fire/Water
     regPassive(AbilityType::SteamEngine, [](auto& p) { p.steamEngine = true; });
+
+    // Punk Rock: boosts sound moves x1.3, halves sound damage taken
+    regPassive(AbilityType::PunkRock, [](auto& p) { p.punkRockSound = true; });
+
+    // Sand Spit: sets Sandstorm on hit
+    regPassive(AbilityType::SandSpit, [](auto& p) { p.sandSpitSand = true; });
+
+    // Ice Scales: halves Special damage
+    regPassive(AbilityType::IceScales, [](auto& p) { p.iceScales = true; });
+
+    // Ripen: doubles berry effects
+    regPassive(AbilityType::Ripen, [](auto& p) { p.ripenBerry = true; });
+
+    // Ice Face: blocks one physical hit
+    regPassive(AbilityType::IceFace, [](auto& p) { p.iceFaceBlock = true; });
+
+    // Power Spot: boosts ally x1.3
+    regPassive(AbilityType::PowerSpot, [](auto& p) { p.powerSpotAlly = true; });
+
+    // Mimicry: changes type to match terrain
+    regPassive(AbilityType::Mimicry, [](auto& p) { p.mimicry = true; });
+
+    // Screen Cleaner: removes screens on entry
+    regPassive(AbilityType::ScreenCleaner, [](auto& p) { p.screenCleaner = true; });
+
+    // Steely Spirit: boosts Steel moves
+    regPassive(AbilityType::SteelySpirit, [](auto& p) { p.steelySpirit = true; });
+
+    // Perish Body: inflicts Perish Song on contact
+    regPassive(AbilityType::PerishBody, [](auto& p) { p.perishBody = true; });
+
+    // Wandering Spirit: swaps abilities on contact
+    regPassive(AbilityType::WanderingSpirit, [](auto& p) { p.wanderingSpirit = true; });
+
+    // Gorilla Tactics: Atk x1.5 but locks move (like Choice Band)
+    regPassive(AbilityType::GorillaTactics, [](auto& p) { p.gorillaTactics = true; });
+
+    // Neutralizing Gas: suppresses all abilities
+    regPassive(AbilityType::NeutralizingGas, [](auto& p) { p.neutralizingGas = true; });
+
+    // Pastel Veil: prevents poison for team
+    regPassive(AbilityType::PastelVeil, [](auto& p) { p.pastelVeil = true; });
+
+    // Hunger Switch: changes form each turn
+    regPassive(AbilityType::HungerSwitch, [](auto& p) { p.hungerSwitch = true; });
+
+    // Quick Draw: chance to move first
+    regPassive(AbilityType::QuickDraw, [](auto& p) { p.quickDraw = true; });
+
+    // Unseen Fist: contact moves bypass Protect
+    regPassive(AbilityType::UnseenFist, [](auto& p) { p.unseenFist = true; });
+
+    // Curious Medicine: clears ally stat changes on entry
+    regPassive(AbilityType::CuriousMedicine, [](auto& p) { p.curiousMedicine = true; });
+
+    // Transistor: Electric moves x1.3
+    regPassive(AbilityType::Transistor, [](auto& p) { p.transistor = true; });
+
+    // Dragon's Maw: Dragon moves x1.5
+    regPassive(AbilityType::DragonsMaw, [](auto& p) { p.dragonsMaw = true; });
+
+    // Chilling Neigh: +1 Atk on KO
+    regPassive(AbilityType::ChillingNeigh, [](auto& p) { p.chillingNeigh = true; });
+
+    // Grim Neigh: +1 SpAtk on KO
+    regPassive(AbilityType::GrimNeigh, [](auto& p) { p.grimNeigh = true; });
+
+    // As One (Glastrier): Chilling Neigh + Unnerve
+    regPassive(AbilityType::AsOneGlastrier, [](auto& p) { p.asOneGlastrier = true; });
+
+    // As One (Spectrier): Grim Neigh + Unnerve
+    regPassive(AbilityType::AsOneSpectrier, [](auto& p) { p.asOneSpectrier = true; });
+
+    // Seed Sower: sets Grassy Terrain on hit
+    regPassive(AbilityType::SeedSower, [](auto& p) { p.seedSower = true; });
+
+    // Thermal Exchange: +1 Atk on Fire hit, prevents burn
+    regPassive(AbilityType::ThermalExchange, [](auto& p) { p.thermalExchange = true; });
+
+    // Anger Shell: +1 all stats at half HP
+    regPassive(AbilityType::AngerShell, [](auto& p) { p.angerShell = true; });
+
+    // Guard Dog: +1 Atk on Intimidate, prevents switch-out
+    regPassive(AbilityType::GuardDog, [](auto& p) { p.guardDog = true; });
+
+    // Rocky Payload: Rock moves x1.5
+    regPassive(AbilityType::RockyPayload, [](auto& p) { p.rockyPayload = true; });
+
+    // Wind Power: +1 charge on wind move hit
+    regPassive(AbilityType::WindPower, [](auto& p) { p.windPower = true; });
+
+    // Zero to Hero: transforms at half HP
+    regPassive(AbilityType::ZeroToHero, [](auto& p) { p.zeroToHero = true; });
+
+    // Commander: enters target's mouth
+    regPassive(AbilityType::Commander, [](auto& p) { p.commander = true; });
+
+    // Electromorphosis: +1 charge on hit
+    regPassive(AbilityType::Electromorphosis, [](auto& p) { p.electromorphosis = true; });
+
+    // Orichalcum Pulse: sets sun + Atk boost
+    regPassive(AbilityType::OrichalcumPulse, [](auto& p) { p.orichalcumPulse = true; });
+
+    // Opportunist: copies opponent's stat boosts
+    regPassive(AbilityType::Opportunist, [](auto& p) { p.opportunist = true; });
+
+    // Costar: copies ally's stat changes on entry
+    regPassive(AbilityType::Costar, [](auto& p) { p.costar = true; });
+
+    // Mycelium Might: status moves ignore abilities
+    regPassive(AbilityType::MyceliumMight, [](auto& p) { p.myceliumMight = true; });
+
+    // Mind's Eye: Normal/Fighting hit Ghost
+    regPassive(AbilityType::MindsEye, [](auto& p) { p.mindsEye = true; });
+
+    // Supersweet Syrup: -1 Evasion on entry
+    regPassive(AbilityType::SupersweetSyrup, [](auto& p) { p.supersweetSyrup = true; });
+
+    // Hospitality: heals ally on entry
+    regPassive(AbilityType::Hospitality, [](auto& p) { p.hospitality = true; });
 }
 
 std::vector<Ability> getAbilitiesForPokemon(AbilityType type) {
