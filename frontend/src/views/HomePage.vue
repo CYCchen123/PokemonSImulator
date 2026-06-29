@@ -1,0 +1,70 @@
+<template>
+  <div class="text-center py-12 relative overflow-hidden">
+    <!-- Animated Pokemon background -->
+    <div class="absolute inset-0 pointer-events-none opacity-10">
+      <img v-for="p in bgPokemon" :key="p.id"
+        :src="'/sprites/icons/'+p.id+'.png'"
+        class="absolute animate-float-bg"
+        :style="{left:p.x+'%',top:p.y+'%',animationDelay:p.delay+'s',width:p.size+'px',height:p.size+'px'}" />
+    </div>
+    <h1 class="text-4xl font-extrabold text-gray-800 mb-3 tracking-tight">
+      宝可梦<span class="text-rose-400">对战平台</span>
+    </h1>
+    <p class="text-lg text-gray-500 mb-2">成为最强的宝可梦训练家！</p>
+    <p class="text-sm text-gray-400 mb-10">组建你的梦想队伍 · 挑战全球训练家 · 登上荣耀之巅</p>
+
+    <!-- Feature Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 max-w-4xl mx-auto">
+      <router-link to="/matchmaking"
+        class="glass-card glass-card-hover p-6 animate-slide-up animate-slide-up-1 group">
+        <div class="text-5xl mb-3">🏟️</div>
+        <h3 class="text-lg font-bold text-gray-800 group-hover:text-pokeball-red transition-colors">对战竞技场</h3>
+        <p class="text-sm text-gray-500 mt-2">匹配对手 · 实时对战 · 决胜巅峰</p>
+      </router-link>
+
+      <router-link to="/teams"
+        class="glass-card glass-card-hover p-6 animate-slide-up animate-slide-up-2 group">
+        <div class="text-5xl mb-3">🎒</div>
+        <h3 class="text-lg font-bold text-gray-800 group-hover:text-pokedex-blue transition-colors">队伍编辑</h3>
+        <p class="text-sm text-gray-500 mt-2">可视化组队 · 配招策略 · 努力值分配</p>
+      </router-link>
+
+      <router-link to="/history"
+        class="glass-card glass-card-hover p-6 animate-slide-up animate-slide-up-3 group">
+        <div class="text-5xl mb-3">📋</div>
+        <h3 class="text-lg font-bold text-gray-800 group-hover:text-green-600 transition-colors">对战历史</h3>
+        <p class="text-sm text-gray-500 mt-2">回顾对战 · 复盘分析 · 持续进步</p>
+      </router-link>
+
+      <router-link to="/data"
+        class="glass-card glass-card-hover p-6 animate-slide-up animate-slide-up-4 group">
+        <div class="text-5xl mb-3">📖</div>
+        <h3 class="text-lg font-bold text-gray-800 group-hover:text-amber-500 transition-colors">数据图鉴</h3>
+        <p class="text-sm text-gray-500 mt-2">宝可梦 · 招式 · 特性 · 属性相克</p>
+      </router-link>
+    </div>
+
+    <!-- Pokeball Divider -->
+    <div class="flex items-center justify-center gap-3 my-10">
+      <div class="h-px flex-1 max-w-20 bg-gradient-to-r from-transparent to-gray-300"></div>
+      <div class="w-4 h-4 rounded-full bg-white border-2 border-gray-800 shadow-md"></div>
+      <div class="h-px flex-1 max-w-20 bg-gradient-to-l from-transparent to-gray-300"></div>
+    </div>
+
+    <!-- Footer -->
+    <p class="text-xs text-gray-400">
+      ⚡ 基于 C++17 高性能对战引擎 · 宝可梦第九世代规则
+    </p>
+  </div>
+</template>
+
+<script setup>
+const bgPokemon = [
+  {id:25,x:5,y:10,delay:0,size:48},{id:6,x:15,y:60,delay:2,size:56},
+  {id:1,x:25,y:30,delay:4,size:40},{id:133,x:35,y:70,delay:1,size:44},
+  {id:150,x:45,y:20,delay:3,size:60},{id:149,x:55,y:50,delay:5,size:64},
+  {id:9,x:65,y:15,delay:2,size:52},{id:3,x:75,y:55,delay:1,size:54},
+  {id:94,x:85,y:25,delay:3,size:48},{id:248,x:10,y:80,delay:0,size:60},
+  {id:445,x:50,y:80,delay:4,size:58},{id:658,x:80,y:75,delay:2,size:44},
+]
+</script>

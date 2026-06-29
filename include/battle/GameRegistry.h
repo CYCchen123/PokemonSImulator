@@ -11,14 +11,8 @@ class Pokemon;
 class Move;
 
 using MoveRuleHandler = std::function<bool(BattleContext&, Pokemon*, Pokemon*, const Move&)>;
-
-// Ability builder: receives pre-populated Ability + immunity helpers
-using AddTypeImmunity   = std::function<void(Type, bool, int)>;
-using AddStatusImmunity = std::function<void(StatusType)>;
-using AbilityBuilder    = std::function<void(Ability&, AddTypeImmunity, AddStatusImmunity)>;
-
-// Item builder: receives pre-constructed Item and configures it
-using ItemBuilder = std::function<void(Item&)>;
+using AbilityHandler = std::function<void(Ability&)>;
+using ItemHandler = std::function<void(Item&)>;
 
 class GameRegistry {
 public:
@@ -38,8 +32,8 @@ public:
     bool isInitialized() const { return initialized; }
 
     void registerMoveRule(const std::string& normalizedMoveName, MoveRuleHandler handler);
-    void registerAbilityBuilder(AbilityType type, AbilityBuilder builder);
-    void registerItemBuilder(ItemType type, ItemBuilder builder);
+    void registerAbility(AbilityType type, AbilityHandler handler);
+    void registerItem(ItemType type, ItemHandler handler);
 
     static GameRegistry& instance();
 
@@ -54,6 +48,6 @@ private:
     std::unordered_map<AbilityType, Ability> abilities;
     std::unordered_map<ItemType, Item> items;
     std::unordered_map<std::string, MoveRuleHandler> moveRules;
-    std::unordered_map<AbilityType, AbilityBuilder> abilityBuilders;
-    std::unordered_map<ItemType, ItemBuilder> itemBuilders;
+    std::unordered_map<AbilityType, AbilityHandler> abilityHandlers;
+    std::unordered_map<ItemType, ItemHandler> itemHandlers;
 };

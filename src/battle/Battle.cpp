@@ -1121,6 +1121,24 @@ void Battle::endTurn() {
     weather.tick();
     tickGravity();
 
+    // Auto-switch if active Pokemon fainted from DOT/weather/field damage
+    for (Side* side : {&sideA, &sideB}) {
+        Pokemon* active = side->getActivePokemon();
+        if (active && active->isFainted()) {
+            recordSpecialEvent(*this, "faint", {
+                {"pokemon", active->getName()},
+                {"reason", "residual_damage"}
+            });
+            side->resetProtectCount();
+            if (!side->autoSwitchNext()) {
+                // No more Pokemon - battle ends
+                return;
+            }
+            applyEntryHazardsOnSwitchIn(side, side->getActivePokemon());
+            applyPendingSwitchInRecovery(*side, side->getActivePokemon());
+        }
+    }
+
     runtimeMoveState.afterYouTarget = nullptr;
     resetActiveProtection();
 }
@@ -1166,6 +1184,10 @@ void Battle::recordExecutedMove(Pokemon* actor, const Move& selectedMove) {
     runtimeMoveState.lastUsedMoveName[actor] = selectedMove.getName();
     if (moveNameEquals(selectedMove, "round")) {
         runtimeMoveState.roundUsedThisTurn = true;
+    }
+    // Deduct 1 PP from the used move
+    if (actor) {
+        actor->reduceMovePPByName(selectedMove.getName(), 1);
     }
     tickEncoreForActor(actor);
 }
@@ -1617,10 +1639,15 @@ void Battle::resolveNextAction() {
                             Side* targetSide = findSideForPokemon(*this, action.target);
                             if (targetSide) {
                                 targetSide->resetProtectCount();
-                                if (targetSide->autoSwitchNext()) {
-                                    applyEntryHazardsOnSwitchIn(targetSide, targetSide->getActivePokemon());
-                                    applyPendingSwitchInRecovery(*targetSide, targetSide->getActivePokemon());
-                                }
+                                // Set pending switch flag — player MUST choose replacement
+                                const int nextIdx = firstAvailableSwitchIndex(*targetSide);
+                                runtimeMoveState.pendingSwitch[targetSide] = true;
+                                runtimeMoveState.hasRemaining[targetSide] = (nextIdx >= 0);
+                                recordSpecialEvent(*this, "faint", {
+                                    {"pokemon", action.target->getName()},
+                                    {"side", targetSide->getName()},
+                                    {"reason", "damage"}
+                                });
                             }
                             break;
                         }
@@ -1706,16 +1733,19 @@ void Battle::resolveNextAction() {
                     triggerAbility(action.actor, Trigger::OnFaint, action.target);
                     Side* targetSide = findSideForPokemon(*this, action.target);
                     if (targetSide) {
-                        // 宝可梦死亡时重置保护计数
                         targetSide->resetProtectCount();
-                        if (targetSide->autoSwitchNext()) {
-                            applyEntryHazardsOnSwitchIn(targetSide, targetSide->getActivePokemon());
-                            applyPendingSwitchInRecovery(*targetSide, targetSide->getActivePokemon());
-                        }
+                        const int nextIdx = firstAvailableSwitchIndex(*targetSide);
+                        runtimeMoveState.pendingSwitch[targetSide] = true;
+                        runtimeMoveState.hasRemaining[targetSide] = (nextIdx >= 0);
+                        recordSpecialEvent(*this, "faint", {
+                            {"pokemon", action.target->getName()},
+                            {"side", targetSide->getName()},
+                            {"reason", "damage"}
+                        });
                     }
                 }
             }
-            
+
             // 处理技能追加效果
             if (!abilitySuppressesSecondaryEffects(attackerAbility, selectedMove, isSheerForceBoostedMove(selectedMove))) {
                 processMoveEffects(action.actor, action.target, selectedMove);
@@ -2794,4 +2824,43 @@ void Battle::triggerItemEffect(Pokemon* pokemon, ItemTrigger trigger, Pokemon* o
         && afterItem == ItemType::None) {
         runtimeMoveState.cudChewPending[pokemon] = CudChewState{beforeItem, turnNumber + 1};
     }
+}
+
+bool Battle::hasPendingSwitch(Side& side) const {
+    auto it = runtimeMoveState.pendingSwitch.find(&side);
+    return it != runtimeMoveState.pendingSwitch.end() && it->second;
+}
+
+bool Battle::processForcedSwitch(Side& side, int switchIndex) {
+    auto it = runtimeMoveState.pendingSwitch.find(&side);
+    if (it == runtimeMoveState.pendingSwitch.end() || !it->second) return false;
+
+    if (switchIndex < 0 || switchIndex >= side.getPokemonCount()) return false;
+    if (switchIndex == side.getActiveIndex()) return false;
+
+    Pokemon* target = side.getTeam()[switchIndex];
+    if (!target || target->isFainted()) return false;
+
+    if (!switchPokemon(side, switchIndex)) return false;
+
+    runtimeMoveState.pendingSwitch[&side] = false;
+    runtimeMoveState.hasRemaining[&side] = false;
+
+    Pokemon* newActive = side.getActivePokemon();
+    if (newActive) {
+        Pokemon* opponent = (&side == &sideA) ? sideB.getActivePokemon() : sideA.getActivePokemon();
+        triggerAbility(newActive, Trigger::OnEntry, opponent);
+        triggerItemEffect(newActive, ItemTrigger::OnEntry, opponent);
+    }
+
+    applyEntryHazardsOnSwitchIn(&side, newActive);
+    applyPendingSwitchInRecovery(side, newActive);
+
+    recordSpecialEvent(*this, "switch_in", {
+        {"side", side.getName()},
+        {"pokemon", newActive ? newActive->getName() : "?"},
+        {"reason", "forced_switch"}
+    });
+
+    return true;
 }

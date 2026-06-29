@@ -195,1159 +195,817 @@ std::string getItemName(ItemType type) {
     }
 }
 
-Item createOranBerry() {
-    Item item(ItemType::OranBerry, "Oran Berry");
-    item.isConsumable = true;
-    item.addEffect(ItemTrigger::OnDamage, [](Pokemon* self, Pokemon* opponent, BattleContext& ctx, void* context) {
-        if (!self) return;
-        if (self->getCurrentHP() <= self->getMaxHP() / 2) {
-            self->setCurrentHP(self->getCurrentHP() + 10);
+void initializeCoreItems(GameRegistry& registry) {
+    // === Helper lambdas for group patterns (matching moves' factory lambda style) ===
+
+    // Type boost items: 1.2x damage for moves of a specific type
+    auto regTypeBoost = [&registry](ItemType type, Type boostedType) {
+        registry.registerItem(type, [boostedType](Item& item) {
+            item.setDamageModifier(1.2f, true, [boostedType](Pokemon*, Pokemon*, const Move& move) {
+                return move.getType() == boostedType;
+            });
+        });
+    };
+
+    // Status cure berry: cures a specific status, then consumes
+    auto regStatusBerry = [&registry](ItemType type, StatusType status) {
+        registry.registerItem(type, [status](Item& item) {
+            item.isConsumable = true;
+            item.addEffect(ItemTrigger::OnStatus, [status](Pokemon* self, Pokemon*, BattleContext&, void*) {
+                if (!self || !self->hasStatus(status)) return;
+                self->removeStatus(status);
+                self->removeItem();
+            });
+        });
+    };
+
+    // Half-HP heal berry: heals at <= 50% HP, then consumes
+    auto regHalfHpHealBerry = [&registry](ItemType type, int numerator, int denominator) {
+        registry.registerItem(type, [numerator, denominator](Item& item) {
+            item.isConsumable = true;
+            item.addEffect(ItemTrigger::OnDamage, [numerator, denominator](Pokemon* self, Pokemon*, BattleContext&, void*) {
+                if (!self) return;
+                if (self->getCurrentHP() > self->getMaxHP() / 2) return;
+                int heal = std::max(1, self->getMaxHP() * numerator / denominator);
+                self->setCurrentHP(self->getCurrentHP() + heal);
+                self->removeItem();
+            });
+        });
+    };
+
+    // Resist berry: 0.5x damage from super-effective hits of a specific type, then consumes
+    auto regResistBerry = [&registry](ItemType type, Type resistedType) {
+        registry.registerItem(type, [resistedType](Item& item) {
+            item.isConsumable = true;
+            item.setDamageModifier(0.5f, false, [resistedType](Pokemon* self, Pokemon*, const Move& move) {
+                if (!self || move.getType() != resistedType) return false;
+                return self->getTypeEffectiveness(move.getType()) > 1.0f;
+            });
+            item.addEffect(ItemTrigger::OnDamage, [resistedType](Pokemon* self, Pokemon*, BattleContext&, void* context) {
+                if (!self) return;
+                const ItemDamageContext* dc = toDamageContext(context);
+                if (!dc || !dc->move || dc->damage <= 0) return;
+                if (dc->move->getType() != resistedType) return;
+                if (!dc->wasSuperEffective) return;
+                self->removeItem();
+            });
+        });
+    };
+
+    // Pinch stat berry: boosts a stat at <= 25% HP, then consumes
+    auto regPinchBerry = [&registry](ItemType type, StatIndex stat) {
+        registry.registerItem(type, [stat](Item& item) {
+            item.isConsumable = true;
+            item.addEffect(ItemTrigger::OnDamage, [stat](Pokemon* self, Pokemon*, BattleContext&, void*) {
+                if (!self) return;
+                if (self->getCurrentHP() > self->getMaxHP() / 4) return;
+                self->changeStatStage(stat, 1);
+                self->removeItem();
+            });
+        });
+    };
+
+    // Retaliation berry: damages attacker for 1/8 max HP, then consumes
+    auto regRetaliationBerry = [&registry](ItemType type, Category triggerCategory) {
+        registry.registerItem(type, [triggerCategory](Item& item) {
+            item.isConsumable = true;
+            item.addEffect(ItemTrigger::OnDamage, [triggerCategory](Pokemon* self, Pokemon* opponent, BattleContext&, void* context) {
+                if (!self || !opponent) return;
+                const ItemDamageContext* dc = toDamageContext(context);
+                if (!dc || !dc->move || dc->damage <= 0) return;
+                if (dc->move->getCategory() != triggerCategory) return;
+                int reflectedDamage = std::max(1, opponent->getMaxHP() / 8);
+                opponent->setCurrentHP(opponent->getCurrentHP() - reflectedDamage);
+                self->removeItem();
+            });
+        });
+    };
+
+    // Choice items: stat modifier + OnEntry placeholder
+    auto regChoiceItem = [&registry](ItemType type, ItemStatModifier::Stat stat, float mult) {
+        registry.registerItem(type, [stat, mult](Item& item) {
+            item.addEffect(ItemTrigger::OnEntry, [](Pokemon* self, Pokemon*, BattleContext&, void*) {
+                if (!self) return;
+            });
+            item.addStatModifier(stat, mult);
+        });
+    };
+
+    // Terrain seed: boosts a stat on the matching terrain, then consumes
+    auto regSeed = [&registry](ItemType type, FieldType fieldType, StatIndex stat) {
+        registry.registerItem(type, [fieldType, stat](Item& item) {
+            item.isConsumable = true;
+            item.addEffect(ItemTrigger::OnEntry, [fieldType, stat](Pokemon* self, Pokemon*, BattleContext& ctx, void*) {
+                if (self && ctx.getField().type == fieldType) { self->changeStatStage(stat, 1); self->removeItem(); }
+            });
+        });
+    };
+
+    // Weather rock: extends weather duration
+    auto regWeatherRock = [&registry](ItemType type) {
+        registry.registerItem(type, [](Item& item) {
+            item.passive.extendsWeather = true;
+        });
+    };
+
+    // Passive-only items: just set passive flags
+    auto regPassive = [&registry](ItemType type, std::function<void(Item::ItemPassiveFlags&)> setFlags) {
+        registry.registerItem(type, [setFlags](Item& item) {
+            setFlags(item.passive);
+        });
+    };
+
+    // Consumable + passive items
+    auto regConsumablePassive = [&registry](ItemType type, std::function<void(Item::ItemPassiveFlags&)> setFlags) {
+        registry.registerItem(type, [setFlags](Item& item) {
+            item.isConsumable = true;
+            setFlags(item.passive);
+        });
+    };
+
+    // ================================================================
+    // === Standalone items (each with unique logic) ===
+    // ================================================================
+
+    registry.registerItem(ItemType::OranBerry, [](Item& item) {
+        item.isConsumable = true;
+        item.addEffect(ItemTrigger::OnDamage, [](Pokemon* self, Pokemon*, BattleContext&, void*) {
+            if (!self) return;
+            if (self->getCurrentHP() <= self->getMaxHP() / 2) {
+                self->setCurrentHP(self->getCurrentHP() + 10);
+                self->removeItem();
+            }
+        });
+    });
+
+    registry.registerItem(ItemType::SitrusBerry, [](Item& item) {
+        item.isConsumable = true;
+        item.addEffect(ItemTrigger::OnDamage, [](Pokemon* self, Pokemon*, BattleContext&, void*) {
+            if (!self) return;
+            if (self->getCurrentHP() <= self->getMaxHP() / 2) {
+                int heal = std::max(1, self->getMaxHP() / 4);
+                self->setCurrentHP(self->getCurrentHP() + heal);
+                self->removeItem();
+            }
+        });
+    });
+
+    registry.registerItem(ItemType::LumBerry, [](Item& item) {
+        item.isConsumable = true;
+        item.addEffect(ItemTrigger::OnStatus, [](Pokemon* self, Pokemon*, BattleContext&, void*) {
+            if (!self) return;
+            self->clearStatuses();
             self->removeItem();
-        }
+        });
     });
-    return item;
-}
 
-Item createSitrusBerry() {
-    Item item(ItemType::SitrusBerry, "Sitrus Berry");
-    item.isConsumable = true;
-    item.addEffect(ItemTrigger::OnDamage, [](Pokemon* self, Pokemon* opponent, BattleContext& ctx, void* context) {
-        if (!self) return;
-        if (self->getCurrentHP() <= self->getMaxHP() / 2) {
-            int heal = std::max(1, self->getMaxHP() / 4);
-            self->setCurrentHP(self->getCurrentHP() + heal);
-            self->removeItem();
-        }
-    });
-    return item;
-}
-
-Item createLumBerry() {
-    Item item(ItemType::LumBerry, "Lum Berry");
-    item.isConsumable = true;
-    item.addEffect(ItemTrigger::OnStatus, [](Pokemon* self, Pokemon* opponent, BattleContext& ctx, void* context) {
-        if (!self) return;
-        // 清除所有异常状态
-        self->clearStatuses();
-        self->removeItem();
-    });
-    return item;
-}
-
-Item createLeftovers() {
-    Item item(ItemType::Leftovers, "Leftovers");
-    item.addEffect(ItemTrigger::OnTurnEnd, [](Pokemon* self, Pokemon* opponent, BattleContext& ctx, void* context) {
-        if (!self) return;
-        int heal = std::max(1, self->getMaxHP() / 16);
-        self->setCurrentHP(self->getCurrentHP() + heal);
-    });
-    return item;
-}
-
-Item createChoiceBand() {
-    Item item(ItemType::ChoiceBand, "Choice Band");
-    item.addEffect(ItemTrigger::OnEntry, [](Pokemon* self, Pokemon* opponent, BattleContext& ctx, void* context) {
-        if (!self) return;
-    });
-    item.addStatModifier(ItemStatModifier::Stat::Attack, 1.5f);
-    return item;
-}
-
-Item createChoiceSpecs() {
-    Item item(ItemType::ChoiceSpecs, "Choice Specs");
-    item.addEffect(ItemTrigger::OnEntry, [](Pokemon* self, Pokemon* opponent, BattleContext& ctx, void* context) {
-        if (!self) return;
-    });
-    item.addStatModifier(ItemStatModifier::Stat::SpAttack, 1.5f);
-    return item;
-}
-
-Item createChoiceScarf() {
-    Item item(ItemType::ChoiceScarf, "Choice Scarf");
-    item.addEffect(ItemTrigger::OnEntry, [](Pokemon* self, Pokemon* opponent, BattleContext& ctx, void* context) {
-        if (!self) return;
-    });
-    item.addStatModifier(ItemStatModifier::Stat::Speed, 1.5f);
-    return item;
-}
-
-Item createQuickClaw() {
-    Item item(ItemType::QuickClaw, "Quick Claw");
-    item.passive.hasQuickClaw = true;
-    return item;
-}
-
-Item createLifeOrb() {
-    Item item(ItemType::LifeOrb, "Life Orb");
-    item.addEffect(ItemTrigger::OnDealDamage, [](Pokemon* self, Pokemon* opponent, BattleContext& ctx, void* context) {
-        if (!self) return;
-        const ItemDamageContext* damageContext = toDamageContext(context);
-        if (!tookDamageFromDamagingMove(damageContext)) {
-            return;
-        }
-        int recoil = std::max(1, self->getMaxHP() / 10);
-        self->setCurrentHP(self->getCurrentHP() - recoil);
-    });
-    item.setDamageModifier(1.3f, true);
-    return item;
-}
-
-Item createFocusSash() {
-    Item item(ItemType::FocusSash, "Focus Sash");
-    item.isConsumable = true;
-    item.addEffect(ItemTrigger::OnDamage, [](Pokemon* self, Pokemon* opponent, BattleContext& ctx, void* context) {
-        if (!self) return;
-        const ItemDamageContext* damageContext = toDamageContext(context);
-        if (!damageContext || !damageContext->isDamagingMove) {
-            return;
-        }
-        if (damageContext->hpBeforeDamage >= self->getMaxHP() && self->getCurrentHP() <= 0) {
-            self->setCurrentHP(1);
-            self->removeItem();
-        }
-    });
-    return item;
-}
-
-Item createRockyHelmet() {
-    Item item(ItemType::RockyHelmet, "Rocky Helmet");
-    item.addEffect(ItemTrigger::OnDamage, [](Pokemon* self, Pokemon* opponent, BattleContext& ctx, void* context) {
-        if (!self || !opponent) return;
-        const ItemDamageContext* damageContext = toDamageContext(context);
-        if (!damageContext || !damageContext->isContact || damageContext->damage <= 0) {
-            return;
-        }
-        int reflectedDamage = std::max(1, opponent->getMaxHP() / 6);
-        opponent->setCurrentHP(opponent->getCurrentHP() - reflectedDamage);
-    });
-    return item;
-}
-
-Item createAirBalloon() {
-    Item item(ItemType::AirBalloon, "Air Balloon");
-    item.isConsumable = true;
-    item.setDamageModifier(0.0f, false, [](Pokemon* self, Pokemon* opponent, const Move& move) {
-        return self && move.getType() == Type::Ground;
-    });
-    item.addEffect(ItemTrigger::OnDamage, [](Pokemon* self, Pokemon* opponent, BattleContext& ctx, void* context) {
-        if (!self) return;
-        const ItemDamageContext* damageContext = toDamageContext(context);
-        if (tookDamageFromDamagingMove(damageContext)) {
-            self->removeItem();
-        }
-    });
-    return item;
-}
-
-Item createEviolite() {
-    Item item(ItemType::Eviolite, "Eviolite");
-    item.addEffect(ItemTrigger::OnEntry, [](Pokemon* self, Pokemon* opponent, BattleContext& ctx, void* context) {
-        if (!self) return;
-    });
-    item.addStatModifier(ItemStatModifier::Stat::Defense, 1.5f);
-    item.addStatModifier(ItemStatModifier::Stat::SpDefense, 1.5f);
-    return item;
-}
-
-Item createAssaultVest() {
-    Item item(ItemType::AssaultVest, "Assault Vest");
-    item.addEffect(ItemTrigger::OnEntry, [](Pokemon* self, Pokemon* opponent, BattleContext& ctx, void* context) {
-        if (!self) return;
-    });
-    item.addStatModifier(ItemStatModifier::Stat::SpDefense, 1.5f);
-    return item;
-}
-
-Item createRedCard() {
-    Item item(ItemType::RedCard, "Red Card");
-    item.isConsumable = true;
-    item.addEffect(ItemTrigger::OnDamage, [](Pokemon* self, Pokemon* opponent, BattleContext& ctx, void* context) {
-        if (!self || !opponent) return;
-        const ItemDamageContext* damageContext = toDamageContext(context);
-        if (!tookDamageFromDamagingMove(damageContext) || self->isFainted()) {
-            return;
-        }
-        Side* opponentSide = ctx.findSideForPokemon(opponent);
-        if (opponentSide) {
-            opponentSide->autoSwitchNext();
-            self->removeItem();
-        }
-    });
-    return item;
-}
-
-Item createWeaknessPolicy() {
-    Item item(ItemType::WeaknessPolicy, "Weakness Policy");
-    item.isConsumable = true;
-    item.addEffect(ItemTrigger::OnDamage, [](Pokemon* self, Pokemon* opponent, BattleContext& ctx, void* context) {
-        if (!self) return;
-        const ItemDamageContext* damageContext = toDamageContext(context);
-        if (!damageContext || !damageContext->wasSuperEffective || damageContext->damage <= 0) {
-            return;
-        }
-        self->changeStatStage(StatIndex::Attack, 2);
-        self->changeStatStage(StatIndex::SpecialAttack, 2);
-        self->removeItem();
-    });
-    return item;
-}
-
-Item createBlackSludge() {
-    Item item(ItemType::BlackSludge, "Black Sludge");
-    item.addEffect(ItemTrigger::OnTurnEnd, [](Pokemon* self, Pokemon* opponent, BattleContext& ctx, void* context) {
-        if (!self) return;
-        bool isPoisonType = false;
-        // 检查宝可梦是否为毒属性
-        if (self->getType1() == Type::Poison || self->getType2() == Type::Poison) {
-            isPoisonType = true;
-        }
-        if (isPoisonType) {
-            // 毒属性宝可梦回复1/16最大HP
+    registry.registerItem(ItemType::Leftovers, [](Item& item) {
+        item.addEffect(ItemTrigger::OnTurnEnd, [](Pokemon* self, Pokemon*, BattleContext&, void*) {
+            if (!self) return;
             int heal = std::max(1, self->getMaxHP() / 16);
             self->setCurrentHP(self->getCurrentHP() + heal);
-        } else {
-            // 非毒属性宝可梦受到1/8最大HP伤害
-            int damage = self->getMaxHP() / 8;
+        });
+    });
+
+    registry.registerItem(ItemType::LifeOrb, [](Item& item) {
+        item.addEffect(ItemTrigger::OnDealDamage, [](Pokemon* self, Pokemon*, BattleContext&, void* context) {
+            if (!self) return;
+            const ItemDamageContext* dc = toDamageContext(context);
+            if (!tookDamageFromDamagingMove(dc)) return;
+            int recoil = std::max(1, self->getMaxHP() / 10);
+            self->setCurrentHP(self->getCurrentHP() - recoil);
+        });
+        item.setDamageModifier(1.3f, true);
+    });
+
+    registry.registerItem(ItemType::FocusSash, [](Item& item) {
+        item.isConsumable = true;
+        item.addEffect(ItemTrigger::OnDamage, [](Pokemon* self, Pokemon*, BattleContext&, void* context) {
+            if (!self) return;
+            const ItemDamageContext* dc = toDamageContext(context);
+            if (!dc || !dc->isDamagingMove) return;
+            if (dc->hpBeforeDamage >= self->getMaxHP() && self->getCurrentHP() <= 0) {
+                self->setCurrentHP(1);
+                self->removeItem();
+            }
+        });
+    });
+
+    registry.registerItem(ItemType::RockyHelmet, [](Item& item) {
+        item.addEffect(ItemTrigger::OnDamage, [](Pokemon* self, Pokemon* opponent, BattleContext&, void* context) {
+            if (!self || !opponent) return;
+            const ItemDamageContext* dc = toDamageContext(context);
+            if (!dc || !dc->isContact || dc->damage <= 0) return;
+            int reflectedDamage = std::max(1, opponent->getMaxHP() / 6);
+            opponent->setCurrentHP(opponent->getCurrentHP() - reflectedDamage);
+        });
+    });
+
+    registry.registerItem(ItemType::AirBalloon, [](Item& item) {
+        item.isConsumable = true;
+        item.setDamageModifier(0.0f, false, [](Pokemon* self, Pokemon*, const Move& move) {
+            return self && move.getType() == Type::Ground;
+        });
+        item.addEffect(ItemTrigger::OnDamage, [](Pokemon* self, Pokemon*, BattleContext&, void* context) {
+            if (!self) return;
+            const ItemDamageContext* dc = toDamageContext(context);
+            if (tookDamageFromDamagingMove(dc)) self->removeItem();
+        });
+    });
+
+    registry.registerItem(ItemType::Eviolite, [](Item& item) {
+        item.addEffect(ItemTrigger::OnEntry, [](Pokemon* self, Pokemon*, BattleContext&, void*) {
+            if (!self) return;
+        });
+        item.addStatModifier(ItemStatModifier::Stat::Defense, 1.5f);
+        item.addStatModifier(ItemStatModifier::Stat::SpDefense, 1.5f);
+    });
+
+    registry.registerItem(ItemType::AssaultVest, [](Item& item) {
+        item.addEffect(ItemTrigger::OnEntry, [](Pokemon* self, Pokemon*, BattleContext&, void*) {
+            if (!self) return;
+        });
+        item.addStatModifier(ItemStatModifier::Stat::SpDefense, 1.5f);
+    });
+
+    registry.registerItem(ItemType::RedCard, [](Item& item) {
+        item.isConsumable = true;
+        item.addEffect(ItemTrigger::OnDamage, [](Pokemon* self, Pokemon* opponent, BattleContext& ctx, void* context) {
+            if (!self || !opponent) return;
+            const ItemDamageContext* dc = toDamageContext(context);
+            if (!tookDamageFromDamagingMove(dc) || self->isFainted()) return;
+            Side* opponentSide = ctx.findSideForPokemon(opponent);
+            if (opponentSide) {
+                opponentSide->autoSwitchNext();
+                self->removeItem();
+            }
+        });
+    });
+
+    registry.registerItem(ItemType::WeaknessPolicy, [](Item& item) {
+        item.isConsumable = true;
+        item.addEffect(ItemTrigger::OnDamage, [](Pokemon* self, Pokemon*, BattleContext&, void* context) {
+            if (!self) return;
+            const ItemDamageContext* dc = toDamageContext(context);
+            if (!dc || !dc->wasSuperEffective || dc->damage <= 0) return;
+            self->changeStatStage(StatIndex::Attack, 2);
+            self->changeStatStage(StatIndex::SpecialAttack, 2);
+            self->removeItem();
+        });
+    });
+
+    registry.registerItem(ItemType::BlackSludge, [](Item& item) {
+        item.addEffect(ItemTrigger::OnTurnEnd, [](Pokemon* self, Pokemon*, BattleContext&, void*) {
+            if (!self) return;
+            bool isPoisonType = (self->getType1() == Type::Poison || self->getType2() == Type::Poison);
+            if (isPoisonType) {
+                int heal = std::max(1, self->getMaxHP() / 16);
+                self->setCurrentHP(self->getCurrentHP() + heal);
+            } else {
+                int damage = self->getMaxHP() / 8;
+                self->setCurrentHP(self->getCurrentHP() - damage);
+            }
+        });
+    });
+
+    registry.registerItem(ItemType::ShellBell, [](Item& item) {
+        item.addEffect(ItemTrigger::OnDealDamage, [](Pokemon* self, Pokemon*, BattleContext&, void* context) {
+            if (!self) return;
+            const ItemDamageContext* dc = toDamageContext(context);
+            if (!tookDamageFromDamagingMove(dc)) return;
+            int heal = dc->damage / 8;
+            if (heal > 0) self->setCurrentHP(self->getCurrentHP() + heal);
+        });
+    });
+
+    registry.registerItem(ItemType::ExpertBelt, [](Item& item) {
+        item.setDamageModifier(1.2f, true, [](Pokemon* self, Pokemon* opponent, const Move& move) {
+            if (!self || !opponent) return false;
+            return opponent->getTypeEffectiveness(move.getType()) > 1.0f;
+        });
+    });
+
+    registry.registerItem(ItemType::MuscleBand, [](Item& item) {
+        item.addStatModifier(ItemStatModifier::Stat::Attack, 1.1f);
+    });
+
+    registry.registerItem(ItemType::WiseGlasses, [](Item& item) {
+        item.addStatModifier(ItemStatModifier::Stat::SpAttack, 1.1f);
+    });
+
+    registry.registerItem(ItemType::LightBall, [](Item& item) {
+        item.addStatModifier(ItemStatModifier::Stat::Attack, 2.0f);
+        item.addStatModifier(ItemStatModifier::Stat::SpAttack, 2.0f);
+    });
+
+    registry.registerItem(ItemType::QuickPowder, [](Item& item) {
+        item.addStatModifier(ItemStatModifier::Stat::Speed, 2.0f);
+    });
+
+    registry.registerItem(ItemType::ThickClub, [](Item& item) {
+        item.addStatModifier(ItemStatModifier::Stat::Attack, 2.0f);
+    });
+
+    registry.registerItem(ItemType::MetalPowder, [](Item& item) {
+        item.addStatModifier(ItemStatModifier::Stat::Defense, 1.5f);
+        item.addStatModifier(ItemStatModifier::Stat::SpDefense, 1.5f);
+    });
+
+    registry.registerItem(ItemType::DeepSeaTooth, [](Item& item) {
+        item.addStatModifier(ItemStatModifier::Stat::SpAttack, 2.0f);
+    });
+
+    registry.registerItem(ItemType::DeepSeaScale, [](Item& item) {
+        item.addStatModifier(ItemStatModifier::Stat::SpDefense, 2.0f);
+    });
+
+    registry.registerItem(ItemType::PowerHerb, [](Item& item) {
+        item.isConsumable = true;
+        item.addEffect(ItemTrigger::OnAttack, [](Pokemon* self, Pokemon*, BattleContext&, void*) {
+            if (self) self->removeItem();
+        });
+        item.addEffect(ItemTrigger::OnDealDamage, [](Pokemon* self, Pokemon*, BattleContext&, void* context) {
+            if (!self) return;
+            const ItemDamageContext* dc = toDamageContext(context);
+            if (!dc || !dc->move) return;
+            if (dc->move->getName() == "Fly" || dc->move->getName() == "Protect") self->removeItem();
+        });
+    });
+
+    registry.registerItem(ItemType::StickyBarb, [](Item& item) {
+        item.addEffect(ItemTrigger::OnTurnEnd, [](Pokemon* self, Pokemon*, BattleContext&, void*) {
+            if (!self) return;
+            int damage = std::max(1, self->getMaxHP() / 8);
             self->setCurrentHP(self->getCurrentHP() - damage);
-        }
+        });
+        item.addEffect(ItemTrigger::OnDamage, [](Pokemon* self, Pokemon* opponent, BattleContext&, void* context) {
+            if (!self || !opponent) return;
+            const ItemDamageContext* dc = toDamageContext(context);
+            if (!dc || !dc->isContact || dc->damage <= 0) return;
+            int damage = std::max(1, opponent->getMaxHP() / 8);
+            opponent->setCurrentHP(opponent->getCurrentHP() - damage);
+        });
     });
-    return item;
-}
 
-Item createShellBell() {
-    Item item(ItemType::ShellBell, "Shell Bell");
-    item.addEffect(ItemTrigger::OnDealDamage, [](Pokemon* self, Pokemon* opponent, BattleContext& ctx, void* context) {
-        if (!self || !opponent) return;
-        const ItemDamageContext* damageContext = toDamageContext(context);
-        if (!tookDamageFromDamagingMove(damageContext)) {
-            return;
-        }
-        int heal = damageContext->damage / 8;
-        if (heal > 0) {
+    registry.registerItem(ItemType::BigRoot, [](Item& item) {
+        item.addEffect(ItemTrigger::OnDealDamage, [](Pokemon* self, Pokemon*, BattleContext&, void* context) {
+            if (!self) return;
+            const ItemDamageContext* dc = toDamageContext(context);
+            if (!dc || dc->damage <= 0) return;
+            int heal = std::max(1, dc->damage * 3 / 10);
             self->setCurrentHP(self->getCurrentHP() + heal);
-        }
+        });
     });
-    return item;
-}
 
-Item createExpertBelt() {
-    Item item(ItemType::ExpertBelt, "Expert Belt");
-    item.setDamageModifier(1.2f, true, [](Pokemon* self, Pokemon* opponent, const Move& move) {
-        if (!self || !opponent) return false;
-        return opponent->getTypeEffectiveness(move.getType()) > 1.0f;
+    registry.registerItem(ItemType::KingsRock, [](Item& item) {
+        item.addEffect(ItemTrigger::OnDealDamage, [](Pokemon* self, Pokemon* opponent, BattleContext&, void* context) {
+            if (!self || !opponent) return;
+            const ItemDamageContext* dc = toDamageContext(context);
+            if (!dc || !dc->isDamagingMove || dc->damage <= 0) return;
+            if (!dc->move || dc->move->getEffect() == MoveEffect::Flinch) return;
+            if (opponent->getAbility() == AbilityType::InnerFocus) return;
+            if (PRNG::nextInt(0, 100) < 10) opponent->addStatus(StatusType::Flinch, 1);
+        });
     });
-    return item;
-}
 
-Item createMuscleBand() {
-    Item item(ItemType::MuscleBand, "Muscle Band");
-    item.addStatModifier(ItemStatModifier::Stat::Attack, 1.1f);
-    return item;
-}
-
-Item createWiseGlasses() {
-    Item item(ItemType::WiseGlasses, "Wise Glasses");
-    item.addStatModifier(ItemStatModifier::Stat::SpAttack, 1.1f);
-    return item;
-}
-
-Item createLightBall() {
-    Item item(ItemType::LightBall, "Light Ball");
-    item.addStatModifier(ItemStatModifier::Stat::Attack, 2.0f);
-    item.addStatModifier(ItemStatModifier::Stat::SpAttack, 2.0f);
-    return item;
-}
-
-Item createQuickPowder() {
-    Item item(ItemType::QuickPowder, "Quick Powder");
-    item.addStatModifier(ItemStatModifier::Stat::Speed, 2.0f);
-    return item;
-}
-
-Item createThickClub() {
-    Item item(ItemType::ThickClub, "Thick Club");
-    item.addStatModifier(ItemStatModifier::Stat::Attack, 2.0f);
-    return item;
-}
-
-Item createMetalPowder() {
-    Item item(ItemType::MetalPowder, "Metal Powder");
-    item.addStatModifier(ItemStatModifier::Stat::Defense, 1.5f);
-    item.addStatModifier(ItemStatModifier::Stat::SpDefense, 1.5f);
-    return item;
-}
-
-Item createDeepSeaTooth() {
-    Item item(ItemType::DeepSeaTooth, "Deep Sea Tooth");
-    item.addStatModifier(ItemStatModifier::Stat::SpAttack, 2.0f);
-    return item;
-}
-
-Item createDeepSeaScale() {
-    Item item(ItemType::DeepSeaScale, "Deep Sea Scale");
-    item.addStatModifier(ItemStatModifier::Stat::SpDefense, 2.0f);
-    return item;
-}
-
-Item createPowerHerb() {
-    Item item(ItemType::PowerHerb, "Power Herb");
-    item.isConsumable = true;
-    item.addEffect(ItemTrigger::OnAttack, [](Pokemon* self, Pokemon*, BattleContext&, void*) {
-        if (self) {
-            self->removeItem();
-        }
+    registry.registerItem(ItemType::WideLens, [](Item& item) {
+        item.addStatModifier(ItemStatModifier::Stat::Accuracy, 1.1f);
     });
-    item.addEffect(ItemTrigger::OnDealDamage, [](Pokemon* self, Pokemon* opponent, BattleContext&, void* context) {
-        if (!self) return;
-        const ItemDamageContext* damageContext = toDamageContext(context);
-        if (!damageContext || !damageContext->move) return;
-        if (damageContext->move->getName() == "Fly" || damageContext->move->getName() == "Protect") {
-            self->removeItem();
-        }
+
+    registry.registerItem(ItemType::ZoomLens, [](Item& item) {
+        item.addStatModifier(ItemStatModifier::Stat::Accuracy, 1.2f);
     });
-    return item;
-}
 
-Item createStickyBarb() {
-    Item item(ItemType::StickyBarb, "Sticky Barb");
-    item.addEffect(ItemTrigger::OnTurnEnd, [](Pokemon* self, Pokemon*, BattleContext&, void*) {
-        if (!self) return;
-        int damage = std::max(1, self->getMaxHP() / 8);
-        self->setCurrentHP(self->getCurrentHP() - damage);
+    registry.registerItem(ItemType::ScopeLens, [](Item& item) {
+        item.addStatModifier(ItemStatModifier::Stat::Accuracy, 1.1f);
     });
-    item.addEffect(ItemTrigger::OnDamage, [](Pokemon* self, Pokemon* opponent, BattleContext&, void* context) {
-        if (!self || !opponent) return;
-        const ItemDamageContext* damageContext = toDamageContext(context);
-        if (!damageContext || !damageContext->isContact || damageContext->damage <= 0) return;
-        int damage = std::max(1, opponent->getMaxHP() / 8);
-        opponent->setCurrentHP(opponent->getCurrentHP() - damage);
-    });
-    return item;
-}
 
-Item createBigRoot() {
-    Item item(ItemType::BigRoot, "Big Root");
-    item.addEffect(ItemTrigger::OnDealDamage, [](Pokemon* self, Pokemon*, BattleContext&, void* context) {
-        if (!self) return;
-        const ItemDamageContext* damageContext = toDamageContext(context);
-        if (!damageContext || damageContext->damage <= 0) return;
-        int heal = std::max(1, damageContext->damage * 3 / 10);
-        self->setCurrentHP(self->getCurrentHP() + heal);
-    });
-    return item;
-}
-
-Item createKingsRock() {
-    Item item(ItemType::KingsRock, "King's Rock");
-    item.addEffect(ItemTrigger::OnDealDamage, [](Pokemon* self, Pokemon* opponent, BattleContext&, void* context) {
-        if (!self || !opponent) return;
-        const ItemDamageContext* damageContext = toDamageContext(context);
-        if (!damageContext || !damageContext->isDamagingMove || damageContext->damage <= 0) return;
-        if (!damageContext->move || damageContext->move->getEffect() == MoveEffect::Flinch) {
-            return;
-        }
-        if (opponent->getAbility() == AbilityType::InnerFocus) {
-            return;
-        }
-        if (PRNG::nextInt(0, 100) < 10) {
-            opponent->addStatus(StatusType::Flinch, 1);
-        }
-    });
-    return item;
-}
-
-Item createWideLens() {
-    Item item(ItemType::WideLens, "Wide Lens");
-    item.addStatModifier(ItemStatModifier::Stat::Accuracy, 1.1f);
-    return item;
-}
-
-Item createZoomLens() {
-    Item item(ItemType::ZoomLens, "Zoom Lens");
-    item.addStatModifier(ItemStatModifier::Stat::Accuracy, 1.2f);
-    return item;
-}
-
-Item createScopeLens() {
-    Item item(ItemType::ScopeLens, "Scope Lens");
-    item.addStatModifier(ItemStatModifier::Stat::Accuracy, 1.1f);
-    return item;
-}
-
-namespace {
-Item createTypeBoostItem(ItemType type, const std::string& name, Type boostedType) {
-    Item item(type, name);
-    item.setDamageModifier(1.2f, true, [boostedType](Pokemon*, Pokemon*, const Move& move) {
-        return move.getType() == boostedType;
-    });
-    return item;
-}
-}
-
-Item createSilverPowder() { return createTypeBoostItem(ItemType::SilverPowder, "Silver Powder", Type::Bug); }
-Item createMetalCoat() { return createTypeBoostItem(ItemType::MetalCoat, "Metal Coat", Type::Steel); }
-Item createHardStone() { return createTypeBoostItem(ItemType::HardStone, "Hard Stone", Type::Rock); }
-Item createMiracleSeed() { return createTypeBoostItem(ItemType::MiracleSeed, "Miracle Seed", Type::Grass); }
-Item createBlackGlasses() { return createTypeBoostItem(ItemType::BlackGlasses, "Black Glasses", Type::Dark); }
-Item createBlackBelt() { return createTypeBoostItem(ItemType::BlackBelt, "Black Belt", Type::Fighting); }
-Item createMagnet() { return createTypeBoostItem(ItemType::Magnet, "Magnet", Type::Electric); }
-Item createMysticWater() { return createTypeBoostItem(ItemType::MysticWater, "Mystic Water", Type::Water); }
-Item createSharpBeak() { return createTypeBoostItem(ItemType::SharpBeak, "Sharp Beak", Type::Flying); }
-Item createPoisonBarb() { return createTypeBoostItem(ItemType::PoisonBarb, "Poison Barb", Type::Poison); }
-Item createNeverMeltIce() { return createTypeBoostItem(ItemType::NeverMeltIce, "Never-Melt Ice", Type::Ice); }
-Item createSpellTag() { return createTypeBoostItem(ItemType::SpellTag, "Spell Tag", Type::Ghost); }
-Item createTwistedSpoon() { return createTypeBoostItem(ItemType::TwistedSpoon, "Twisted Spoon", Type::Psychic); }
-Item createCharcoal() { return createTypeBoostItem(ItemType::Charcoal, "Charcoal", Type::Fire); }
-Item createDragonFang() { return createTypeBoostItem(ItemType::DragonFang, "Dragon Fang", Type::Dragon); }
-Item createSilkScarf() { return createTypeBoostItem(ItemType::SilkScarf, "Silk Scarf", Type::Normal); }
-Item createSeaIncense() { return createTypeBoostItem(ItemType::SeaIncense, "Sea Incense", Type::Water); }
-Item createFlamePlate() { return createTypeBoostItem(ItemType::FlamePlate, "Flame Plate", Type::Fire); }
-Item createSplashPlate() { return createTypeBoostItem(ItemType::SplashPlate, "Splash Plate", Type::Water); }
-Item createZapPlate() { return createTypeBoostItem(ItemType::ZapPlate, "Zap Plate", Type::Electric); }
-Item createMeadowPlate() { return createTypeBoostItem(ItemType::MeadowPlate, "Meadow Plate", Type::Grass); }
-Item createIciclePlate() { return createTypeBoostItem(ItemType::IciclePlate, "Icicle Plate", Type::Ice); }
-Item createFistPlate() { return createTypeBoostItem(ItemType::FistPlate, "Fist Plate", Type::Fighting); }
-Item createToxicPlate() { return createTypeBoostItem(ItemType::ToxicPlate, "Toxic Plate", Type::Poison); }
-Item createEarthPlate() { return createTypeBoostItem(ItemType::EarthPlate, "Earth Plate", Type::Ground); }
-Item createSkyPlate() { return createTypeBoostItem(ItemType::SkyPlate, "Sky Plate", Type::Flying); }
-Item createMindPlate() { return createTypeBoostItem(ItemType::MindPlate, "Mind Plate", Type::Psychic); }
-Item createInsectPlate() { return createTypeBoostItem(ItemType::InsectPlate, "Insect Plate", Type::Bug); }
-Item createStonePlate() { return createTypeBoostItem(ItemType::StonePlate, "Stone Plate", Type::Rock); }
-Item createSpookyPlate() { return createTypeBoostItem(ItemType::SpookyPlate, "Spooky Plate", Type::Ghost); }
-Item createIronPlate() { return createTypeBoostItem(ItemType::IronPlate, "Iron Plate", Type::Steel); }
-
-Item createFlameOrb() {
-    Item item(ItemType::FlameOrb, "Flame Orb");
-    item.isConsumable = true;
-    item.addEffect(ItemTrigger::OnTurnEnd, [](Pokemon* self, Pokemon*, BattleContext&, void*) {
-        if (self && !self->hasStatus(StatusType::Burn)) {
-            self->addStatus(StatusType::Burn);
-            self->removeItem();
-        }
-    });
-    return item;
-}
-
-Item createToxicOrb() {
-    Item item(ItemType::ToxicOrb, "Toxic Orb");
-    item.isConsumable = true;
-    item.addEffect(ItemTrigger::OnTurnEnd, [](Pokemon* self, Pokemon*, BattleContext&, void*) {
-        if (self && !self->hasStatus(StatusType::ToxicPoison)) {
-            self->addStatus(StatusType::ToxicPoison);
-            self->removeItem();
-        }
-    });
-    return item;
-}
-
-Item createEjectButton() {
-    Item item(ItemType::EjectButton, "Eject Button");
-    item.isConsumable = true;
-    item.addEffect(ItemTrigger::OnDamage, [](Pokemon* self, Pokemon* opponent, BattleContext& ctx, void* context) {
-        if (!self) return;
-        const ItemDamageContext* damageContext = toDamageContext(context);
-        if (!tookDamageFromDamagingMove(damageContext) || self->isFainted()) {
-            return;
-        }
-        Side* selfSide = ctx.findSideForPokemon(self);
-        if (selfSide) {
-            selfSide->autoSwitchNext();
-            self->removeItem();
-        }
-    });
-    return item;
-}
-
-Item createWhiteHerb() {
-    Item item(ItemType::WhiteHerb, "White Herb");
-    item.isConsumable = true;
-    item.addEffect(ItemTrigger::OnStatChange, [](Pokemon* self, Pokemon*, BattleContext&, void*) {
-        if (!self) return;
-
-        const StatIndex stats[] = {
-            StatIndex::Attack,
-            StatIndex::Defense,
-            StatIndex::SpecialAttack,
-            StatIndex::SpecialDefense,
-            StatIndex::Speed
-        };
-
-        bool restored = false;
-        for (StatIndex stat : stats) {
-            const int stage = self->getStatStage(stat);
-            if (stage < 0) {
-                self->changeStatStage(stat, -stage);
-                restored = true;
+    registry.registerItem(ItemType::FlameOrb, [](Item& item) {
+        item.isConsumable = true;
+        item.addEffect(ItemTrigger::OnTurnEnd, [](Pokemon* self, Pokemon*, BattleContext&, void*) {
+            if (self && !self->hasStatus(StatusType::Burn)) {
+                self->addStatus(StatusType::Burn);
+                self->removeItem();
             }
-        }
-
-        if (restored) {
-            self->removeItem();
-        }
+        });
     });
-    return item;
-}
 
-Item createBerryJuice() {
-    Item item(ItemType::BerryJuice, "Berry Juice");
-    item.isConsumable = true;
-    item.addEffect(ItemTrigger::OnDamage, [](Pokemon* self, Pokemon* opponent, BattleContext& ctx, void* context) {
-        if (!self) return;
-        if (self->getCurrentHP() <= self->getMaxHP() / 2) {
-            self->setCurrentHP(self->getCurrentHP() + 20);
-            self->removeItem();
-        }
-    });
-    return item;
-}
-
-Item createHeavyDutyBoots() {
-    Item item(ItemType::HeavyDutyBoots, "Heavy-Duty Boots");
-    item.passive.blocksEntryHazards = true;
-    return item;
-}
-
-Item createCovertCloak() {
-    Item item(ItemType::CovertCloak, "Covert Cloak");
-    item.passive.blocksSecondaryEffects = true;
-    return item;
-}
-
-Item createClearAmulet() {
-    Item item(ItemType::ClearAmulet, "Clear Amulet");
-    item.passive.preventsStatDrops = true;
-    return item;
-}
-
-Item createProtectivePads() {
-    Item item(ItemType::ProtectivePads, "Protective Pads");
-    item.passive.preventsContactEffects = true;
-    return item;
-}
-
-Item createPunchingGlove() {
-    Item item(ItemType::PunchingGlove, "Punching Glove");
-    item.passive.preventsContactEffects = true;
-    // Boosts punching moves by 1.1x and makes them non-contact
-    item.setDamageModifier(1.1f, true, [](Pokemon*, Pokemon*, const Move& move) -> bool {
-        const std::string key = [&move]() {
-            std::string n;
-            for (char ch : move.getName()) {
-                if (ch == ' ' || ch == '-' || ch == '\'') continue;
-                n.push_back(static_cast<char>(std::tolower(static_cast<unsigned char>(ch))));
+    registry.registerItem(ItemType::ToxicOrb, [](Item& item) {
+        item.isConsumable = true;
+        item.addEffect(ItemTrigger::OnTurnEnd, [](Pokemon* self, Pokemon*, BattleContext&, void*) {
+            if (self && !self->hasStatus(StatusType::ToxicPoison)) {
+                self->addStatus(StatusType::ToxicPoison);
+                self->removeItem();
             }
-            return n;
-        }();
-        return key == "bulletpunch" || key == "cometpunch" || key == "dizzypunch"
-            || key == "doubleironbash" || key == "drainpunch" || key == "dynamicpunch"
-            || key == "firepunch" || key == "focuspunch" || key == "hammerarm"
-            || key == "icehammer" || key == "icepunch" || key == "jetpunch"
-            || key == "machpunch" || key == "megapunch" || key == "meteormash"
-            || key == "plasmafists" || key == "poweruppunch" || key == "ragefist"
-            || key == "shadowpunch" || key == "skydrop" || key == "suckerpunch"
-            || key == "thunderpunch" || key == "triplearrows";
+        });
     });
-    return item;
-}
 
-Item createBoosterEnergy() {
-    Item item(ItemType::BoosterEnergy, "Booster Energy");
-    item.isConsumable = true;
-    item.addEffect(ItemTrigger::OnEntry, [](Pokemon* self, Pokemon*, BattleContext&, void*) {
-        if (!self) return;
-        const AbilityType ability = self->getAbility();
-        if (ability != AbilityType::Protosynthesis && ability != AbilityType::QuarkDrive) return;
-        if (self->isParadoxActive()) return;
-        self->setParadoxActive(true);
-        self->removeItem();
-    });
-    return item;
-}
-
-Item createLoadedDice() {
-    Item item(ItemType::LoadedDice, "Loaded Dice");
-    item.passive.maximizesMultiHit = true;
-    return item;
-}
-
-Item createMirrorHerb() {
-    Item item(ItemType::MirrorHerb, "Mirror Herb");
-    item.isConsumable = true;
-    item.addEffect(ItemTrigger::OnStatChange, [](Pokemon* self, Pokemon* opponent, BattleContext&, void*) {
-        if (!self || !opponent || self == opponent) return;
-        constexpr StatIndex kStats[] = {StatIndex::Attack, StatIndex::Defense, StatIndex::SpecialAttack, StatIndex::SpecialDefense, StatIndex::Speed};
-        bool copied = false;
-        for (StatIndex idx : kStats) {
-            const int oppStage = opponent->getStatStage(idx);
-            if (oppStage > 0) {
-                const int selfStage = self->getStatStage(idx);
-                const int delta = oppStage - selfStage;
-                if (delta > 0) { self->changeStatStage(idx, delta); copied = true; }
-            }
-        }
-        if (copied) self->removeItem();
-    });
-    return item;
-}
-
-Item createAbilityShield() {
-    Item item(ItemType::AbilityShield, "Ability Shield");
-    item.passive.blocksAbilityChange = true;
-    return item;
-}
-
-Item createEjectPack() {
-    Item item(ItemType::EjectPack, "Eject Pack");
-    item.isConsumable = true;
-    item.addEffect(ItemTrigger::OnStatChange, [](Pokemon* self, Pokemon*, BattleContext& ctx, void*) {
-        if (!self || self->isFainted()) return;
-        // Check if any stat stage is negative
-        constexpr StatIndex kStats[] = {StatIndex::Attack, StatIndex::Defense, StatIndex::SpecialAttack, StatIndex::SpecialDefense, StatIndex::Speed};
-        bool lowered = false;
-        for (StatIndex idx : kStats) {
-            if (self->getStatStage(idx) < 0) { lowered = true; break; }
-        }
-        if (lowered) {
+    registry.registerItem(ItemType::EjectButton, [](Item& item) {
+        item.isConsumable = true;
+        item.addEffect(ItemTrigger::OnDamage, [](Pokemon* self, Pokemon*, BattleContext& ctx, void* context) {
+            if (!self) return;
+            const ItemDamageContext* dc = toDamageContext(context);
+            if (!tookDamageFromDamagingMove(dc) || self->isFainted()) return;
             Side* selfSide = ctx.findSideForPokemon(self);
-            if (selfSide && selfSide->canSwitch()) {
+            if (selfSide) {
                 selfSide->autoSwitchNext();
                 self->removeItem();
             }
-        }
+        });
     });
-    return item;
-}
 
-Item createTerrainExtender() {
-    Item item(ItemType::TerrainExtender, "Terrain Extender");
-    item.passive.extendsTerrain = true;
-    return item;
-}
+    registry.registerItem(ItemType::WhiteHerb, [](Item& item) {
+        item.isConsumable = true;
+        item.addEffect(ItemTrigger::OnStatChange, [](Pokemon* self, Pokemon*, BattleContext&, void*) {
+            if (!self) return;
+            const StatIndex stats[] = {StatIndex::Attack, StatIndex::Defense, StatIndex::SpecialAttack, StatIndex::SpecialDefense, StatIndex::Speed};
+            bool restored = false;
+            for (StatIndex stat : stats) {
+                const int stage = self->getStatStage(stat);
+                if (stage < 0) { self->changeStatStage(stat, -stage); restored = true; }
+            }
+            if (restored) self->removeItem();
+        });
+    });
 
-Item createRoomService() {
-    Item item(ItemType::RoomService, "Room Service");
-    item.isConsumable = true;
-    item.addEffect(ItemTrigger::OnEntry, [](Pokemon* self, Pokemon*, BattleContext& ctx, void*) {
-        if (self && ctx.getField().isTrickRoom()) {
-            self->changeStatStage(StatIndex::Speed, -1);
+    registry.registerItem(ItemType::BerryJuice, [](Item& item) {
+        item.isConsumable = true;
+        item.addEffect(ItemTrigger::OnDamage, [](Pokemon* self, Pokemon*, BattleContext&, void*) {
+            if (!self) return;
+            if (self->getCurrentHP() <= self->getMaxHP() / 2) {
+                self->setCurrentHP(self->getCurrentHP() + 20);
+                self->removeItem();
+            }
+        });
+    });
+
+    registry.registerItem(ItemType::PunchingGlove, [](Item& item) {
+        item.passive.preventsContactEffects = true;
+        item.setDamageModifier(1.1f, true, [](Pokemon*, Pokemon*, const Move& move) -> bool {
+            const std::string key = [&move]() {
+                std::string n;
+                for (char ch : move.getName()) {
+                    if (ch == ' ' || ch == '-' || ch == '\'') continue;
+                    n.push_back(static_cast<char>(std::tolower(static_cast<unsigned char>(ch))));
+                }
+                return n;
+            }();
+            return key == "bulletpunch" || key == "cometpunch" || key == "dizzypunch"
+                || key == "doubleironbash" || key == "drainpunch" || key == "dynamicpunch"
+                || key == "firepunch" || key == "focuspunch" || key == "hammerarm"
+                || key == "icehammer" || key == "icepunch" || key == "jetpunch"
+                || key == "machpunch" || key == "megapunch" || key == "meteormash"
+                || key == "plasmafists" || key == "poweruppunch" || key == "ragefist"
+                || key == "shadowpunch" || key == "skydrop" || key == "suckerpunch"
+                || key == "thunderpunch" || key == "triplearrows";
+        });
+    });
+
+    registry.registerItem(ItemType::BoosterEnergy, [](Item& item) {
+        item.isConsumable = true;
+        item.addEffect(ItemTrigger::OnEntry, [](Pokemon* self, Pokemon*, BattleContext&, void*) {
+            if (!self) return;
+            const AbilityType ability = self->getAbility();
+            if (ability != AbilityType::Protosynthesis && ability != AbilityType::QuarkDrive) return;
+            if (self->isParadoxActive()) return;
+            self->setParadoxActive(true);
             self->removeItem();
-        }
+        });
     });
-    return item;
-}
 
-Item createBlunderPolicy() {
-    Item item(ItemType::BlunderPolicy, "Blunder Policy");
-    item.isConsumable = true;
-    item.addEffect(ItemTrigger::AfterMoveMiss, [](Pokemon* self, Pokemon*, BattleContext&, void*) {
-        if (self) {
-            self->changeStatStage(StatIndex::Speed, 2);
+    registry.registerItem(ItemType::MirrorHerb, [](Item& item) {
+        item.isConsumable = true;
+        item.addEffect(ItemTrigger::OnStatChange, [](Pokemon* self, Pokemon* opponent, BattleContext&, void*) {
+            if (!self || !opponent || self == opponent) return;
+            constexpr StatIndex kStats[] = {StatIndex::Attack, StatIndex::Defense, StatIndex::SpecialAttack, StatIndex::SpecialDefense, StatIndex::Speed};
+            bool copied = false;
+            for (StatIndex idx : kStats) {
+                const int oppStage = opponent->getStatStage(idx);
+                if (oppStage > 0) {
+                    const int selfStage = self->getStatStage(idx);
+                    const int delta = oppStage - selfStage;
+                    if (delta > 0) { self->changeStatStage(idx, delta); copied = true; }
+                }
+            }
+            if (copied) self->removeItem();
+        });
+    });
+
+    registry.registerItem(ItemType::EjectPack, [](Item& item) {
+        item.isConsumable = true;
+        item.addEffect(ItemTrigger::OnStatChange, [](Pokemon* self, Pokemon*, BattleContext& ctx, void*) {
+            if (!self || self->isFainted()) return;
+            constexpr StatIndex kStats[] = {StatIndex::Attack, StatIndex::Defense, StatIndex::SpecialAttack, StatIndex::SpecialDefense, StatIndex::Speed};
+            bool lowered = false;
+            for (StatIndex idx : kStats) { if (self->getStatStage(idx) < 0) { lowered = true; break; } }
+            if (lowered) {
+                Side* selfSide = ctx.findSideForPokemon(self);
+                if (selfSide && selfSide->canSwitch()) { selfSide->autoSwitchNext(); self->removeItem(); }
+            }
+        });
+    });
+
+    registry.registerItem(ItemType::RoomService, [](Item& item) {
+        item.isConsumable = true;
+        item.addEffect(ItemTrigger::OnEntry, [](Pokemon* self, Pokemon*, BattleContext& ctx, void*) {
+            if (self && ctx.getField().isTrickRoom()) { self->changeStatStage(StatIndex::Speed, -1); self->removeItem(); }
+        });
+    });
+
+    registry.registerItem(ItemType::BlunderPolicy, [](Item& item) {
+        item.isConsumable = true;
+        item.addEffect(ItemTrigger::AfterMoveMiss, [](Pokemon* self, Pokemon*, BattleContext&, void*) {
+            if (self) { self->changeStatStage(StatIndex::Speed, 2); self->removeItem(); }
+        });
+    });
+
+    registry.registerItem(ItemType::ThroatSpray, [](Item& item) {
+        item.isConsumable = true;
+        item.addEffect(ItemTrigger::AfterSoundMove, [](Pokemon* self, Pokemon*, BattleContext&, void*) {
+            if (self) { self->changeStatStage(StatIndex::SpecialAttack, 1); self->removeItem(); }
+        });
+    });
+
+    registry.registerItem(ItemType::MentalHerb, [](Item& item) {
+        item.isConsumable = true;
+        item.addEffect(ItemTrigger::OnStatus, [](Pokemon* self, Pokemon*, BattleContext&, void*) {
+            if (!self) return;
             self->removeItem();
-        }
+        });
     });
-    return item;
-}
 
-Item createThroatSpray() {
-    Item item(ItemType::ThroatSpray, "Throat Spray");
-    item.isConsumable = true;
-    item.addEffect(ItemTrigger::AfterSoundMove, [](Pokemon* self, Pokemon*, BattleContext&, void*) {
-        if (self) {
-            self->changeStatStage(StatIndex::SpecialAttack, 1);
+    registry.registerItem(ItemType::RingTarget, [](Item&) {
+        // Ring Target removes type-based immunities for the holder
+        // Checked in type effectiveness calculation
+    });
+
+    registry.registerItem(ItemType::Metronome, [](Item&) {
+        // Metronome boosts consecutive uses of the same move
+        // Checked during damage calculation based on consecutive use count
+    });
+
+    registry.registerItem(ItemType::MicleBerry, [](Item& item) {
+        item.isConsumable = true;
+        item.addEffect(ItemTrigger::OnDamage, [](Pokemon* self, Pokemon*, BattleContext&, void*) {
+            if (self && self->getCurrentHP() > 0 && self->getCurrentHP() <= self->getMaxHP() / 4) { self->changeAccuracyStage(1); self->removeItem(); }
+        });
+    });
+
+    registry.registerItem(ItemType::LansatBerry, [](Item& item) {
+        item.isConsumable = true;
+        item.addEffect(ItemTrigger::OnDamage, [](Pokemon* self, Pokemon*, BattleContext& ctx, void*) {
+            if (self && self->getCurrentHP() > 0 && self->getCurrentHP() <= self->getMaxHP() / 4) { ctx.getRuntimeMoveState().criticalHitStage[self] = std::min(4, ctx.getRuntimeMoveState().criticalHitStage[self] + 2); self->removeItem(); }
+        });
+    });
+
+    registry.registerItem(ItemType::StarfBerry, [](Item& item) {
+        item.isConsumable = true;
+        item.addEffect(ItemTrigger::OnDamage, [](Pokemon* self, Pokemon*, BattleContext&, void*) {
+            if (!self || self->getCurrentHP() <= 0 || self->getCurrentHP() > self->getMaxHP() / 4) return;
+            constexpr StatIndex kStats[] = {StatIndex::Attack, StatIndex::Defense, StatIndex::SpecialAttack, StatIndex::SpecialDefense, StatIndex::Speed};
+            int idx = static_cast<int>(PRNG::nextFloat(0.0f, 5.0f));
+            self->changeStatStage(kStats[std::min(4, idx)], 2);
             self->removeItem();
-        }
+        });
     });
-    return item;
-}
 
-Item createUtilityUmbrella() {
-    Item item(ItemType::UtilityUmbrella, "Utility Umbrella");
-    item.passive.ignoresWeather = true;
-    return item;
-}
-
-Item createLightClay() {
-    Item item(ItemType::LightClay, "Light Clay");
-    item.passive.extendsScreens = true;
-    return item;
-}
-
-Item createMentalHerb() {
-    Item item(ItemType::MentalHerb, "Mental Herb");
-    item.isConsumable = true;
-    item.addEffect(ItemTrigger::OnStatus, [](Pokemon* self, Pokemon*, BattleContext&, void*) {
-        if (!self) return;
-        // Mental Herb cures Taunt, Encore, Torment, Disable, Heal Block, infatuation
-        // These are all applied via RuntimeMoveState - simplify: remove all control states
-        // The actual clearing happens when the item triggers; we remove common disable effects
-        self->removeItem();
+    registry.registerItem(ItemType::AbsorbBulb, [](Item& item) {
+        item.isConsumable = true;
+        item.addEffect(ItemTrigger::OnDamage, [](Pokemon* self, Pokemon*, BattleContext&, void* context) {
+            const ItemDamageContext* dc = toDamageContext(context);
+            if (dc && dc->move && dc->move->getType() == Type::Water && dc->damage > 0) { self->changeStatStage(StatIndex::SpecialAttack, 1); self->removeItem(); }
+        });
     });
-    return item;
-}
 
-Item createSafetyGoggles() {
-    Item item(ItemType::SafetyGoggles, "Safety Goggles");
-    item.passive.blocksWeatherPowder = true;
-    return item;
-}
-
-Item createRingTarget() {
-    Item item(ItemType::RingTarget, "Ring Target");
-    // Ring Target removes type-based immunities for the holder (e.g., Normal moves can hit Ghost)
-    // This is checked in type effectiveness calculation
-    return item;
-}
-
-Item createMetronome() {
-    Item item(ItemType::Metronome, "Metronome");
-    // Metronome boosts consecutive uses of the same move by 20% per use (max 100%)
-    // This is checked during damage calculation based on consecutive use count
-    return item;
-}
-
-Item createDampRock() {
-    Item item(ItemType::DampRock, "Damp Rock");
-    item.passive.extendsWeather = true;
-    return item;
-}
-Item createHeatRock() {
-    Item item(ItemType::HeatRock, "Heat Rock");
-    item.passive.extendsWeather = true;
-    return item;
-}
-Item createIcyRock() {
-    Item item(ItemType::IcyRock, "Icy Rock");
-    item.passive.extendsWeather = true;
-    return item;
-}
-Item createSmoothRock() {
-    Item item(ItemType::SmoothRock, "Smooth Rock");
-    item.passive.extendsWeather = true;
-    return item;
-}
-
-Item createBrightPowder() {
-    Item item(ItemType::BrightPowder, "Bright Powder");
-    item.passive.evasionBoost = 1.111f;
-    return item;
-}
-
-Item createFocusBand() {
-    Item item(ItemType::FocusBand, "Focus Band");
-    item.passive.hasFocusBand = true;
-    return item;
-}
-
-Item createCustapBerry() {
-    Item item(ItemType::CustapBerry, "Custap Berry");
-    item.isConsumable = true;
-    item.passive.hasCustapBerry = true;
-    return item;
-}
-
-Item createEnigmaBerry() {
-    Item item(ItemType::EnigmaBerry, "Enigma Berry");
-    item.isConsumable = true;
-    item.passive.healsOnSuperEffective = true;
-    return item;
-}
-
-Item createBindingBand() {
-    Item item(ItemType::BindingBand, "Binding Band");
-    item.passive.boostsBindingMoves = true;
-    return item;
-}
-
-Item createElectricSeed() {
-    Item item(ItemType::ElectricSeed, "Electric Seed");
-    item.isConsumable = true;
-    item.addEffect(ItemTrigger::OnEntry, [](Pokemon* self, Pokemon*, BattleContext& ctx, void*) {
-        if (self && ctx.getField().type == FieldType::Electric) { self->changeStatStage(StatIndex::Defense, 1); self->removeItem(); }
+    registry.registerItem(ItemType::CellBattery, [](Item& item) {
+        item.isConsumable = true;
+        item.addEffect(ItemTrigger::OnDamage, [](Pokemon* self, Pokemon*, BattleContext&, void* context) {
+            const ItemDamageContext* dc = toDamageContext(context);
+            if (dc && dc->move && dc->move->getType() == Type::Electric && dc->damage > 0) { self->changeStatStage(StatIndex::Attack, 1); self->removeItem(); }
+        });
     });
-    return item;
-}
 
-Item createPsychicSeed() {
-    Item item(ItemType::PsychicSeed, "Psychic Seed");
-    item.isConsumable = true;
-    item.addEffect(ItemTrigger::OnEntry, [](Pokemon* self, Pokemon*, BattleContext& ctx, void*) {
-        if (self && ctx.getField().type == FieldType::Psychic) { self->changeStatStage(StatIndex::SpecialDefense, 1); self->removeItem(); }
+    registry.registerItem(ItemType::LuminousMoss, [](Item& item) {
+        item.isConsumable = true;
+        item.addEffect(ItemTrigger::OnDamage, [](Pokemon* self, Pokemon*, BattleContext&, void* context) {
+            const ItemDamageContext* dc = toDamageContext(context);
+            if (dc && dc->move && dc->move->getType() == Type::Water && dc->damage > 0) { self->changeStatStage(StatIndex::SpecialDefense, 1); self->removeItem(); }
+        });
     });
-    return item;
-}
 
-Item createMistySeed() {
-    Item item(ItemType::MistySeed, "Misty Seed");
-    item.isConsumable = true;
-    item.addEffect(ItemTrigger::OnEntry, [](Pokemon* self, Pokemon*, BattleContext& ctx, void*) {
-        if (self && ctx.getField().type == FieldType::Misty) { self->changeStatStage(StatIndex::SpecialDefense, 1); self->removeItem(); }
+    registry.registerItem(ItemType::Snowball, [](Item& item) {
+        item.isConsumable = true;
+        item.addEffect(ItemTrigger::OnDamage, [](Pokemon* self, Pokemon*, BattleContext&, void* context) {
+            const ItemDamageContext* dc = toDamageContext(context);
+            if (dc && dc->move && dc->move->getType() == Type::Ice && dc->damage > 0) { self->changeStatStage(StatIndex::Attack, 1); self->removeItem(); }
+        });
     });
-    return item;
-}
 
-Item createGrassySeed() {
-    Item item(ItemType::GrassySeed, "Grassy Seed");
-    item.isConsumable = true;
-    item.addEffect(ItemTrigger::OnEntry, [](Pokemon* self, Pokemon*, BattleContext& ctx, void*) {
-        if (self && ctx.getField().type == FieldType::Grassy) { self->changeStatStage(StatIndex::Defense, 1); self->removeItem(); }
+    registry.registerItem(ItemType::ChestoBerry, [](Item& item) {
+        item.isConsumable = true;
+        item.addEffect(ItemTrigger::OnStatus, [](Pokemon* self, Pokemon*, BattleContext&, void*) {
+            if (!self) return;
+            if (self->hasStatus(StatusType::Sleep)) { self->removeStatus(StatusType::Sleep); self->removeItem(); }
+        });
     });
-    return item;
-}
 
-Item createAdrenalineOrb() {
-    Item item(ItemType::AdrenalineOrb, "Adrenaline Orb");
-    item.isConsumable = true;
-    item.addEffect(ItemTrigger::OnStatChange, [](Pokemon* self, Pokemon*, BattleContext&, void*) {
-        if (self && self->getStatStage(StatIndex::Speed) > 0) {
-            self->removeItem();
-        }
+    registry.registerItem(ItemType::PechaBerry, [](Item& item) {
+        item.isConsumable = true;
+        item.addEffect(ItemTrigger::OnStatus, [](Pokemon* self, Pokemon*, BattleContext&, void*) {
+            if (!self) return;
+            if (self->hasStatus(StatusType::Poison) || self->hasStatus(StatusType::ToxicPoison)) {
+                self->removeStatus(StatusType::Poison);
+                self->removeStatus(StatusType::ToxicPoison);
+                self->removeItem();
+            }
+        });
     });
-    return item;
-}
 
-Item createMicleBerry() {
-    Item item(ItemType::MicleBerry, "Micle Berry");
-    item.isConsumable = true;
-    item.addEffect(ItemTrigger::OnDamage, [](Pokemon* self, Pokemon*, BattleContext&, void*) {
-        if (self && self->getCurrentHP() > 0 && self->getCurrentHP() <= self->getMaxHP() / 4) { self->changeAccuracyStage(1); self->removeItem(); }
+    registry.registerItem(ItemType::RawstBerry, [](Item& item) {
+        item.isConsumable = true;
+        item.addEffect(ItemTrigger::OnStatus, [](Pokemon* self, Pokemon*, BattleContext&, void*) {
+            if (!self) return;
+            if (self->hasStatus(StatusType::Burn)) { self->removeStatus(StatusType::Burn); self->removeItem(); }
+        });
     });
-    return item;
-}
-Item createLansatBerry() {
-    Item item(ItemType::LansatBerry, "Lansat Berry");
-    item.isConsumable = true;
-    item.addEffect(ItemTrigger::OnDamage, [](Pokemon* self, Pokemon*, BattleContext& ctx, void*) {
-        if (self && self->getCurrentHP() > 0 && self->getCurrentHP() <= self->getMaxHP() / 4) { ctx.getRuntimeMoveState().criticalHitStage[self] = std::min(4, ctx.getRuntimeMoveState().criticalHitStage[self] + 2); self->removeItem(); }
+
+    registry.registerItem(ItemType::AspearBerry, [](Item& item) {
+        item.isConsumable = true;
+        item.addEffect(ItemTrigger::OnStatus, [](Pokemon* self, Pokemon*, BattleContext&, void*) {
+            if (!self) return;
+            if (self->hasStatus(StatusType::Freeze)) { self->removeStatus(StatusType::Freeze); self->removeItem(); }
+        });
     });
-    return item;
-}
-Item createStarfBerry() {
-    Item item(ItemType::StarfBerry, "Starf Berry");
-    item.isConsumable = true;
-    item.addEffect(ItemTrigger::OnDamage, [](Pokemon* self, Pokemon*, BattleContext&, void*) {
-        if (!self || self->getCurrentHP() <= 0 || self->getCurrentHP() > self->getMaxHP() / 4) return;
-        constexpr StatIndex kStats[] = {StatIndex::Attack, StatIndex::Defense, StatIndex::SpecialAttack, StatIndex::SpecialDefense, StatIndex::Speed};
-        int idx = static_cast<int>(PRNG::nextFloat(0.0f, 5.0f));
-        self->changeStatStage(kStats[std::min(4, idx)], 2);
-        self->removeItem();
+
+    registry.registerItem(ItemType::PersimBerry, [](Item& item) {
+        item.isConsumable = true;
+        item.addEffect(ItemTrigger::OnStatus, [](Pokemon* self, Pokemon*, BattleContext&, void*) {
+            if (!self) return;
+            if (self->hasStatus(StatusType::Confusion)) { self->removeStatus(StatusType::Confusion); self->removeItem(); }
+        });
     });
-    return item;
-}
-Item createShedShell() {
-    Item item(ItemType::ShedShell, "Shed Shell");
-    item.passive.ensuresCanSwitch = true;
-    return item;
-}
-Item createGripClaw() {
-    Item item(ItemType::GripClaw, "Grip Claw");
-    item.passive.extendsTrappingMoves = true;
-    return item;
-}
 
-Item createIronBall() {
-    Item item(ItemType::IronBall, "Iron Ball");
-    item.passive.halvesSpeedAndGrounds = true;
-    return item;
-}
-Item createAbsorbBulb() {
-    Item item(ItemType::AbsorbBulb, "Absorb Bulb");
-    item.isConsumable = true;
-    item.addEffect(ItemTrigger::OnDamage, [](Pokemon* self, Pokemon*, BattleContext&, void* context) {
-        const ItemDamageContext* dc = toDamageContext(context);
-        if (dc && dc->move && dc->move->getType() == Type::Water && dc->damage > 0) { self->changeStatStage(StatIndex::SpecialAttack, 1); self->removeItem(); }
+    // === Simple passive flag items ===
+    regPassive(ItemType::QuickClaw, [](auto& p) { p.hasQuickClaw = true; });
+    regPassive(ItemType::HeavyDutyBoots, [](auto& p) { p.blocksEntryHazards = true; });
+    regPassive(ItemType::CovertCloak, [](auto& p) { p.blocksSecondaryEffects = true; });
+    regPassive(ItemType::ClearAmulet, [](auto& p) { p.preventsStatDrops = true; });
+    regPassive(ItemType::ProtectivePads, [](auto& p) { p.preventsContactEffects = true; });
+    regPassive(ItemType::LoadedDice, [](auto& p) { p.maximizesMultiHit = true; });
+    regPassive(ItemType::AbilityShield, [](auto& p) { p.blocksAbilityChange = true; });
+    regPassive(ItemType::TerrainExtender, [](auto& p) { p.extendsTerrain = true; });
+    regPassive(ItemType::UtilityUmbrella, [](auto& p) { p.ignoresWeather = true; });
+    regPassive(ItemType::LightClay, [](auto& p) { p.extendsScreens = true; });
+    regPassive(ItemType::SafetyGoggles, [](auto& p) { p.blocksWeatherPowder = true; });
+    regPassive(ItemType::BrightPowder, [](auto& p) { p.evasionBoost = 1.111f; });
+    regPassive(ItemType::FocusBand, [](auto& p) { p.hasFocusBand = true; });
+    regPassive(ItemType::BindingBand, [](auto& p) { p.boostsBindingMoves = true; });
+    regPassive(ItemType::ShedShell, [](auto& p) { p.ensuresCanSwitch = true; });
+    regPassive(ItemType::GripClaw, [](auto& p) { p.extendsTrappingMoves = true; });
+    regPassive(ItemType::IronBall, [](auto& p) { p.halvesSpeedAndGrounds = true; });
+    regPassive(ItemType::LaxIncense, [](auto& p) { p.evasionBoost = 1.05f; });
+    regPassive(ItemType::LaggingTail, [](auto& p) { p.alwaysMovesLast = true; });
+    regPassive(ItemType::FloatStone, [](auto& p) { p.halvesWeight = true; });
+    regPassive(ItemType::RazorClaw, [](auto& p) { p.critStageBoost = true; });
+    regPassive(ItemType::RazorFang, [](auto& p) { p.flinchOnHit = true; });
+    regPassive(ItemType::FullIncense, [](auto& p) { p.alwaysMovesLast = true; });
+    regPassive(ItemType::MachoBrace, [](auto& p) { p.alwaysMovesLast = true; });
+    regPassive(ItemType::PowerBracer, [](auto& p) { p.alwaysMovesLast = true; });
+
+    // === Consumable + passive items ===
+    regConsumablePassive(ItemType::CustapBerry, [](auto& p) { p.hasCustapBerry = true; });
+    regConsumablePassive(ItemType::EnigmaBerry, [](auto& p) { p.healsOnSuperEffective = true; });
+
+    // === No-op items (no modifications needed) ===
+    registry.registerItem(ItemType::SmokeBall, [](Item&) {});
+    registry.registerItem(ItemType::LuckIncense, [](Item&) {});
+
+    // === Items with stat modifiers via direct push_back ===
+    registry.registerItem(ItemType::RoseIncense, [](Item& item) {
+        item.statModifiers.push_back({ItemStatModifier::Stat::SpAttack, 1.2f});
     });
-    return item;
-}
-Item createCellBattery() {
-    Item item(ItemType::CellBattery, "Cell Battery");
-    item.isConsumable = true;
-    item.addEffect(ItemTrigger::OnDamage, [](Pokemon* self, Pokemon*, BattleContext&, void* context) {
-        const ItemDamageContext* dc = toDamageContext(context);
-        if (dc && dc->move && dc->move->getType() == Type::Electric && dc->damage > 0) { self->changeStatStage(StatIndex::Attack, 1); self->removeItem(); }
+    registry.registerItem(ItemType::WaveIncense, [](Item& item) {
+        item.statModifiers.push_back({ItemStatModifier::Stat::SpAttack, 1.2f});
     });
-    return item;
-}
-Item createLuminousMoss() {
-    Item item(ItemType::LuminousMoss, "Luminous Moss");
-    item.isConsumable = true;
-    item.addEffect(ItemTrigger::OnDamage, [](Pokemon* self, Pokemon*, BattleContext&, void* context) {
-        const ItemDamageContext* dc = toDamageContext(context);
-        if (dc && dc->move && dc->move->getType() == Type::Water && dc->damage > 0) { self->changeStatStage(StatIndex::SpecialDefense, 1); self->removeItem(); }
+    registry.registerItem(ItemType::OddIncense, [](Item& item) {
+        item.statModifiers.push_back({ItemStatModifier::Stat::SpAttack, 1.2f});
     });
-    return item;
-}
-Item createSnowball() {
-    Item item(ItemType::Snowball, "Snowball");
-    item.isConsumable = true;
-    item.addEffect(ItemTrigger::OnDamage, [](Pokemon* self, Pokemon*, BattleContext&, void* context) {
-        const ItemDamageContext* dc = toDamageContext(context);
-        if (dc && dc->move && dc->move->getType() == Type::Ice && dc->damage > 0) { self->changeStatStage(StatIndex::Attack, 1); self->removeItem(); }
+    registry.registerItem(ItemType::SoftSand, [](Item& item) {
+        item.statModifiers.push_back({ItemStatModifier::Stat::SpAttack, 1.2f});
     });
-    return item;
-}
-
-Item createLaxIncense() {
-    Item item(ItemType::LaxIncense, "Lax Incense");
-    item.passive.evasionBoost = 1.05f;
-    return item;
-}
-Item createLaggingTail() {
-    Item item(ItemType::LaggingTail, "Lagging Tail");
-    item.passive.alwaysMovesLast = true;
-    return item;
-}
-Item createRoseIncense() {
-    Item item(ItemType::RoseIncense, "Rose Incense");
-    item.statModifiers.push_back({ItemStatModifier::Stat::SpAttack, 1.2f});
-    return item;
-}
-Item createWaveIncense() {
-    Item item(ItemType::WaveIncense, "Wave Incense");
-    item.statModifiers.push_back({ItemStatModifier::Stat::SpAttack, 1.2f});
-    return item;
-}
-Item createOddIncense() {
-    Item item(ItemType::OddIncense, "Odd Incense");
-    item.statModifiers.push_back({ItemStatModifier::Stat::SpAttack, 1.2f});
-    return item;
-}
-
-Item createFloatStone() {
-    Item item(ItemType::FloatStone, "Float Stone");
-    item.passive.halvesWeight = true;
-    return item;
-}
-Item createRazorClaw() {
-    Item item(ItemType::RazorClaw, "Razor Claw");
-    item.passive.critStageBoost = true;
-    return item;
-}
-Item createRazorFang() {
-    Item item(ItemType::RazorFang, "Razor Fang");
-    item.passive.flinchOnHit = true;
-    return item;
-}
-Item createFullIncense() {
-    Item item(ItemType::FullIncense, "Full Incense");
-    item.passive.alwaysMovesLast = true;
-    return item;
-}
-Item createSmokeBall() {
-    Item item(ItemType::SmokeBall, "Smoke Ball");
-    return item;
-}
-
-Item createSoftSand() {
-    Item item(ItemType::SoftSand, "Soft Sand");
-    item.statModifiers.push_back({ItemStatModifier::Stat::SpAttack, 1.2f});
-    return item;
-}
-Item createDracoPlate() {
-    Item item(ItemType::DracoPlate, "Draco Plate");
-    item.statModifiers.push_back({ItemStatModifier::Stat::SpAttack, 1.2f});
-    return item;
-}
-Item createDreadPlate() {
-    Item item(ItemType::DreadPlate, "Dread Plate");
-    item.statModifiers.push_back({ItemStatModifier::Stat::SpAttack, 1.2f});
-    return item;
-}
-Item createRockIncense() {
-    Item item(ItemType::RockIncense, "Rock Incense");
-    item.statModifiers.push_back({ItemStatModifier::Stat::SpAttack, 1.2f});
-    return item;
-}
-Item createLuckIncense() {
-    Item item(ItemType::LuckIncense, "Luck Incense");
-    return item;
-}
-
-Item createMachoBrace() {
-    Item item(ItemType::MachoBrace, "Macho Brace");
-    item.passive.alwaysMovesLast = true;
-    return item;
-}
-Item createPowerBracer() {
-    Item item(ItemType::PowerBracer, "Power Bracer");
-    item.passive.alwaysMovesLast = true;
-    return item;
-}
-
-Item createChestoBerry() {
-    Item item(ItemType::ChestoBerry, "Chesto Berry");
-    item.isConsumable = true;
-    item.addEffect(ItemTrigger::OnStatus, [](Pokemon* self, Pokemon* opponent, BattleContext& ctx, void* context) {
-        if (!self) return;
-        // 当睡眠时唤醒
-        if (self->hasStatus(StatusType::Sleep)) {
-            self->removeStatus(StatusType::Sleep);
-            self->removeItem();
-        }
+    registry.registerItem(ItemType::DracoPlate, [](Item& item) {
+        item.statModifiers.push_back({ItemStatModifier::Stat::SpAttack, 1.2f});
     });
-    return item;
-}
-
-Item createPechaBerry() {
-    Item item(ItemType::PechaBerry, "Pecha Berry");
-    item.isConsumable = true;
-    item.addEffect(ItemTrigger::OnStatus, [](Pokemon* self, Pokemon* opponent, BattleContext& ctx, void* context) {
-        if (!self) return;
-        // 当中毒时解毒
-        if (self->hasStatus(StatusType::Poison) || self->hasStatus(StatusType::ToxicPoison)) {
-            self->removeStatus(StatusType::Poison);
-            self->removeStatus(StatusType::ToxicPoison);
-            self->removeItem();
-        }
+    registry.registerItem(ItemType::DreadPlate, [](Item& item) {
+        item.statModifiers.push_back({ItemStatModifier::Stat::SpAttack, 1.2f});
     });
-    return item;
-}
-
-Item createRawstBerry() {
-    Item item(ItemType::RawstBerry, "Rawst Berry");
-    item.isConsumable = true;
-    item.addEffect(ItemTrigger::OnStatus, [](Pokemon* self, Pokemon* opponent, BattleContext& ctx, void* context) {
-        if (!self) return;
-        // 当烧伤时解除烧伤
-        if (self->hasStatus(StatusType::Burn)) {
-            self->removeStatus(StatusType::Burn);
-            self->removeItem();
-        }
+    registry.registerItem(ItemType::RockIncense, [](Item& item) {
+        item.statModifiers.push_back({ItemStatModifier::Stat::SpAttack, 1.2f});
     });
-    return item;
-}
 
-Item createAspearBerry() {
-    Item item(ItemType::AspearBerry, "Aspear Berry");
-    item.isConsumable = true;
-    item.addEffect(ItemTrigger::OnStatus, [](Pokemon* self, Pokemon* opponent, BattleContext& ctx, void* context) {
-        if (!self) return;
-        // 当冰冻时解冻
-        if (self->hasStatus(StatusType::Freeze)) {
-            self->removeStatus(StatusType::Freeze);
-            self->removeItem();
-        }
+    registry.registerItem(ItemType::AdrenalineOrb, [](Item& item) {
+        item.isConsumable = true;
+        item.addEffect(ItemTrigger::OnStatChange, [](Pokemon* self, Pokemon*, BattleContext&, void*) {
+            if (self && self->getStatStage(StatIndex::Speed) > 0) self->removeItem();
+        });
     });
-    return item;
+
+    // ================================================================
+    // === Group-driven registrations ===
+    // ================================================================
+
+    // Choice items
+    regChoiceItem(ItemType::ChoiceBand, ItemStatModifier::Stat::Attack, 1.5f);
+    regChoiceItem(ItemType::ChoiceSpecs, ItemStatModifier::Stat::SpAttack, 1.5f);
+    regChoiceItem(ItemType::ChoiceScarf, ItemStatModifier::Stat::Speed, 1.5f);
+
+    // Type boost items
+    regTypeBoost(ItemType::SilverPowder, Type::Bug);
+    regTypeBoost(ItemType::MetalCoat, Type::Steel);
+    regTypeBoost(ItemType::HardStone, Type::Rock);
+    regTypeBoost(ItemType::MiracleSeed, Type::Grass);
+    regTypeBoost(ItemType::BlackGlasses, Type::Dark);
+    regTypeBoost(ItemType::BlackBelt, Type::Fighting);
+    regTypeBoost(ItemType::Magnet, Type::Electric);
+    regTypeBoost(ItemType::MysticWater, Type::Water);
+    regTypeBoost(ItemType::SharpBeak, Type::Flying);
+    regTypeBoost(ItemType::PoisonBarb, Type::Poison);
+    regTypeBoost(ItemType::NeverMeltIce, Type::Ice);
+    regTypeBoost(ItemType::SpellTag, Type::Ghost);
+    regTypeBoost(ItemType::TwistedSpoon, Type::Psychic);
+    regTypeBoost(ItemType::Charcoal, Type::Fire);
+    regTypeBoost(ItemType::DragonFang, Type::Dragon);
+    regTypeBoost(ItemType::SilkScarf, Type::Normal);
+    regTypeBoost(ItemType::SeaIncense, Type::Water);
+
+    // Type plates
+    regTypeBoost(ItemType::FlamePlate, Type::Fire);
+    regTypeBoost(ItemType::SplashPlate, Type::Water);
+    regTypeBoost(ItemType::ZapPlate, Type::Electric);
+    regTypeBoost(ItemType::MeadowPlate, Type::Grass);
+    regTypeBoost(ItemType::IciclePlate, Type::Ice);
+    regTypeBoost(ItemType::FistPlate, Type::Fighting);
+    regTypeBoost(ItemType::ToxicPlate, Type::Poison);
+    regTypeBoost(ItemType::EarthPlate, Type::Ground);
+    regTypeBoost(ItemType::SkyPlate, Type::Flying);
+    regTypeBoost(ItemType::MindPlate, Type::Psychic);
+    regTypeBoost(ItemType::InsectPlate, Type::Bug);
+    regTypeBoost(ItemType::StonePlate, Type::Rock);
+    regTypeBoost(ItemType::SpookyPlate, Type::Ghost);
+    regTypeBoost(ItemType::IronPlate, Type::Steel);
+
+    // Status cure berries
+    regStatusBerry(ItemType::CheriBerry, StatusType::Paralysis);
+
+    // Half-HP heal berries
+    regHalfHpHealBerry(ItemType::FigyBerry, 1, 8);
+    regHalfHpHealBerry(ItemType::WikiBerry, 1, 8);
+    regHalfHpHealBerry(ItemType::MagoBerry, 1, 8);
+    regHalfHpHealBerry(ItemType::AguavBerry, 1, 8);
+    regHalfHpHealBerry(ItemType::IapapaBerry, 1, 8);
+
+    // Resist berries
+    regResistBerry(ItemType::OccaBerry, Type::Fire);
+    regResistBerry(ItemType::PasshoBerry, Type::Water);
+    regResistBerry(ItemType::WacanBerry, Type::Electric);
+    regResistBerry(ItemType::RindoBerry, Type::Grass);
+    regResistBerry(ItemType::YacheBerry, Type::Ice);
+    regResistBerry(ItemType::ChopleBerry, Type::Fighting);
+    regResistBerry(ItemType::KebiaBerry, Type::Poison);
+    regResistBerry(ItemType::ShucaBerry, Type::Ground);
+    regResistBerry(ItemType::CobaBerry, Type::Flying);
+    regResistBerry(ItemType::PayapaBerry, Type::Psychic);
+    regResistBerry(ItemType::TangaBerry, Type::Bug);
+    regResistBerry(ItemType::ChartiBerry, Type::Rock);
+    regResistBerry(ItemType::KasibBerry, Type::Ghost);
+    regResistBerry(ItemType::HabanBerry, Type::Dragon);
+    regResistBerry(ItemType::ColburBerry, Type::Dark);
+    regResistBerry(ItemType::BabiriBerry, Type::Steel);
+    regResistBerry(ItemType::ChilanBerry, Type::Normal);
+
+    // Pinch stat berries
+    regPinchBerry(ItemType::LiechiBerry, StatIndex::Attack);
+    regPinchBerry(ItemType::GanlonBerry, StatIndex::Defense);
+    regPinchBerry(ItemType::SalacBerry, StatIndex::Speed);
+    regPinchBerry(ItemType::PetayaBerry, StatIndex::SpecialAttack);
+    regPinchBerry(ItemType::ApicotBerry, StatIndex::SpecialDefense);
+
+    // Retaliation berries
+    regRetaliationBerry(ItemType::JabocaBerry, Category::Physical);
+    regRetaliationBerry(ItemType::RowapBerry, Category::Special);
+
+    // Terrain seeds
+    regSeed(ItemType::ElectricSeed, FieldType::Electric, StatIndex::Defense);
+    regSeed(ItemType::PsychicSeed, FieldType::Psychic, StatIndex::SpecialDefense);
+    regSeed(ItemType::MistySeed, FieldType::Misty, StatIndex::SpecialDefense);
+    regSeed(ItemType::GrassySeed, FieldType::Grassy, StatIndex::Defense);
+
+    // Weather rocks
+    regWeatherRock(ItemType::DampRock);
+    regWeatherRock(ItemType::HeatRock);
+    regWeatherRock(ItemType::IcyRock);
+    regWeatherRock(ItemType::SmoothRock);
 }
-
-Item createPersimBerry() {
-    Item item(ItemType::PersimBerry, "Persim Berry");
-    item.isConsumable = true;
-    item.addEffect(ItemTrigger::OnStatus, [](Pokemon* self, Pokemon* opponent, BattleContext& ctx, void* context) {
-        if (!self) return;
-        // 当混乱时解除混乱
-        if (self->hasStatus(StatusType::Confusion)) {
-            self->removeStatus(StatusType::Confusion);
-            self->removeItem();
-        }
-    });
-    return item;
-}
-
-namespace {
-Item createStatusCureBerry(ItemType type, const std::string& name, StatusType status) {
-    Item item(type, name);
-    item.isConsumable = true;
-    item.addEffect(ItemTrigger::OnStatus, [status](Pokemon* self, Pokemon*, BattleContext&, void*) {
-        if (!self || !self->hasStatus(status)) return;
-        self->removeStatus(status);
-        self->removeItem();
-    });
-    return item;
-}
-
-Item createHalfHpHealBerry(ItemType type, const std::string& name, int numerator, int denominator) {
-    Item item(type, name);
-    item.isConsumable = true;
-    item.addEffect(ItemTrigger::OnDamage, [numerator, denominator](Pokemon* self, Pokemon*, BattleContext&, void*) {
-        if (!self) return;
-        if (self->getCurrentHP() > self->getMaxHP() / 2) return;
-        int heal = std::max(1, self->getMaxHP() * numerator / denominator);
-        self->setCurrentHP(self->getCurrentHP() + heal);
-        self->removeItem();
-    });
-    return item;
-}
-
-Item createResistBerry(ItemType type, const std::string& name, Type resistedType) {
-    Item item(type, name);
-    item.isConsumable = true;
-    item.setDamageModifier(0.5f, false, [resistedType](Pokemon* self, Pokemon*, const Move& move) {
-        if (!self || move.getType() != resistedType) return false;
-        return self->getTypeEffectiveness(move.getType()) > 1.0f;
-    });
-    item.addEffect(ItemTrigger::OnDamage, [resistedType](Pokemon* self, Pokemon*, BattleContext&, void* context) {
-        if (!self) return;
-        const ItemDamageContext* damageContext = toDamageContext(context);
-        if (!damageContext || !damageContext->move || damageContext->damage <= 0) return;
-        if (damageContext->move->getType() != resistedType) return;
-        if (!damageContext->wasSuperEffective) return;
-        self->removeItem();
-    });
-    return item;
-}
-
-Item createPinchStatBerry(ItemType type, const std::string& name, StatIndex stat) {
-    Item item(type, name);
-    item.isConsumable = true;
-    item.addEffect(ItemTrigger::OnDamage, [stat](Pokemon* self, Pokemon*, BattleContext&, void*) {
-        if (!self) return;
-        if (self->getCurrentHP() > self->getMaxHP() / 4) return;
-        self->changeStatStage(stat, 1);
-        self->removeItem();
-    });
-    return item;
-}
-
-Item createRetaliationBerry(ItemType type, const std::string& name, Category triggerCategory) {
-    Item item(type, name);
-    item.isConsumable = true;
-    item.addEffect(ItemTrigger::OnDamage, [triggerCategory](Pokemon* self, Pokemon* opponent, BattleContext&, void* context) {
-        if (!self || !opponent) return;
-        const ItemDamageContext* damageContext = toDamageContext(context);
-        if (!damageContext || !damageContext->move || damageContext->damage <= 0) return;
-        if (damageContext->move->getCategory() != triggerCategory) return;
-        int reflectedDamage = std::max(1, opponent->getMaxHP() / 8);
-        opponent->setCurrentHP(opponent->getCurrentHP() - reflectedDamage);
-        self->removeItem();
-    });
-    return item;
-}
-} // namespace
-
-Item createCheriBerry() { return createStatusCureBerry(ItemType::CheriBerry, "Cheri Berry", StatusType::Paralysis); }
-Item createFigyBerry() { return createHalfHpHealBerry(ItemType::FigyBerry, "Figy Berry", 1, 8); }
-Item createWikiBerry() { return createHalfHpHealBerry(ItemType::WikiBerry, "Wiki Berry", 1, 8); }
-Item createMagoBerry() { return createHalfHpHealBerry(ItemType::MagoBerry, "Mago Berry", 1, 8); }
-Item createAguavBerry() { return createHalfHpHealBerry(ItemType::AguavBerry, "Aguav Berry", 1, 8); }
-Item createIapapaBerry() { return createHalfHpHealBerry(ItemType::IapapaBerry, "Iapapa Berry", 1, 8); }
-
-Item createOccaBerry() { return createResistBerry(ItemType::OccaBerry, "Occa Berry", Type::Fire); }
-Item createPasshoBerry() { return createResistBerry(ItemType::PasshoBerry, "Passho Berry", Type::Water); }
-Item createWacanBerry() { return createResistBerry(ItemType::WacanBerry, "Wacan Berry", Type::Electric); }
-Item createRindoBerry() { return createResistBerry(ItemType::RindoBerry, "Rindo Berry", Type::Grass); }
-Item createYacheBerry() { return createResistBerry(ItemType::YacheBerry, "Yache Berry", Type::Ice); }
-Item createChopleBerry() { return createResistBerry(ItemType::ChopleBerry, "Chople Berry", Type::Fighting); }
-Item createKebiaBerry() { return createResistBerry(ItemType::KebiaBerry, "Kebia Berry", Type::Poison); }
-Item createShucaBerry() { return createResistBerry(ItemType::ShucaBerry, "Shuca Berry", Type::Ground); }
-Item createCobaBerry() { return createResistBerry(ItemType::CobaBerry, "Coba Berry", Type::Flying); }
-Item createPayapaBerry() { return createResistBerry(ItemType::PayapaBerry, "Payapa Berry", Type::Psychic); }
-Item createTangaBerry() { return createResistBerry(ItemType::TangaBerry, "Tanga Berry", Type::Bug); }
-Item createChartiBerry() { return createResistBerry(ItemType::ChartiBerry, "Charti Berry", Type::Rock); }
-Item createKasibBerry() { return createResistBerry(ItemType::KasibBerry, "Kasib Berry", Type::Ghost); }
-Item createHabanBerry() { return createResistBerry(ItemType::HabanBerry, "Haban Berry", Type::Dragon); }
-Item createColburBerry() { return createResistBerry(ItemType::ColburBerry, "Colbur Berry", Type::Dark); }
-Item createBabiriBerry() { return createResistBerry(ItemType::BabiriBerry, "Babiri Berry", Type::Steel); }
-Item createChilanBerry() { return createResistBerry(ItemType::ChilanBerry, "Chilan Berry", Type::Normal); }
-
-Item createLiechiBerry() { return createPinchStatBerry(ItemType::LiechiBerry, "Liechi Berry", StatIndex::Attack); }
-Item createGanlonBerry() { return createPinchStatBerry(ItemType::GanlonBerry, "Ganlon Berry", StatIndex::Defense); }
-Item createSalacBerry() { return createPinchStatBerry(ItemType::SalacBerry, "Salac Berry", StatIndex::Speed); }
-Item createPetayaBerry() { return createPinchStatBerry(ItemType::PetayaBerry, "Petaya Berry", StatIndex::SpecialAttack); }
-Item createApicotBerry() { return createPinchStatBerry(ItemType::ApicotBerry, "Apicot Berry", StatIndex::SpecialDefense); }
-
-Item createJabocaBerry() { return createRetaliationBerry(ItemType::JabocaBerry, "Jaboca Berry", Category::Physical); }
-Item createRowapBerry() { return createRetaliationBerry(ItemType::RowapBerry, "Rowap Berry", Category::Special); }
 
 bool isBerry(ItemType type) {
     switch (type) {
@@ -1396,208 +1054,12 @@ bool isBerry(ItemType type) {
 }
 
 void Item::executeTrigger(ItemTrigger trigger, Pokemon* self, Pokemon* opponent, BattleContext& ctx, void* context) const {
-    if (isUsed && isConsumable) return;  // 已使用的一次性物品不再触发
+    if (isUsed && isConsumable) return;
 
     auto it = effects.find(trigger);
     if (it != effects.end() && it->second) {
         it->second(self, opponent, ctx, context);
     }
-}
-
-void initializeCoreItems(GameRegistry& registry) {
-    // For each item type, register a builder that delegates to the existing createXxx() factory.
-    // The builder receives a pre-constructed Item and move-assigns the factory result into it.
-    auto reg = [&registry](ItemType type, std::function<Item()> factory) {
-        registry.registerItemBuilder(type, [factory = std::move(factory)](Item& item) {
-            item = factory();
-        });
-    };
-
-    // === Berries ===
-    reg(ItemType::OranBerry,   createOranBerry);
-    reg(ItemType::SitrusBerry,  createSitrusBerry);
-    reg(ItemType::LumBerry,    createLumBerry);
-    reg(ItemType::ChestoBerry, createChestoBerry);
-    reg(ItemType::PechaBerry,  createPechaBerry);
-    reg(ItemType::RawstBerry,  createRawstBerry);
-    reg(ItemType::AspearBerry, createAspearBerry);
-    reg(ItemType::PersimBerry, createPersimBerry);
-    reg(ItemType::CheriBerry,  createCheriBerry);
-    reg(ItemType::FigyBerry,   createFigyBerry);
-    reg(ItemType::WikiBerry,   createWikiBerry);
-    reg(ItemType::MagoBerry,   createMagoBerry);
-    reg(ItemType::AguavBerry,  createAguavBerry);
-    reg(ItemType::IapapaBerry, createIapapaBerry);
-    reg(ItemType::OccaBerry,   createOccaBerry);
-    reg(ItemType::PasshoBerry, createPasshoBerry);
-    reg(ItemType::WacanBerry,  createWacanBerry);
-    reg(ItemType::RindoBerry,  createRindoBerry);
-    reg(ItemType::YacheBerry,  createYacheBerry);
-    reg(ItemType::ChopleBerry, createChopleBerry);
-    reg(ItemType::KebiaBerry,  createKebiaBerry);
-    reg(ItemType::ShucaBerry,  createShucaBerry);
-    reg(ItemType::CobaBerry,   createCobaBerry);
-    reg(ItemType::PayapaBerry, createPayapaBerry);
-    reg(ItemType::TangaBerry,  createTangaBerry);
-    reg(ItemType::ChartiBerry, createChartiBerry);
-    reg(ItemType::KasibBerry,  createKasibBerry);
-    reg(ItemType::HabanBerry,  createHabanBerry);
-    reg(ItemType::ColburBerry, createColburBerry);
-    reg(ItemType::BabiriBerry, createBabiriBerry);
-    reg(ItemType::ChilanBerry, createChilanBerry);
-    reg(ItemType::LiechiBerry, createLiechiBerry);
-    reg(ItemType::GanlonBerry, createGanlonBerry);
-    reg(ItemType::SalacBerry,  createSalacBerry);
-    reg(ItemType::PetayaBerry, createPetayaBerry);
-    reg(ItemType::ApicotBerry, createApicotBerry);
-    reg(ItemType::JabocaBerry, createJabocaBerry);
-    reg(ItemType::RowapBerry,  createRowapBerry);
-
-    // === Recovery / HP Items ===
-    reg(ItemType::Leftovers,   createLeftovers);
-    reg(ItemType::BlackSludge, createBlackSludge);
-    reg(ItemType::ShellBell,   createShellBell);
-    reg(ItemType::BerryJuice,  createBerryJuice);
-
-    // === Choice Items ===
-    reg(ItemType::ChoiceBand,  createChoiceBand);
-    reg(ItemType::ChoiceSpecs, createChoiceSpecs);
-    reg(ItemType::ChoiceScarf, createChoiceScarf);
-
-    // === Damage / Stat Modifiers ===
-    reg(ItemType::QuickClaw,     createQuickClaw);
-    reg(ItemType::LifeOrb,       createLifeOrb);
-    reg(ItemType::ExpertBelt,    createExpertBelt);
-    reg(ItemType::MuscleBand,    createMuscleBand);
-    reg(ItemType::WiseGlasses,   createWiseGlasses);
-    reg(ItemType::LightBall,     createLightBall);
-    reg(ItemType::QuickPowder,   createQuickPowder);
-    reg(ItemType::ThickClub,     createThickClub);
-    reg(ItemType::MetalPowder,   createMetalPowder);
-    reg(ItemType::DeepSeaTooth,  createDeepSeaTooth);
-    reg(ItemType::DeepSeaScale,  createDeepSeaScale);
-
-    // === Trigger Items ===
-    reg(ItemType::FocusSash,      createFocusSash);
-    reg(ItemType::RockyHelmet,    createRockyHelmet);
-    reg(ItemType::AirBalloon,     createAirBalloon);
-    reg(ItemType::Eviolite,       createEviolite);
-    reg(ItemType::AssaultVest,    createAssaultVest);
-    reg(ItemType::RedCard,        createRedCard);
-    reg(ItemType::EjectButton,    createEjectButton);
-    reg(ItemType::WhiteHerb,      createWhiteHerb);
-    reg(ItemType::WeaknessPolicy, createWeaknessPolicy);
-    reg(ItemType::PowerHerb,      createPowerHerb);
-    reg(ItemType::StickyBarb,     createStickyBarb);
-    reg(ItemType::BigRoot,        createBigRoot);
-    reg(ItemType::KingsRock,      createKingsRock);
-
-    // === Accuracy Items ===
-    reg(ItemType::WideLens,  createWideLens);
-    reg(ItemType::ZoomLens,  createZoomLens);
-    reg(ItemType::ScopeLens, createScopeLens);
-
-    // === Type-Boost Items ===
-    reg(ItemType::SilverPowder, createSilverPowder);
-    reg(ItemType::MetalCoat,    createMetalCoat);
-    reg(ItemType::HardStone,    createHardStone);
-    reg(ItemType::MiracleSeed,  createMiracleSeed);
-    reg(ItemType::BlackGlasses, createBlackGlasses);
-    reg(ItemType::BlackBelt,    createBlackBelt);
-    reg(ItemType::Magnet,       createMagnet);
-    reg(ItemType::MysticWater,  createMysticWater);
-    reg(ItemType::SharpBeak,    createSharpBeak);
-    reg(ItemType::PoisonBarb,   createPoisonBarb);
-    reg(ItemType::NeverMeltIce, createNeverMeltIce);
-    reg(ItemType::SpellTag,     createSpellTag);
-    reg(ItemType::TwistedSpoon, createTwistedSpoon);
-    reg(ItemType::Charcoal,     createCharcoal);
-    reg(ItemType::DragonFang,   createDragonFang);
-    reg(ItemType::SilkScarf,    createSilkScarf);
-    reg(ItemType::SeaIncense,   createSeaIncense);
-
-    // === Type Plates ===
-    reg(ItemType::FlamePlate,   createFlamePlate);
-    reg(ItemType::SplashPlate,  createSplashPlate);
-    reg(ItemType::ZapPlate,     createZapPlate);
-    reg(ItemType::MeadowPlate,  createMeadowPlate);
-    reg(ItemType::IciclePlate,  createIciclePlate);
-    reg(ItemType::FistPlate,    createFistPlate);
-    reg(ItemType::ToxicPlate,   createToxicPlate);
-    reg(ItemType::EarthPlate,   createEarthPlate);
-    reg(ItemType::SkyPlate,     createSkyPlate);
-    reg(ItemType::MindPlate,    createMindPlate);
-    reg(ItemType::InsectPlate,  createInsectPlate);
-    reg(ItemType::StonePlate,   createStonePlate);
-    reg(ItemType::SpookyPlate,  createSpookyPlate);
-    reg(ItemType::IronPlate,    createIronPlate);
-
-    // === Status Orbs ===
-    reg(ItemType::FlameOrb,  createFlameOrb);
-    reg(ItemType::ToxicOrb,  createToxicOrb);
-
-    // === Gen 9 Utility Items ===
-    reg(ItemType::HeavyDutyBoots, createHeavyDutyBoots);
-    reg(ItemType::CovertCloak,    createCovertCloak);
-    reg(ItemType::ClearAmulet,    createClearAmulet);
-    reg(ItemType::ProtectivePads, createProtectivePads);
-    reg(ItemType::PunchingGlove,  createPunchingGlove);
-    reg(ItemType::BoosterEnergy,  createBoosterEnergy);
-    reg(ItemType::LoadedDice,     createLoadedDice);
-    reg(ItemType::MirrorHerb,     createMirrorHerb);
-    reg(ItemType::AbilityShield,  createAbilityShield);
-    reg(ItemType::EjectPack,      createEjectPack);
-    reg(ItemType::TerrainExtender, createTerrainExtender);
-    reg(ItemType::RoomService,    createRoomService);
-    reg(ItemType::BlunderPolicy,  createBlunderPolicy);
-    reg(ItemType::ThroatSpray,    createThroatSpray);
-    reg(ItemType::UtilityUmbrella, createUtilityUmbrella);
-    reg(ItemType::LightClay,       createLightClay);
-    reg(ItemType::MentalHerb,      createMentalHerb);
-    reg(ItemType::SafetyGoggles,   createSafetyGoggles);
-    reg(ItemType::RingTarget,      createRingTarget);
-    reg(ItemType::Metronome,       createMetronome);
-    reg(ItemType::DampRock,        createDampRock);
-    reg(ItemType::HeatRock,        createHeatRock);
-    reg(ItemType::IcyRock,         createIcyRock);
-    reg(ItemType::SmoothRock,      createSmoothRock);
-    reg(ItemType::BrightPowder,   createBrightPowder);
-    reg(ItemType::FocusBand,      createFocusBand);
-    reg(ItemType::CustapBerry,    createCustapBerry);
-    reg(ItemType::EnigmaBerry,    createEnigmaBerry);
-    reg(ItemType::BindingBand,    createBindingBand);
-    reg(ItemType::ElectricSeed,  createElectricSeed);
-    reg(ItemType::PsychicSeed,   createPsychicSeed);
-    reg(ItemType::MistySeed,     createMistySeed);
-    reg(ItemType::GrassySeed,    createGrassySeed);
-    reg(ItemType::AdrenalineOrb,  createAdrenalineOrb);
-    reg(ItemType::MicleBerry,    createMicleBerry);
-    reg(ItemType::LansatBerry,   createLansatBerry);
-    reg(ItemType::StarfBerry,    createStarfBerry);
-    reg(ItemType::ShedShell,     createShedShell);
-    reg(ItemType::GripClaw,      createGripClaw);
-    reg(ItemType::IronBall,      createIronBall);
-    reg(ItemType::AbsorbBulb,    createAbsorbBulb);
-    reg(ItemType::CellBattery,   createCellBattery);
-    reg(ItemType::LuminousMoss,  createLuminousMoss);
-    reg(ItemType::Snowball,      createSnowball);
-    reg(ItemType::LaxIncense,    createLaxIncense);
-    reg(ItemType::LaggingTail,   createLaggingTail);
-    reg(ItemType::RoseIncense,   createRoseIncense);
-    reg(ItemType::WaveIncense,   createWaveIncense);
-    reg(ItemType::OddIncense,    createOddIncense);
-    reg(ItemType::FloatStone,    createFloatStone);
-    reg(ItemType::RazorClaw,     createRazorClaw);
-    reg(ItemType::RazorFang,     createRazorFang);
-    reg(ItemType::FullIncense,   createFullIncense);
-    reg(ItemType::SmokeBall,     createSmokeBall);
-    reg(ItemType::SoftSand,      createSoftSand);
-    reg(ItemType::DracoPlate,    createDracoPlate);
-    reg(ItemType::DreadPlate,    createDreadPlate);
-    reg(ItemType::RockIncense,   createRockIncense);
-    reg(ItemType::LuckIncense,   createLuckIncense);
-    reg(ItemType::MachoBrace,    createMachoBrace);
-    reg(ItemType::PowerBracer,   createPowerBracer);
 }
 
 // === Item logic helpers ===

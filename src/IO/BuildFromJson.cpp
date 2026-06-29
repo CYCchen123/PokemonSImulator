@@ -1,4 +1,5 @@
 #include "IO/BuildFromJson.h"
+#include "IO/GameDatabase.h"
 #include "battle/Types.h"
 #include "battle/Natures.h"
 #include "battle/Status.h"
@@ -320,44 +321,7 @@ Pokemon BuildFromJson::buildPokemon(const json& jsonData, const Species& species
 
 // 从species.json加载所有种族信息
 std::map<int, Species> loadSpeciesFromFile() {
-    std::map<int, Species> speciesMap;
-    
-    // 尝试使用不同的路径
-    std::string paths[] = {
-        "data/species.json",
-        "../data/species.json",
-        "../../data/species.json"
-    };
-    
-    std::ifstream file;
-    bool fileOpened = false;
-    
-    for (const auto& path : paths) {
-        file.open(path);
-        if (file.is_open()) {
-            fileOpened = true;
-            break;
-        }
-        file.close();
-    }
-    
-    if (!fileOpened) {
-        std::cerr << "Error: Could not open species.json file" << std::endl;
-        return speciesMap;
-    }
-    
-    json jsonData;
-    file >> jsonData;
-    file.close();
-    
-    if (jsonData.contains("species")) {
-        for (const auto& speciesData : jsonData["species"]) {
-            Species species = BuildFromJson::buildSpecies(speciesData);
-            speciesMap[species.id] = species;
-        }
-    }
-    
-    return speciesMap;
+    return GameDatabase::instance().loadAllSpecies();
 }
 
 // 从abilities.json加载所有特性信息

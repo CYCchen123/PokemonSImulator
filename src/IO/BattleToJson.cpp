@@ -621,10 +621,18 @@ json BattleToJson::battleAllInfoToJson(Battle& battle) {
 
     json battleState;
     battleState["turn"] = battle.getTurnNumber();
-    battleState["sides"] = json::array({
+    json sides = json::array({
         sideAllInfoToJson(battle.getSideA(), 0),
         sideAllInfoToJson(battle.getSideB(), 1),
     });
+    // Add pendingSwitch flags from runtime state
+    for (size_t i = 0; i < 2; ++i) {
+        Side& side = (i == 0) ? battle.getSideA() : battle.getSideB();
+        if (battle.hasPendingSwitch(side)) {
+            sides[i]["_pendingSwitch"] = true;
+        }
+    }
+    battleState["sides"] = sides;
     battleState["field"] = json{
         {"type", static_cast<int>(battle.getField().type)},
         {"duration", battle.getField().duration}

@@ -11,6 +11,11 @@ find_package(CURL REQUIRED)
 include_directories(${CURL_INCLUDE_DIRS})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
+# SQLite3 (amalgamation)
+add_library(sqlite3 STATIC third_party/sqlite3/sqlite3.c)
+target_include_directories(sqlite3 PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/third_party/sqlite3)
+target_compile_definitions(sqlite3 PRIVATE SQLITE_THREADSAFE=1)
+
 # Source files
 file(GLOB SOURCES CONFIGURE_DEPENDS src/*.cpp)
 file(GLOB SOURCES_BATTLE CONFIGURE_DEPENDS
@@ -38,6 +43,7 @@ target_include_directories(battle_core PUBLIC
 target_link_libraries(battle_core
     nlohmann_json::nlohmann_json
     CURL::libcurl
+    sqlite3
 )
 
 # Executable

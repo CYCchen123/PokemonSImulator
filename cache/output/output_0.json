@@ -1,7 +1,9 @@
 {
   "descriptions": [
-    "BatteryHolder 上场了（初始上场）。",
-    "BatteryHolder 上场了（初始上场）。"
+    "Tyranitar 上场了（初始上场）。",
+    "Pelipper 上场了（初始上场）。",
+    "Tyranitar 的特性 sand-stream 触发了。",
+    "Pelipper 的特性 drizzle 触发了。"
   ],
   "turn": 0,
   "battle": {
@@ -12,19 +14,44 @@
     "sides": [
       {
         "active": 0,
-        "count": 1,
-        "name": "A",
+        "count": 6,
+        "name": "Side A (Sand)",
         "pokemons": [
           {
-            "abilityId": 302,
+            "abilityId": 45,
             "fainted": false,
-            "hp": 175,
+            "hp": 207,
             "inBattleStatus": [],
-            "itemId": 589,
-            "maxHp": 175,
-            "moves": [],
+            "itemId": 260,
+            "maxHp": 207,
+            "moves": [
+              {
+                "id": 444,
+                "maxPp": 5,
+                "pp": 5,
+                "slot": 0
+              },
+              {
+                "id": 242,
+                "maxPp": 15,
+                "pp": 15,
+                "slot": 1
+              },
+              {
+                "id": 446,
+                "maxPp": 20,
+                "pp": 20,
+                "slot": 2
+              },
+              {
+                "id": 89,
+                "maxPp": 10,
+                "pp": 10,
+                "slot": 3
+              }
+            ],
             "slot": 0,
-            "speciesId": 9105,
+            "speciesId": 248,
             "statStages": [
               0,
               0,
@@ -35,8 +62,253 @@
               0
             ],
             "types": [
+              12,
+              15
+            ]
+          },
+          {
+            "abilityId": 146,
+            "fainted": false,
+            "hp": 186,
+            "inBattleStatus": [],
+            "itemId": 247,
+            "maxHp": 186,
+            "moves": [
+              {
+                "id": 89,
+                "maxPp": 10,
+                "pp": 10,
+                "slot": 0
+              },
+              {
+                "id": 14,
+                "maxPp": 20,
+                "pp": 20,
+                "slot": 1
+              },
+              {
+                "id": 229,
+                "maxPp": 40,
+                "pp": 40,
+                "slot": 2
+              },
+              {
+                "id": 317,
+                "maxPp": 15,
+                "pp": 15,
+                "slot": 3
+              }
+            ],
+            "slot": 1,
+            "speciesId": 530,
+            "statStages": [
               0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "types": [
+              8,
+              16
+            ]
+          },
+          {
+            "abilityId": 49,
+            "fainted": false,
+            "hp": 161,
+            "inBattleStatus": [],
+            "itemId": 1178,
+            "maxHp": 161,
+            "moves": [
+              {
+                "id": 53,
+                "maxPp": 15,
+                "pp": 15,
+                "slot": 0
+              },
+              {
+                "id": 483,
+                "maxPp": 20,
+                "pp": 20,
+                "slot": 1
+              },
+              {
+                "id": 450,
+                "maxPp": 20,
+                "pp": 20,
+                "slot": 2
+              },
+              {
+                "id": 202,
+                "maxPp": 10,
+                "pp": 10,
+                "slot": 3
+              }
+            ],
+            "slot": 2,
+            "speciesId": 637,
+            "statStages": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "types": [
+              11,
+              1
+            ]
+          },
+          {
+            "abilityId": 126,
+            "fainted": false,
+            "hp": 151,
+            "inBattleStatus": [],
+            "itemId": 211,
+            "maxHp": 151,
+            "moves": [
+              {
+                "id": 437,
+                "maxPp": 5,
+                "pp": 5,
+                "slot": 0
+              },
+              {
+                "id": 164,
+                "maxPp": 10,
+                "pp": 10,
+                "slot": 1
+              },
+              {
+                "id": 73,
+                "maxPp": 10,
+                "pp": 10,
+                "slot": 2
+              },
+              {
+                "id": 137,
+                "maxPp": 30,
+                "pp": 30,
+                "slot": 3
+              }
+            ],
+            "slot": 3,
+            "speciesId": 497,
+            "statStages": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "types": [
+              4,
               18
+            ]
+          },
+          {
+            "abilityId": 101,
+            "fainted": false,
+            "hp": 146,
+            "inBattleStatus": [],
+            "itemId": 197,
+            "maxHp": 146,
+            "moves": [
+              {
+                "id": 418,
+                "maxPp": 30,
+                "pp": 30,
+                "slot": 0
+              },
+              {
+                "id": 369,
+                "maxPp": 20,
+                "pp": 20,
+                "slot": 1
+              },
+              {
+                "id": 282,
+                "maxPp": 20,
+                "pp": 20,
+                "slot": 2
+              },
+              {
+                "id": 276,
+                "maxPp": 5,
+                "pp": 5,
+                "slot": 3
+              }
+            ],
+            "slot": 4,
+            "speciesId": 212,
+            "statStages": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "types": [
+              11,
+              16
+            ]
+          },
+          {
+            "abilityId": 24,
+            "fainted": false,
+            "hp": 184,
+            "inBattleStatus": [],
+            "itemId": 583,
+            "maxHp": 184,
+            "moves": [
+              {
+                "id": 89,
+                "maxPp": 10,
+                "pp": 10,
+                "slot": 0
+              },
+              {
+                "id": 337,
+                "maxPp": 15,
+                "pp": 15,
+                "slot": 1
+              },
+              {
+                "id": 14,
+                "maxPp": 20,
+                "pp": 20,
+                "slot": 2
+              },
+              {
+                "id": 424,
+                "maxPp": 15,
+                "pp": 15,
+                "slot": 3
+              }
+            ],
+            "slot": 5,
+            "speciesId": 445,
+            "statStages": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "types": [
+              14,
+              8
             ]
           }
         ],
@@ -55,19 +327,44 @@
       },
       {
         "active": 0,
-        "count": 1,
-        "name": "B",
+        "count": 6,
+        "name": "Side B (Rain)",
         "pokemons": [
           {
-            "abilityId": 302,
+            "abilityId": 2,
             "fainted": false,
-            "hp": 175,
+            "hp": 167,
             "inBattleStatus": [],
-            "itemId": 0,
-            "maxHp": 175,
-            "moves": [],
+            "itemId": 262,
+            "maxHp": 167,
+            "moves": [
+              {
+                "id": 542,
+                "maxPp": 10,
+                "pp": 10,
+                "slot": 0
+              },
+              {
+                "id": 240,
+                "maxPp": 5,
+                "pp": 5,
+                "slot": 1
+              },
+              {
+                "id": 369,
+                "maxPp": 20,
+                "pp": 20,
+                "slot": 2
+              },
+              {
+                "id": 355,
+                "maxPp": 5,
+                "pp": 5,
+                "slot": 3
+              }
+            ],
             "slot": 0,
-            "speciesId": 9105,
+            "speciesId": 279,
             "statStages": [
               0,
               0,
@@ -78,8 +375,253 @@
               0
             ],
             "types": [
+              2,
+              9
+            ]
+          },
+          {
+            "abilityId": 160,
+            "fainted": false,
+            "hp": 181,
+            "inBattleStatus": [],
+            "itemId": 583,
+            "maxHp": 181,
+            "moves": [
+              {
+                "id": 73,
+                "maxPp": 10,
+                "pp": 10,
+                "slot": 0
+              },
+              {
+                "id": 438,
+                "maxPp": 10,
+                "pp": 10,
+                "slot": 1
+              },
+              {
+                "id": 360,
+                "maxPp": 5,
+                "pp": 5,
+                "slot": 2
+              },
+              {
+                "id": 191,
+                "maxPp": 20,
+                "pp": 20,
+                "slot": 3
+              }
+            ],
+            "slot": 1,
+            "speciesId": 598,
+            "statStages": [
               0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "types": [
+              4,
+              16
+            ]
+          },
+          {
+            "abilityId": 98,
+            "fainted": false,
+            "hp": 171,
+            "inBattleStatus": [],
+            "itemId": 247,
+            "maxHp": 171,
+            "moves": [
+              {
+                "id": 585,
+                "maxPp": 15,
+                "pp": 15,
+                "slot": 0
+              },
+              {
+                "id": 347,
+                "maxPp": 20,
+                "pp": 20,
+                "slot": 1
+              },
+              {
+                "id": 135,
+                "maxPp": 5,
+                "pp": 5,
+                "slot": 2
+              },
+              {
+                "id": 86,
+                "maxPp": 20,
+                "pp": 20,
+                "slot": 3
+              }
+            ],
+            "slot": 2,
+            "speciesId": 36,
+            "statStages": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "types": [
+              17,
               18
+            ]
+          },
+          {
+            "abilityId": 144,
+            "fainted": false,
+            "hp": 157,
+            "inBattleStatus": [],
+            "itemId": 258,
+            "maxHp": 157,
+            "moves": [
+              {
+                "id": 503,
+                "maxPp": 15,
+                "pp": 15,
+                "slot": 0
+              },
+              {
+                "id": 390,
+                "maxPp": 20,
+                "pp": 20,
+                "slot": 1
+              },
+              {
+                "id": 105,
+                "maxPp": 5,
+                "pp": 5,
+                "slot": 2
+              },
+              {
+                "id": 114,
+                "maxPp": 30,
+                "pp": 30,
+                "slot": 3
+              }
+            ],
+            "slot": 3,
+            "speciesId": 748,
+            "statStages": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "types": [
+              7,
+              2
+            ]
+          },
+          {
+            "abilityId": 209,
+            "fainted": false,
+            "hp": 131,
+            "inBattleStatus": [],
+            "itemId": 252,
+            "maxHp": 131,
+            "moves": [
+              {
+                "id": 425,
+                "maxPp": 30,
+                "pp": 30,
+                "slot": 0
+              },
+              {
+                "id": 583,
+                "maxPp": 10,
+                "pp": 10,
+                "slot": 1
+              },
+              {
+                "id": 14,
+                "maxPp": 20,
+                "pp": 20,
+                "slot": 2
+              },
+              {
+                "id": 164,
+                "maxPp": 10,
+                "pp": 10,
+                "slot": 3
+              }
+            ],
+            "slot": 4,
+            "speciesId": 778,
+            "statStages": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "types": [
+              13,
+              17
+            ]
+          },
+          {
+            "abilityId": 240,
+            "fainted": false,
+            "hp": 205,
+            "inBattleStatus": [],
+            "itemId": 211,
+            "maxHp": 205,
+            "moves": [
+              {
+                "id": 776,
+                "maxPp": 10,
+                "pp": 10,
+                "slot": 0
+              },
+              {
+                "id": 334,
+                "maxPp": 15,
+                "pp": 15,
+                "slot": 1
+              },
+              {
+                "id": 355,
+                "maxPp": 5,
+                "pp": 5,
+                "slot": 2
+              },
+              {
+                "id": 432,
+                "maxPp": 15,
+                "pp": 15,
+                "slot": 3
+              }
+            ],
+            "slot": 5,
+            "speciesId": 823,
+            "statStages": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "types": [
+              9,
+              16
             ]
           }
         ],
@@ -99,39 +641,79 @@
     ],
     "turn": 0,
     "weather": {
-      "duration": 0,
-      "type": 0
+      "duration": 5,
+      "type": 1
     }
   },
   "events": [
     {
-      "description": "BatteryHolder 上场了（初始上场）。",
+      "description": "Tyranitar 上场了（初始上场）。",
       "details": {
-        "pokemon": "BatteryHolder",
+        "pokemon": "Tyranitar",
         "pokemon_ref": {
           "pokemon_index": 0,
           "side_index": 0
         },
         "reason": "initial_send_out",
-        "side": "A",
+        "side": "Side A (Sand)",
         "side_index": 0
       },
       "timeline_index": 0,
       "turn_index": 0
     },
     {
-      "description": "BatteryHolder 上场了（初始上场）。",
+      "description": "Pelipper 上场了（初始上场）。",
       "details": {
-        "pokemon": "BatteryHolder",
+        "pokemon": "Pelipper",
+        "pokemon_ref": {
+          "pokemon_index": 0,
+          "side_index": 1
+        },
+        "reason": "initial_send_out",
+        "side": "Side B (Rain)",
+        "side_index": 1
+      },
+      "timeline_index": 1,
+      "turn_index": 0
+    },
+    {
+      "description": "Tyranitar 的特性 sand-stream 触发了。",
+      "details": {
+        "ability": "sand-stream",
+        "ability_index": 45,
+        "opponent": "Pelipper",
+        "opponent_ref": {
+          "pokemon_index": 0,
+          "side_index": 1
+        },
+        "pokemon": "Tyranitar",
         "pokemon_ref": {
           "pokemon_index": 0,
           "side_index": 0
         },
-        "reason": "initial_send_out",
-        "side": "B",
-        "side_index": 1
+        "trigger": "on_entry"
       },
-      "timeline_index": 1,
+      "timeline_index": 2,
+      "turn_index": 0
+    },
+    {
+      "description": "Pelipper 的特性 drizzle 触发了。",
+      "details": {
+        "ability": "drizzle",
+        "ability_index": 2,
+        "opponent": "Tyranitar",
+        "opponent_ref": {
+          "pokemon_index": 0,
+          "side_index": 0
+        },
+        "pokemon": "Pelipper",
+        "pokemon_ref": {
+          "pokemon_index": 0,
+          "side_index": 1
+        },
+        "trigger": "on_entry"
+      },
+      "timeline_index": 3,
       "turn_index": 0
     }
   ]

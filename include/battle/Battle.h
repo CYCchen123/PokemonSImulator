@@ -98,6 +98,8 @@ struct RuntimeMoveState {
     Pokemon* pursuitSwitchTarget = nullptr;
     Pokemon* afterYouTarget = nullptr;
     bool roundUsedThisTurn = false;
+    std::unordered_map<Side*, bool> pendingSwitch;  // side → must switch before next action
+    std::unordered_map<Side*, bool> hasRemaining;   // side → has alive Pokemon to switch to
 };
 
 // --- BattleContext (needs RuntimeMoveState, which is now top-level) ---
@@ -124,6 +126,8 @@ public:
     void enqueueAction(const BattleAction& action);
     void processTurn();
     void resolveNextAction();
+    bool hasPendingSwitch(Side& side) const;
+    bool processForcedSwitch(Side& side, int switchIndex);
     void applyStatusEffects();
     void applyWeatherEffects();
     void applyFieldEffects();

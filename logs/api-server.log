@@ -1,0 +1,648 @@
+2026-06-29 10:38:38,112 [ws] INFO: Engine: /home/qzz/PokemonSimulator/build/PokemonSimulator — OK
+2026-06-29 10:38:38,113 [ws] INFO: Data: 1025 species, 937 moves, 367 abilities
+2026-06-29 10:38:38,113 [ws] INFO: Starting WebSocket server on ws://0.0.0.0:8000/ws ...
+INFO:     Started server process [101828]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     127.0.0.1:44103 - "GET /api/v1/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62321 - "WebSocket /ws" [accepted]
+2026-06-29 10:38:38,510 [ws] INFO: WebSocket connected
+INFO:     connection open
+INFO:     127.0.0.1:44109 - "WebSocket /ws" [accepted]
+2026-06-29 10:38:40,005 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 10:38:40,016 [ws] INFO: WebSocket disconnected: None
+INFO:     connection closed
+2026-06-29 10:38:41,015 [ws] INFO: WebSocket disconnected: myz
+INFO:     connection closed
+INFO:     127.0.0.1:62862 - "WebSocket /ws" [accepted]
+2026-06-29 10:38:41,621 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 10:39:32,407 [ws] INFO: WebSocket disconnected: myz
+INFO:     connection closed
+INFO:     127.0.0.1:57502 - "WebSocket /ws" [accepted]
+2026-06-29 10:43:57,535 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 10:45:15,127 [ws] INFO: WebSocket disconnected: TeamBuilder
+INFO:     connection closed
+INFO:     127.0.0.1:53505 - "WebSocket /ws" [accepted]
+2026-06-29 10:45:15,430 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 10:45:16,951 [ws] INFO: WebSocket disconnected: Player
+INFO:     connection closed
+INFO:     127.0.0.1:64675 - "WebSocket /ws" [accepted]
+2026-06-29 10:45:17,231 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 10:45:18,754 [ws] INFO: WebSocket disconnected: TeamBuilder
+INFO:     connection closed
+INFO:     127.0.0.1:52549 - "WebSocket /ws" [accepted]
+2026-06-29 10:45:19,035 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 10:45:20,568 [ws] INFO: WebSocket disconnected: Player
+INFO:     connection closed
+INFO:     127.0.0.1:61095 - "WebSocket /ws" [accepted]
+2026-06-29 10:45:20,845 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 10:45:21,150 [ws] INFO: WebSocket disconnected: TeamBuilder
+INFO:     connection closed
+INFO:     127.0.0.1:51753 - "WebSocket /ws" [accepted]
+2026-06-29 10:45:21,433 [ws] INFO: WebSocket connected
+INFO:     connection open
+INFO:     127.0.0.1:43587 - "GET /api/v1/battles HTTP/1.1" 404 Not Found
+2026-06-29 10:45:33,357 [ws] INFO: WebSocket disconnected: myz
+INFO:     connection closed
+INFO:     127.0.0.1:62414 - "WebSocket /ws" [accepted]
+2026-06-29 10:45:38,930 [ws] INFO: WebSocket connected
+INFO:     connection open
+INFO:     172.22.154.88:62519 - "WebSocket /ws" [accepted]
+2026-06-29 10:47:15,145 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 10:47:17,524 [ws] INFO: Match! myz vs c → 2e5fade0, starting engine...
+2026-06-29 10:47:17,531 [ws] INFO: [Engine:2e5fade0] Daemon started, waiting for turn 0...
+2026-06-29 10:47:18,484 [ws] INFO: [Engine:2e5fade0] Turn 0 ready
+2026-06-29 10:47:18,484 [ws] INFO: Match engine ready for 2e5fade0
+2026-06-29 10:47:18,484 [ws] INFO: Sending matched: p1=myz ws=OK, p2=c ws=OK
+2026-06-29 10:47:18,485 [ws] INFO: Matched messages sent for 2e5fade0
+INFO:     127.0.0.1:43013 - "GET /api/v1/battles HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:43027 - "GET /api/v1/stats/global HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:43029 - "GET /api/v1/battles HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:43043 - "GET /api/v1/battles HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:43051 - "GET /api/v1/battles?status=completed HTTP/1.1" 404 Not Found
+2026-06-29 10:49:20,895 [ws] INFO: WebSocket disconnected: c
+INFO:     connection closed
+INFO:     172.22.154.88:64028 - "WebSocket /ws" [accepted]
+2026-06-29 10:49:21,119 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 10:50:00,122 [ws] INFO: WebSocket disconnected: myz
+INFO:     connection closed
+INFO:     127.0.0.1:40737 - "GET /api/v1/battles HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:40751 - "GET /api/v1/stats/global HTTP/1.1" 404 Not Found
+2026-06-29 10:53:30,280 [ws] INFO: WebSocket disconnected: c
+INFO:     connection closed
+INFO:     172.22.154.88:53188 - "WebSocket /ws" [accepted]
+2026-06-29 10:53:31,354 [ws] INFO: WebSocket connected
+INFO:     connection open
+INFO:     127.0.0.1:49953 - "WebSocket /ws" [accepted]
+2026-06-29 10:53:35,709 [ws] INFO: WebSocket connected
+INFO:     connection open
+INFO:     127.0.0.1:41917 - "WebSocket /ws" [accepted]
+2026-06-29 10:55:29,423 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 10:55:29,434 [ws] INFO: WebSocket disconnected: t
+INFO:     connection closed
+2026-06-29 10:56:09,514 [ws] INFO: WebSocket disconnected: c
+INFO:     connection closed
+INFO:     172.22.154.88:61446 - "WebSocket /ws" [accepted]
+2026-06-29 10:56:10,755 [ws] INFO: WebSocket connected
+INFO:     connection open
+INFO:     127.0.0.1:54109 - "WebSocket /ws" [accepted]
+2026-06-29 10:56:16,733 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 10:56:41,906 [ws] INFO: WebSocket disconnected: myz
+2026-06-29 10:56:41,907 [ws] INFO: WebSocket disconnected: myz
+INFO:     connection closed
+INFO:     connection closed
+2026-06-29 10:59:06,429 [ws] INFO: WebSocket disconnected: c
+INFO:     connection closed
+INFO:     172.22.154.88:63367 - "WebSocket /ws" [accepted]
+2026-06-29 10:59:08,196 [ws] INFO: WebSocket connected
+INFO:     connection open
+INFO:     127.0.0.1:60059 - "WebSocket /ws" [accepted]
+2026-06-29 10:59:45,265 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 10:59:54,062 [ws] INFO: WebSocket disconnected: TeamBuilder
+INFO:     connection closed
+2026-06-29 11:00:55,621 [ws] INFO: WebSocket disconnected: c
+INFO:     connection closed
+INFO:     172.22.154.88:62046 - "WebSocket /ws" [accepted]
+2026-06-29 11:00:57,311 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 11:02:35,504 [ws] INFO: WebSocket disconnected: c
+INFO:     connection closed
+INFO:     172.22.154.88:61276 - "WebSocket /ws" [accepted]
+2026-06-29 11:02:36,500 [ws] INFO: WebSocket connected
+INFO:     connection open
+INFO:     127.0.0.1:63845 - "WebSocket /ws" [accepted]
+2026-06-29 11:02:48,407 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 11:05:36,644 [ws] INFO: WebSocket disconnected: myz
+INFO:     connection closed
+INFO:     127.0.0.1:55351 - "WebSocket /ws" [accepted]
+2026-06-29 11:05:37,273 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 11:05:37,409 [ws] INFO: WebSocket disconnected: c
+INFO:     connection closed
+INFO:     172.22.154.88:56109 - "WebSocket /ws" [accepted]
+2026-06-29 11:05:38,638 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 11:06:58,957 [ws] INFO: WebSocket disconnected: myz
+INFO:     connection closed
+2026-06-29 11:06:59,684 [ws] INFO: WebSocket disconnected: c
+INFO:     connection closed
+INFO:     127.0.0.1:59951 - "WebSocket /ws" [accepted]
+2026-06-29 11:07:00,706 [ws] INFO: WebSocket connected
+INFO:     connection open
+INFO:     172.22.154.88:60523 - "WebSocket /ws" [accepted]
+2026-06-29 11:07:01,188 [ws] INFO: WebSocket connected
+INFO:     connection open
+INFO:     127.0.0.1:57657 - "WebSocket /ws" [accepted]
+2026-06-29 11:07:13,284 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 11:07:17,209 [ws] INFO: WebSocket disconnected: qzz
+INFO:     connection closed
+INFO:     127.0.0.1:55629 - "WebSocket /ws" [accepted]
+2026-06-29 11:07:17,496 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 11:07:19,289 [ws] INFO: WebSocket disconnected: c
+INFO:     connection closed
+INFO:     172.22.154.88:54301 - "WebSocket /ws" [accepted]
+2026-06-29 11:07:19,625 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 11:07:31,993 [ws] INFO: WebSocket disconnected: myz
+INFO:     connection closed
+2026-06-29 11:07:32,006 [ws] INFO: WebSocket disconnected: myz
+INFO:     connection closed
+INFO:     127.0.0.1:40805 - "GET /api/v1/battles HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:40817 - "GET /api/v1/stats/global HTTP/1.1" 404 Not Found
+2026-06-29 11:09:20,784 [ws] INFO: WebSocket disconnected: c
+INFO:     connection closed
+INFO:     172.22.154.88:64130 - "WebSocket /ws" [accepted]
+2026-06-29 11:09:21,673 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 11:11:09,560 [ws] INFO: WebSocket disconnected: c
+INFO:     connection closed
+INFO:     172.22.154.88:50376 - "WebSocket /ws" [accepted]
+2026-06-29 11:11:10,511 [ws] INFO: WebSocket connected
+INFO:     connection open
+INFO:     127.0.0.1:63759 - "WebSocket /ws" [accepted]
+2026-06-29 11:11:25,073 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 11:12:58,180 [ws] INFO: WebSocket disconnected: myz
+INFO:     connection closed
+INFO:     127.0.0.1:53608 - "WebSocket /ws" [accepted]
+2026-06-29 11:12:58,467 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 11:13:26,603 [ws] INFO: WebSocket disconnected: qzz
+INFO:     connection closed
+INFO:     127.0.0.1:51825 - "WebSocket /ws" [accepted]
+2026-06-29 11:13:26,918 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 11:13:28,407 [ws] INFO: WebSocket disconnected: TeamBuilder
+INFO:     connection closed
+INFO:     127.0.0.1:56987 - "WebSocket /ws" [accepted]
+2026-06-29 11:13:28,685 [ws] INFO: WebSocket connected
+INFO:     connection open
+INFO:     127.0.0.1:42179 - "GET /api/v1/battles HTTP/1.1" 404 Not Found
+2026-06-29 11:13:30,218 [ws] INFO: WebSocket disconnected: qzz
+INFO:     connection closed
+INFO:     127.0.0.1:63544 - "WebSocket /ws" [accepted]
+2026-06-29 11:13:30,499 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 11:13:32,026 [ws] INFO: WebSocket disconnected: TeamBuilder
+INFO:     connection closed
+INFO:     127.0.0.1:50968 - "WebSocket /ws" [accepted]
+2026-06-29 11:13:32,305 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 11:13:33,833 [ws] INFO: WebSocket disconnected: qzz
+INFO:     connection closed
+INFO:     127.0.0.1:62737 - "WebSocket /ws" [accepted]
+2026-06-29 11:13:34,116 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 11:13:35,635 [ws] INFO: WebSocket disconnected: TeamBuilder
+INFO:     connection closed
+INFO:     127.0.0.1:56138 - "WebSocket /ws" [accepted]
+2026-06-29 11:13:35,941 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 11:13:37,440 [ws] INFO: WebSocket disconnected: qzz
+INFO:     connection closed
+INFO:     127.0.0.1:52394 - "WebSocket /ws" [accepted]
+2026-06-29 11:13:37,728 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 11:13:42,672 [ws] INFO: WebSocket disconnected: TeamBuilder
+INFO:     connection closed
+INFO:     127.0.0.1:57931 - "WebSocket /ws" [accepted]
+2026-06-29 11:13:42,949 [ws] INFO: WebSocket connected
+INFO:     connection open
+INFO:     172.22.244.158:55002 - "WebSocket /ws" [accepted]
+2026-06-29 11:14:42,394 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 11:15:05,962 [ws] INFO: WebSocket disconnected: myz
+INFO:     connection closed
+INFO:     127.0.0.1:62928 - "WebSocket /ws" [accepted]
+2026-06-29 11:15:07,302 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 11:15:07,907 [ws] INFO: WebSocket disconnected: c
+INFO:     connection closed
+INFO:     172.22.154.88:65487 - "WebSocket /ws" [accepted]
+2026-06-29 11:15:08,238 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 11:15:08,839 [ws] INFO: WebSocket disconnected: TeamBuilder
+INFO:     connection closed
+INFO:     172.22.244.158:61169 - "WebSocket /ws" [accepted]
+2026-06-29 11:15:09,126 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 11:17:00,770 [ws] INFO: WebSocket disconnected: TeamBuilder
+INFO:     connection closed
+INFO:     172.22.244.158:49919 - "WebSocket /ws" [accepted]
+2026-06-29 11:17:00,780 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 11:17:02,395 [ws] INFO: WebSocket disconnected: Player
+INFO:     connection closed
+INFO:     172.22.244.158:59564 - "WebSocket /ws" [accepted]
+2026-06-29 11:17:02,405 [ws] INFO: WebSocket connected
+INFO:     connection open
+INFO:     127.0.0.1:44449 - "GET /api/v1/battles HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:44451 - "GET /api/v1/stats/global HTTP/1.1" 404 Not Found
+INFO:     172.22.244.158:63356 - "WebSocket /ws" [accepted]
+2026-06-29 11:17:04,255 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 11:17:04,258 [ws] ERROR: Handler error: 
+Traceback (most recent call last):
+  File "/home/qzz/.local/lib/python3.12/site-packages/uvicorn/protocols/websockets/websockets_impl.py", line 317, in asgi_send
+    await self.send(data)  # type: ignore[arg-type]
+    ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/qzz/.local/lib/python3.12/site-packages/websockets/legacy/protocol.py", line 618, in send
+    await self.ensure_open()
+  File "/home/qzz/.local/lib/python3.12/site-packages/websockets/legacy/protocol.py", line 925, in ensure_open
+    raise self.connection_closed_exc()
+websockets.exceptions.ConnectionClosedOK: received 1005 (no status received [internal]); then sent 1005 (no status received [internal])
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/qzz/.local/lib/python3.12/site-packages/starlette/websockets.py", line 86, in send
+    await self._send(message)
+  File "/home/qzz/.local/lib/python3.12/site-packages/starlette/_exception_handler.py", line 39, in sender
+    await send(message)
+  File "/home/qzz/.local/lib/python3.12/site-packages/uvicorn/protocols/websockets/websockets_impl.py", line 330, in asgi_send
+    raise ClientDisconnected from exc
+uvicorn.protocols.utils.ClientDisconnected
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/qzz/PokemonSimulator/api-server/standalone_server.py", line 441, in ws_endpoint
+    await send(ws, "species_list", results, req_id)
+  File "/home/qzz/PokemonSimulator/api-server/standalone_server.py", line 577, in send
+    await ws.send_json(msg)
+  File "/home/qzz/.local/lib/python3.12/site-packages/starlette/websockets.py", line 176, in send_json
+    await self.send({"type": "websocket.send", "text": text})
+  File "/home/qzz/.local/lib/python3.12/site-packages/starlette/websockets.py", line 89, in send
+    raise WebSocketDisconnect(code=1006)
+starlette.websockets.WebSocketDisconnect
+2026-06-29 11:17:04,279 [ws] ERROR: WebSocket error: Cannot call "send" once a close message has been sent.
+INFO:     connection closed
+INFO:     172.22.244.158:63585 - "WebSocket /ws" [accepted]
+2026-06-29 11:17:06,077 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 11:17:06,077 [ws] INFO: WebSocket disconnected: Player
+INFO:     connection closed
+2026-06-29 11:17:07,714 [ws] INFO: WebSocket disconnected: TeamBuilder
+INFO:     connection closed
+2026-06-29 11:17:54,236 [ws] INFO: WebSocket disconnected: c
+INFO:     connection closed
+2026-06-29 11:17:54,243 [ws] INFO: WebSocket disconnected: myz
+INFO:     connection closed
+INFO:     172.22.154.88:61251 - "WebSocket /ws" [accepted]
+2026-06-29 11:17:55,437 [ws] INFO: WebSocket connected
+INFO:     connection open
+INFO:     127.0.0.1:57771 - "WebSocket /ws" [accepted]
+2026-06-29 11:17:55,662 [ws] INFO: WebSocket connected
+INFO:     connection open
+INFO:     127.0.0.1:43225 - "GET /api/v1/battles HTTP/1.1" 404 Not Found
+2026-06-29 11:18:41,894 [ws] INFO: WebSocket disconnected: myz
+INFO:     connection closed
+2026-06-29 11:19:50,370 [ws] INFO: WebSocket disconnected: c
+INFO:     connection closed
+INFO:     172.22.154.88:58959 - "WebSocket /ws" [accepted]
+2026-06-29 11:19:51,489 [ws] INFO: WebSocket connected
+INFO:     connection open
+INFO:     127.0.0.1:50712 - "WebSocket /ws" [accepted]
+2026-06-29 11:20:23,378 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 11:20:27,612 [ws] INFO: WebSocket disconnected: myz
+INFO:     connection closed
+2026-06-29 11:21:45,544 [ws] INFO: WebSocket disconnected: c
+INFO:     connection closed
+INFO:     172.22.154.88:57814 - "WebSocket /ws" [accepted]
+2026-06-29 11:21:46,522 [ws] INFO: WebSocket connected
+INFO:     connection open
+INFO:     127.0.0.1:65461 - "WebSocket /ws" [accepted]
+2026-06-29 11:22:19,213 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 11:22:35,441 [ws] INFO: WebSocket disconnected: myz
+INFO:     connection closed
+2026-06-29 11:23:54,282 [ws] INFO: WebSocket disconnected: c
+INFO:     connection closed
+INFO:     172.22.154.88:61584 - "WebSocket /ws" [accepted]
+2026-06-29 11:23:55,379 [ws] INFO: WebSocket connected
+INFO:     connection open
+INFO:     127.0.0.1:59884 - "WebSocket /ws" [accepted]
+2026-06-29 11:23:57,221 [ws] INFO: WebSocket connected
+INFO:     connection open
+INFO:     172.22.244.158:62042 - "WebSocket /ws" [accepted]
+2026-06-29 11:25:56,350 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 11:25:58,183 [ws] INFO: WebSocket disconnected: Player
+INFO:     connection closed
+INFO:     172.22.244.158:63899 - "WebSocket /ws" [accepted]
+2026-06-29 11:25:58,220 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 11:26:00,033 [ws] INFO: WebSocket disconnected: TeamBuilder
+INFO:     connection closed
+INFO:     172.22.244.158:49670 - "WebSocket /ws" [accepted]
+2026-06-29 11:26:00,042 [ws] INFO: WebSocket connected
+INFO:     connection open
+INFO:     172.22.244.158:61082 - "WebSocket /ws" [accepted]
+2026-06-29 11:26:01,884 [ws] INFO: WebSocket connected
+2026-06-29 11:26:01,884 [ws] INFO: WebSocket disconnected: Player
+INFO:     connection closed
+INFO:     connection open
+INFO:     172.22.244.158:57257 - "WebSocket /ws" [accepted]
+2026-06-29 11:26:03,829 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 11:26:03,837 [ws] INFO: WebSocket disconnected: TeamBuilder
+INFO:     connection closed
+INFO:     172.22.244.158:63385 - "WebSocket /ws" [accepted]
+2026-06-29 11:26:05,647 [ws] INFO: WebSocket connected
+2026-06-29 11:26:05,647 [ws] INFO: WebSocket disconnected: Player
+INFO:     connection closed
+INFO:     connection open
+2026-06-29 11:26:07,458 [ws] INFO: WebSocket disconnected: TeamBuilder
+INFO:     connection closed
+INFO:     172.22.244.158:59497 - "WebSocket /ws" [accepted]
+2026-06-29 11:26:07,459 [ws] INFO: WebSocket connected
+INFO:     connection open
+INFO:     172.22.244.158:57257 - "WebSocket /ws" [accepted]
+2026-06-29 11:26:09,395 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 11:26:09,395 [ws] INFO: WebSocket disconnected: Player
+INFO:     connection closed
+INFO:     172.22.244.158:61099 - "WebSocket /ws" [accepted]
+2026-06-29 11:26:11,209 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 11:26:11,210 [ws] INFO: WebSocket disconnected: TeamBuilder
+INFO:     connection closed
+2026-06-29 11:26:16,611 [ws] INFO: WebSocket disconnected: Player
+INFO:     connection closed
+INFO:     172.22.244.158:52599 - "WebSocket /ws" [accepted]
+2026-06-29 11:26:16,612 [ws] INFO: WebSocket connected
+INFO:     connection open
+INFO:     172.22.244.158:52066 - "WebSocket /ws" [accepted]
+2026-06-29 11:26:18,427 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 11:26:18,428 [ws] INFO: WebSocket disconnected: TeamBuilder
+INFO:     connection closed
+INFO:     172.22.244.158:57257 - "WebSocket /ws" [accepted]
+2026-06-29 11:26:20,271 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 11:26:20,272 [ws] INFO: WebSocket disconnected: Player
+INFO:     connection closed
+2026-06-29 11:26:22,076 [ws] INFO: WebSocket disconnected: TeamBuilder
+INFO:     connection closed
+INFO:     172.22.244.158:51096 - "WebSocket /ws" [accepted]
+2026-06-29 11:26:22,079 [ws] INFO: WebSocket connected
+INFO:     connection open
+INFO:     172.22.244.158:54543 - "WebSocket /ws" [accepted]
+2026-06-29 11:26:24,367 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 11:26:24,368 [ws] INFO: WebSocket disconnected: Player
+INFO:     connection closed
+2026-06-29 11:26:27,108 [ws] INFO: WebSocket disconnected: TeamBuilder
+INFO:     connection closed
+INFO:     172.22.244.158:57257 - "WebSocket /ws" [accepted]
+2026-06-29 11:26:27,110 [ws] INFO: WebSocket connected
+INFO:     connection open
+INFO:     172.22.244.158:59853 - "WebSocket /ws" [accepted]
+2026-06-29 11:26:29,813 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 11:26:29,814 [ws] INFO: WebSocket disconnected: Player
+INFO:     connection closed
+2026-06-29 11:26:32,483 [ws] INFO: WebSocket disconnected: TeamBuilder
+INFO:     connection closed
+INFO:     172.22.244.158:60964 - "WebSocket /ws" [accepted]
+2026-06-29 11:26:32,486 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 11:26:35,171 [ws] INFO: WebSocket disconnected: Player
+INFO:     connection closed
+INFO:     172.22.244.158:64928 - "WebSocket /ws" [accepted]
+2026-06-29 11:26:35,173 [ws] INFO: WebSocket connected
+INFO:     connection open
+INFO:     172.22.244.158:58723 - "WebSocket /ws" [accepted]
+2026-06-29 11:26:37,876 [ws] INFO: WebSocket connected
+2026-06-29 11:26:37,877 [ws] INFO: WebSocket disconnected: TeamBuilder
+INFO:     connection closed
+INFO:     connection open
+2026-06-29 11:26:40,502 [ws] INFO: WebSocket disconnected: Player
+INFO:     connection closed
+INFO:     172.22.244.158:60649 - "WebSocket /ws" [accepted]
+2026-06-29 11:26:40,507 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 11:26:41,448 [ws] INFO: WebSocket disconnected: TeamBuilder
+INFO:     connection closed
+INFO:     172.22.244.158:50334 - "WebSocket /ws" [accepted]
+2026-06-29 11:26:43,593 [ws] INFO: WebSocket connected
+INFO:     connection open
+INFO:     172.22.244.158:51297 - "WebSocket /ws" [accepted]
+2026-06-29 11:26:52,633 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 11:26:52,634 [ws] INFO: WebSocket disconnected: TeamBuilder
+INFO:     connection closed
+2026-06-29 11:27:04,294 [ws] INFO: Match! myz vs c → 0cca12d4, starting engine...
+2026-06-29 11:27:04,312 [ws] INFO: [Engine:0cca12d4] Daemon started, waiting for turn 0...
+INFO:     127.0.0.1:42697 - "GET /api/v1/stats/global HTTP/1.1" 404 Not Found
+2026-06-29 11:27:05,266 [ws] INFO: [Engine:0cca12d4] Turn 0 ready
+2026-06-29 11:27:05,268 [ws] INFO: Match engine ready for 0cca12d4
+2026-06-29 11:27:05,268 [ws] INFO: Sending matched: p1=myz ws=OK, p2=c ws=OK
+2026-06-29 11:27:05,269 [ws] INFO: Matched messages sent for 0cca12d4
+INFO:     127.0.0.1:42707 - "GET /api/v1/battles HTTP/1.1" 404 Not Found
+2026-06-29 11:27:18,355 [ws] INFO: WebSocket disconnected: myz
+INFO:     connection closed
+INFO:     127.0.0.1:58460 - "WebSocket /ws" [accepted]
+2026-06-29 11:27:21,939 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 11:27:29,824 [ws] INFO: Match! myz vs c → f8c09599, starting engine...
+2026-06-29 11:27:29,837 [ws] INFO: [Engine:f8c09599] Daemon started, waiting for turn 0...
+2026-06-29 11:27:30,791 [ws] INFO: [Engine:f8c09599] Turn 0 ready
+2026-06-29 11:27:30,792 [ws] INFO: Match engine ready for f8c09599
+2026-06-29 11:27:30,793 [ws] INFO: Sending matched: p1=myz ws=OK, p2=c ws=OK
+2026-06-29 11:27:30,793 [ws] INFO: Matched messages sent for f8c09599
+2026-06-29 11:28:16,824 [ws] INFO: WebSocket disconnected: myz
+INFO:     connection closed
+INFO:     172.22.244.158:61201 - "WebSocket /ws" [accepted]
+2026-06-29 11:28:46,549 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 11:28:46,551 [ws] INFO: WebSocket disconnected: myz
+INFO:     connection closed
+2026-06-29 11:28:48,423 [ws] INFO: WebSocket disconnected: TeamBuilder
+INFO:     connection closed
+INFO:     172.22.244.158:59403 - "WebSocket /ws" [accepted]
+2026-06-29 11:28:48,427 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 11:28:50,191 [ws] INFO: WebSocket disconnected: c
+INFO:     connection closed
+INFO:     172.22.244.158:55933 - "WebSocket /ws" [accepted]
+2026-06-29 11:28:50,229 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 11:28:50,230 [ws] INFO: WebSocket disconnected: myz
+INFO:     connection closed
+INFO:     172.22.154.88:55276 - "WebSocket /ws" [accepted]
+2026-06-29 11:28:50,526 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 11:28:52,037 [ws] INFO: WebSocket disconnected: TeamBuilder
+INFO:     connection closed
+INFO:     172.22.244.158:51609 - "WebSocket /ws" [accepted]
+2026-06-29 11:28:52,044 [ws] INFO: WebSocket connected
+INFO:     connection open
+INFO:     172.22.154.88:54296 - "WebSocket /ws" [accepted]
+2026-06-29 11:28:53,225 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 11:28:53,225 [ws] INFO: WebSocket disconnected: Player
+INFO:     connection closed
+INFO:     172.22.244.158:53803 - "WebSocket /ws" [accepted]
+2026-06-29 11:28:53,880 [ws] INFO: WebSocket connected
+2026-06-29 11:28:53,881 [ws] INFO: WebSocket disconnected: myz
+INFO:     connection closed
+INFO:     connection open
+INFO:     127.0.0.1:41045 - "GET /api/v1/battles HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:41061 - "GET /api/v1/stats/global HTTP/1.1" 404 Not Found
+2026-06-29 11:28:55,687 [ws] INFO: WebSocket disconnected: TeamBuilder
+INFO:     connection closed
+INFO:     172.22.244.158:61176 - "WebSocket /ws" [accepted]
+2026-06-29 11:28:55,693 [ws] INFO: WebSocket connected
+INFO:     connection open
+INFO:     172.22.244.158:64258 - "WebSocket /ws" [accepted]
+2026-06-29 11:28:57,499 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 11:28:57,500 [ws] INFO: WebSocket disconnected: myz
+INFO:     connection closed
+2026-06-29 11:28:59,378 [ws] INFO: WebSocket disconnected: TeamBuilder
+INFO:     connection closed
+INFO:     172.22.244.158:57259 - "WebSocket /ws" [accepted]
+2026-06-29 11:28:59,379 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 11:29:01,195 [ws] INFO: WebSocket disconnected: myz
+INFO:     connection closed
+INFO:     172.22.244.158:54857 - "WebSocket /ws" [accepted]
+2026-06-29 11:29:01,197 [ws] INFO: WebSocket connected
+INFO:     connection open
+INFO:     172.22.244.158:58723 - "WebSocket /ws" [accepted]
+2026-06-29 11:29:03,008 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 11:29:03,008 [ws] INFO: WebSocket disconnected: TeamBuilder
+INFO:     connection closed
+2026-06-29 11:29:04,816 [ws] INFO: WebSocket disconnected: myz
+INFO:     connection closed
+INFO:     172.22.244.158:52768 - "WebSocket /ws" [accepted]
+2026-06-29 11:29:04,817 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 11:29:05,979 [ws] INFO: WebSocket disconnected: TeamBuilder
+INFO:     connection closed
+2026-06-29 11:36:53,632 [ws] INFO: WebSocket disconnected: c
+INFO:     connection closed
+INFO:     172.22.154.88:63195 - "WebSocket /ws" [accepted]
+2026-06-29 11:36:54,029 [ws] INFO: WebSocket connected
+INFO:     connection open
+INFO:     127.0.0.1:42669 - "GET /api/v1/stats/global HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:44043 - "GET /api/v1/battles HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:41779 - "GET /api/v1/battles HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:41781 - "GET /api/v1/battles?status=completed HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:41791 - "GET /api/v1/battles?status=active HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:42251 - "GET /api/v1/stats/global HTTP/1.1" 404 Not Found
+2026-06-29 14:00:11,416 [ws] INFO: WebSocket disconnected: c
+INFO:     connection closed
+INFO:     127.0.0.1:41591 - "GET /api/v1/stats/global HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:41603 - "GET /api/v1/battles HTTP/1.1" 404 Not Found
+INFO:     172.22.154.88:52078 - "WebSocket /ws" [accepted]
+2026-06-29 14:00:16,046 [ws] INFO: WebSocket connected
+INFO:     connection open
+INFO:     127.0.0.1:62507 - "WebSocket /ws" [accepted]
+2026-06-29 15:03:17,794 [ws] INFO: WebSocket connected
+INFO:     connection open
+INFO:     127.0.0.1:42397 - "GET /api/v1/battles HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:42411 - "GET /api/v1/stats/global HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:42415 - "GET /api/v1/stats/global HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:42425 - "GET /api/v1/stats/global HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:41051 - "GET /api/v1/battles HTTP/1.1" 404 Not Found
+2026-06-29 15:03:56,427 [ws] INFO: WebSocket disconnected: myz
+INFO:     connection closed
+2026-06-29 15:12:28,309 [ws] INFO: WebSocket disconnected: c
+INFO:     connection closed
+INFO:     172.22.154.88:63772 - "WebSocket /ws" [accepted]
+2026-06-29 15:12:28,884 [ws] INFO: WebSocket connected
+INFO:     connection open
+INFO:     127.0.0.1:43023 - "GET /api/v1/battles HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:43025 - "GET /api/v1/stats/global HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:43027 - "GET /api/v1/stats/global HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:41321 - "GET /api/v1/battles HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:41333 - "GET /api/v1/battles HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:41337 - "GET /api/v1/battles?status=completed HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:41351 - "GET /api/v1/battles?status=active HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:44325 - "GET /api/v1/battles?status=error HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:44337 - "GET /api/v1/battles HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:44351 - "GET /api/v1/battles HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:43341 - "GET /api/v1/battles HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:43351 - "GET /api/v1/stats/global HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:41241 - "GET /api/v1/battles HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:42717 - "GET /api/v1/stats/global HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:42721 - "GET /api/v1/battles HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:41533 - "GET /api/v1/battles HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:42791 - "GET /api/v1/battles HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:42793 - "GET /api/v1/stats/global HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:58436 - "WebSocket /ws" [accepted]
+2026-06-29 15:42:49,201 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 15:43:58,575 [ws] INFO: WebSocket disconnected: myz
+INFO:     connection closed
+INFO:     127.0.0.1:62538 - "WebSocket /ws" [accepted]
+2026-06-29 15:43:58,860 [ws] INFO: WebSocket connected
+INFO:     connection open
+INFO:     127.0.0.1:42311 - "GET /api/v1/stats/global HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:44147 - "GET /api/v1/battles HTTP/1.1" 404 Not Found
+2026-06-29 15:44:32,746 [ws] INFO: WebSocket disconnected: kjhl
+INFO:     connection closed
+INFO:     127.0.0.1:52405 - "WebSocket /ws" [accepted]
+2026-06-29 15:44:33,056 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 15:44:33,256 [ws] INFO: WebSocket disconnected: TeamBuilder
+INFO:     connection closed
+INFO:     127.0.0.1:62445 - "WebSocket /ws" [accepted]
+2026-06-29 15:44:33,575 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 15:44:34,554 [ws] INFO: WebSocket disconnected: Player
+INFO:     connection closed
+INFO:     127.0.0.1:55981 - "WebSocket /ws" [accepted]
+2026-06-29 15:44:34,832 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 15:44:35,060 [ws] INFO: WebSocket disconnected: kjhl
+INFO:     connection closed
+INFO:     127.0.0.1:64888 - "WebSocket /ws" [accepted]
+2026-06-29 15:44:35,343 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 15:44:36,364 [ws] INFO: WebSocket disconnected: TeamBuilder
+INFO:     connection closed
+INFO:     127.0.0.1:61778 - "WebSocket /ws" [accepted]
+2026-06-29 15:44:36,650 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 15:44:36,873 [ws] INFO: WebSocket disconnected: Player
+INFO:     connection closed
+INFO:     127.0.0.1:56391 - "WebSocket /ws" [accepted]
+2026-06-29 15:44:37,158 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 15:44:37,289 [ws] INFO: WebSocket disconnected: kjhl
+INFO:     connection closed
+INFO:     127.0.0.1:51655 - "WebSocket /ws" [accepted]
+2026-06-29 15:44:37,575 [ws] INFO: WebSocket connected
+INFO:     connection open
+2026-06-29 15:44:46,215 [ws] INFO: Match! kjhl vs jljkjl → ae78af7f, starting engine...
+2026-06-29 15:44:46,298 [ws] INFO: [Engine:ae78af7f] Daemon started, waiting for turn 0...
+2026-06-29 15:44:47,163 [ws] INFO: [Engine:ae78af7f] Turn 0 ready
+2026-06-29 15:44:47,168 [ws] INFO: Match engine ready for ae78af7f
+2026-06-29 15:44:47,168 [ws] INFO: Sending matched: p1=kjhl ws=MISSING, p2=jljkjl ws=OK
+2026-06-29 15:44:47,169 [ws] INFO: Matched messages sent for ae78af7f
+2026-06-29 15:44:56,781 [ws] INFO: WebSocket disconnected: jljkjl
+INFO:     connection closed
+INFO:     127.0.0.1:41707 - "GET /api/v1/battles HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:41719 - "GET /api/v1/stats/global HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:41721 - "GET /api/v1/stats/global HTTP/1.1" 404 Not Found

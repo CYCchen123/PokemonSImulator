@@ -416,7 +416,13 @@ public:
     std::vector<TypeImmunity> typeImmunities;
     std::vector<StatusImmunity> statusImmunities;
 
-    // 4. 伤害修改 (TODO: replace with outgoingDamageModifiers / incomingDamageModifiers)
+    void addTypeImmunity(Type moveType, bool healInstead, int healPercent) {
+        typeImmunities.push_back({static_cast<int>(moveType), healInstead, healPercent});
+    }
+    void addStatusImmunity(StatusType status) {
+        statusImmunities.push_back({static_cast<int>(status)});
+    }
+
     DamageModifier damageModifier;
 
     // 5. 被动效果标志（替代 regHelperOnly 和分散的 abilityXxx() 辅助函数）

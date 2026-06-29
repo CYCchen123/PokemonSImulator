@@ -1950,8 +1950,8 @@ float abilityWeatherSpeedMultiplier(AbilityType abilityType, WeatherType weather
 void initializeCoreAbilities(GameRegistry& registry) {
     // Helpers for shared patterns
     auto regWeatherSetter = [&registry](AbilityType type, WeatherType weather) {
-        registry.registerAbilityBuilder(type,
-            [weather](Ability& a, AddTypeImmunity, AddStatusImmunity) {
+        registry.registerAbility(type,
+            [weather](Ability& a) {
                 a.effects[Trigger::OnEntry] = [weather](Pokemon*, Pokemon*, void* context) {
                     BattleContext* battle = static_cast<BattleContext*>(context);
                     if (battle) battle->getWeather().setWeather(weather, 5);
@@ -1959,8 +1959,8 @@ void initializeCoreAbilities(GameRegistry& registry) {
             });
     };
     auto regTerrainSetter = [&registry](AbilityType type, FieldType field) {
-        registry.registerAbilityBuilder(type,
-            [field](Ability& a, AddTypeImmunity, AddStatusImmunity) {
+        registry.registerAbility(type,
+            [field](Ability& a) {
                 a.effects[Trigger::OnEntry] = [field](Pokemon*, Pokemon*, void* context) {
                     BattleContext* battle = static_cast<BattleContext*>(context);
                     if (battle) battle->getField().setField(field, 5);
@@ -1973,8 +1973,8 @@ void initializeCoreAbilities(GameRegistry& registry) {
     };
 
     // === Intimidate ===
-    registry.registerAbilityBuilder(AbilityType::Intimidate,
-        [](Ability& a, AddTypeImmunity, AddStatusImmunity) {
+    registry.registerAbility(AbilityType::Intimidate,
+        [](Ability& a) {
             a.effects[Trigger::OnEntry] = [](Pokemon* self, Pokemon* opponent, void*) {
                 if (!opponent || !self) return;
                 if (!opponent->isFainted()) {
@@ -2000,8 +2000,8 @@ void initializeCoreAbilities(GameRegistry& registry) {
 
     // === Damage-modifier-only abilities ===
     auto regDmgMod = [&registry](AbilityType type, float mult, bool onDeal) {
-        registry.registerAbilityBuilder(type,
-            [mult, onDeal](Ability& a, AddTypeImmunity, AddStatusImmunity) {
+        registry.registerAbility(type,
+            [mult, onDeal](Ability& a) {
                 a.damageModifier = {mult, onDeal};
             });
     };
@@ -2018,9 +2018,9 @@ void initializeCoreAbilities(GameRegistry& registry) {
 
     // === Type immunities ===
     auto regTypeImm = [&registry](AbilityType type, Type moveType, bool heal, int healPct) {
-        registry.registerAbilityBuilder(type,
-            [moveType, heal, healPct](Ability&, AddTypeImmunity addT, AddStatusImmunity) {
-                addT(moveType, heal, healPct);
+        registry.registerAbility(type,
+            [moveType, heal, healPct](Ability& a) {
+                a.addTypeImmunity(moveType, heal, healPct);
             });
     };
     regTypeImm(AbilityType::Levitate,     Type::Ground,    false, 0);
@@ -2033,17 +2033,17 @@ void initializeCoreAbilities(GameRegistry& registry) {
     regTypeImm(AbilityType::WellBakedBody, Type::Fire,     false, 0);
 
     // FlashFire: immunity + damage boost
-    registry.registerAbilityBuilder(AbilityType::FlashFire,
-        [](Ability& a, AddTypeImmunity addT, AddStatusImmunity) {
-            addT(Type::Fire, false, 0);
+    registry.registerAbility(AbilityType::FlashFire,
+        [](Ability& a) {
+            a.addTypeImmunity(Type::Fire, false, 0);
             a.damageModifier = {1.5f, true};
         });
 
     // === Status immunities ===
     auto regStatusImm = [&registry](AbilityType type, StatusType status) {
-        registry.registerAbilityBuilder(type,
-            [status](Ability&, AddTypeImmunity, AddStatusImmunity addS) {
-                addS(status);
+        registry.registerAbility(type,
+            [status](Ability& a) {
+                a.addStatusImmunity(status);
             });
     };
     regStatusImm(AbilityType::Insomnia,    StatusType::Sleep);
@@ -2051,42 +2051,42 @@ void initializeCoreAbilities(GameRegistry& registry) {
     regStatusImm(AbilityType::InnerFocus,  StatusType::Flinch);
 
     // Immunity: Poison + ToxicPoison
-    registry.registerAbilityBuilder(AbilityType::Immunity,
-        [](Ability&, AddTypeImmunity, AddStatusImmunity addS) {
-            addS(StatusType::Poison);
-            addS(StatusType::ToxicPoison);
+    registry.registerAbility(AbilityType::Immunity,
+        [](Ability& a) {
+            a.addStatusImmunity(StatusType::Poison);
+            a.addStatusImmunity(StatusType::ToxicPoison);
         });
 
     // PurifyingSalt: blocks all major status + halves Ghost damage (handled in helper)
-    registry.registerAbilityBuilder(AbilityType::PurifyingSalt,
-        [](Ability&, AddTypeImmunity, AddStatusImmunity addS) {
-            addS(StatusType::Burn);
-            addS(StatusType::Freeze);
-            addS(StatusType::Paralysis);
-            addS(StatusType::Poison);
-            addS(StatusType::Sleep);
-            addS(StatusType::ToxicPoison);
+    registry.registerAbility(AbilityType::PurifyingSalt,
+        [](Ability& a) {
+            a.addStatusImmunity(StatusType::Burn);
+            a.addStatusImmunity(StatusType::Freeze);
+            a.addStatusImmunity(StatusType::Paralysis);
+            a.addStatusImmunity(StatusType::Poison);
+            a.addStatusImmunity(StatusType::Sleep);
+            a.addStatusImmunity(StatusType::ToxicPoison);
         });
 
     // WaterBubble: burn immunity + fire resistance / water boost (handled in helpers)
-    registry.registerAbilityBuilder(AbilityType::WaterBubble,
-        [](Ability&, AddTypeImmunity, AddStatusImmunity addS) {
-            addS(StatusType::Burn);
+    registry.registerAbility(AbilityType::WaterBubble,
+        [](Ability& a) {
+            a.addStatusImmunity(StatusType::Burn);
         });
 
     // === Stat modifiers ===
-    registry.registerAbilityBuilder(AbilityType::HugePower,
-        [](Ability& a, AddTypeImmunity, AddStatusImmunity) {
+    registry.registerAbility(AbilityType::HugePower,
+        [](Ability& a) {
             a.statModifiers.push_back({StatModifier::Attack, 2.0f, 0});
         });
-    registry.registerAbilityBuilder(AbilityType::MarvelScale,
-        [](Ability& a, AddTypeImmunity, AddStatusImmunity) {
+    registry.registerAbility(AbilityType::MarvelScale,
+        [](Ability& a) {
             a.statModifiers.push_back({StatModifier::Defense, 1.5f, 0});
         });
 
     // === Contact-based effects (OnDamage) ===
-    registry.registerAbilityBuilder(AbilityType::Static,
-        [](Ability& a, AddTypeImmunity, AddStatusImmunity) {
+    registry.registerAbility(AbilityType::Static,
+        [](Ability& a) {
             a.effects[Trigger::OnDamage] = [](Pokemon* self, Pokemon* opponent, void* context) {
                 if (!self || !opponent) return;
                 const auto* dc = static_cast<const AbilityDamageContext*>(context);
@@ -2096,8 +2096,8 @@ void initializeCoreAbilities(GameRegistry& registry) {
                 opponent->addStatus(StatusType::Paralysis);
             };
         });
-    registry.registerAbilityBuilder(AbilityType::PoisonPoint,
-        [](Ability& a, AddTypeImmunity, AddStatusImmunity) {
+    registry.registerAbility(AbilityType::PoisonPoint,
+        [](Ability& a) {
             a.effects[Trigger::OnDamage] = [](Pokemon* self, Pokemon* opponent, void* context) {
                 if (!self || !opponent) return;
                 const auto* dc = static_cast<const AbilityDamageContext*>(context);
@@ -2107,8 +2107,8 @@ void initializeCoreAbilities(GameRegistry& registry) {
                 opponent->addStatus(StatusType::Poison);
             };
         });
-    registry.registerAbilityBuilder(AbilityType::FlameBody,
-        [](Ability& a, AddTypeImmunity, AddStatusImmunity) {
+    registry.registerAbility(AbilityType::FlameBody,
+        [](Ability& a) {
             a.effects[Trigger::OnDamage] = [](Pokemon* self, Pokemon* opponent, void* context) {
                 if (!self || !opponent) return;
                 const auto* dc = static_cast<const AbilityDamageContext*>(context);
@@ -2121,8 +2121,8 @@ void initializeCoreAbilities(GameRegistry& registry) {
 
     // Contact chip (1/8) — RoughSkin, IronBarbs
     auto regContactChip = [&registry](AbilityType type, int fraction) {
-        registry.registerAbilityBuilder(type,
-            [fraction](Ability& a, AddTypeImmunity, AddStatusImmunity) {
+        registry.registerAbility(type,
+            [fraction](Ability& a) {
                 a.effects[Trigger::OnDamage] = [fraction](Pokemon* self, Pokemon* opponent, void* context) {
                     if (!self || !opponent) return;
                     const auto* dc = static_cast<const AbilityDamageContext*>(context);
@@ -2137,8 +2137,8 @@ void initializeCoreAbilities(GameRegistry& registry) {
     regContactChip(AbilityType::IronBarbs, 8);
 
     // Aftermath: 1/4 chip only when holder faints
-    registry.registerAbilityBuilder(AbilityType::Aftermath,
-        [](Ability& a, AddTypeImmunity, AddStatusImmunity) {
+    registry.registerAbility(AbilityType::Aftermath,
+        [](Ability& a) {
             a.effects[Trigger::OnDamage] = [](Pokemon* self, Pokemon* opponent, void* context) {
                 if (!self || !opponent) return;
                 const auto* dc = static_cast<const AbilityDamageContext*>(context);
@@ -2150,8 +2150,8 @@ void initializeCoreAbilities(GameRegistry& registry) {
         });
 
     // Mummy: replaces contact attacker's ability
-    registry.registerAbilityBuilder(AbilityType::Mummy,
-        [](Ability& a, AddTypeImmunity, AddStatusImmunity) {
+    registry.registerAbility(AbilityType::Mummy,
+        [](Ability& a) {
             a.effects[Trigger::OnDamage] = [](Pokemon* self, Pokemon* opponent, void* context) {
                 if (!self || !opponent) return;
                 const auto* dc = static_cast<const AbilityDamageContext*>(context);
@@ -2163,8 +2163,8 @@ void initializeCoreAbilities(GameRegistry& registry) {
         });
 
     // LingeringAroma: replaces contact attacker's ability
-    registry.registerAbilityBuilder(AbilityType::LingeringAroma,
-        [](Ability& a, AddTypeImmunity, AddStatusImmunity) {
+    registry.registerAbility(AbilityType::LingeringAroma,
+        [](Ability& a) {
             a.effects[Trigger::OnDamage] = [](Pokemon* self, Pokemon* opponent, void* context) {
                 if (!self || !opponent) return;
                 const auto* dc = static_cast<const AbilityDamageContext*>(context);
@@ -2176,8 +2176,8 @@ void initializeCoreAbilities(GameRegistry& registry) {
         });
 
     // ToxicDebris: sets toxic spikes when hit by physical move
-    registry.registerAbilityBuilder(AbilityType::ToxicDebris,
-        [](Ability& a, AddTypeImmunity, AddStatusImmunity) {
+    registry.registerAbility(AbilityType::ToxicDebris,
+        [](Ability& a) {
             a.effects[Trigger::OnDamage] = [](Pokemon* self, Pokemon* opponent, void* context) {
                 if (!self || !opponent) return;
                 const auto* dc = static_cast<const AbilityDamageContext*>(context);
@@ -2189,24 +2189,24 @@ void initializeCoreAbilities(GameRegistry& registry) {
         });
 
     // === OnFaint: Moxie ===
-    registry.registerAbilityBuilder(AbilityType::Moxie,
-        [](Ability& a, AddTypeImmunity, AddStatusImmunity) {
+    registry.registerAbility(AbilityType::Moxie,
+        [](Ability& a) {
             a.effects[Trigger::OnFaint] = [](Pokemon* self, Pokemon*, void*) {
                 if (self) self->changeStatStage(StatIndex::Attack, 1);
             };
         });
 
     // === OnExit: Regenerator, NaturalCure ===
-    registry.registerAbilityBuilder(AbilityType::Regenerator,
-        [](Ability& a, AddTypeImmunity, AddStatusImmunity) {
+    registry.registerAbility(AbilityType::Regenerator,
+        [](Ability& a) {
             a.effects[Trigger::OnExit] = [](Pokemon* self, Pokemon*, void*) {
                 if (!self || self->isFainted()) return;
                 const int heal = std::max(1, self->getMaxHP() / 3);
                 self->setCurrentHP(self->getCurrentHP() + heal);
             };
         });
-    registry.registerAbilityBuilder(AbilityType::NaturalCure,
-        [](Ability& a, AddTypeImmunity, AddStatusImmunity) {
+    registry.registerAbility(AbilityType::NaturalCure,
+        [](Ability& a) {
             a.effects[Trigger::OnExit] = [](Pokemon* self, Pokemon*, void*) {
                 if (!self || self->isFainted()) return;
                 self->clearStatuses();
@@ -2228,8 +2228,8 @@ void initializeCoreAbilities(GameRegistry& registry) {
 
     // === Abilities with passive effects only (formerly regHelperOnly) ===
     auto regPassive = [&registry](AbilityType type, std::function<void(Ability::PassiveFlags&)> setFlags) {
-        registry.registerAbilityBuilder(type,
-            [setFlags](Ability& a, AddTypeImmunity, AddStatusImmunity) {
+        registry.registerAbility(type,
+            [setFlags](Ability& a) {
                 setFlags(a.passive);
             });
     };
@@ -2298,8 +2298,8 @@ void initializeCoreAbilities(GameRegistry& registry) {
     regPassive(AbilityType::MagicBounce, [](auto& p) { p.reflectsStatusMoves = true; });
 
     // Shed Skin: 30% chance to cure status at end of turn
-    registry.registerAbilityBuilder(AbilityType::ShedSkin,
-        [](Ability& a, AddTypeImmunity, AddStatusImmunity) {
+    registry.registerAbility(AbilityType::ShedSkin,
+        [](Ability& a) {
             a.effects[Trigger::OnTurnEnd] = [](Pokemon* self, Pokemon*, void*) {
                 if (self && PRNG::nextInt(0, 100) < 30) {
                     self->removeStatus(StatusType::Burn);
@@ -2313,23 +2313,23 @@ void initializeCoreAbilities(GameRegistry& registry) {
         });
 
     // Speed Boost: +1 Speed at end of each turn
-    registry.registerAbilityBuilder(AbilityType::SpeedBoost,
-        [](Ability& a, AddTypeImmunity, AddStatusImmunity) {
+    registry.registerAbility(AbilityType::SpeedBoost,
+        [](Ability& a) {
             a.effects[Trigger::OnTurnEnd] = [](Pokemon* self, Pokemon*, void*) {
                 if (self) self->changeStatStage(StatIndex::Speed, 1);
             };
         });
 
     // Limber: immune to paralysis
-    registry.registerAbilityBuilder(AbilityType::Limber,
-        [](Ability&, AddTypeImmunity, AddStatusImmunity addS) {
-            addS(StatusType::Paralysis);
+    registry.registerAbility(AbilityType::Limber,
+        [](Ability& a) {
+            a.addStatusImmunity(StatusType::Paralysis);
         });
 
     // Own Tempo: immune to confusion
-    registry.registerAbilityBuilder(AbilityType::OwnTempo,
-        [](Ability&, AddTypeImmunity, AddStatusImmunity addS) {
-            addS(StatusType::Confusion);
+    registry.registerAbility(AbilityType::OwnTempo,
+        [](Ability& a) {
+            a.addStatusImmunity(StatusType::Confusion);
         });
 
     // Abilities that need runtime context (damage multipliers keyed on move/HP/state). (damage multipliers keyed on move/HP/state).
@@ -2348,27 +2348,27 @@ void initializeCoreAbilities(GameRegistry& registry) {
     regPassive(AbilityType::WonderGuard, [](auto& p) { p.wonderGuard = true; });
 
     // Shadow Tag: prevents opponent from switching out
-    registry.registerAbilityBuilder(AbilityType::ShadowTag,
-        [](Ability& a, AddTypeImmunity, AddStatusImmunity) {
+    registry.registerAbility(AbilityType::ShadowTag,
+        [](Ability& a) {
             a.passive.trapsOpponent = true;
         });
 
     // Lightning Rod: redirects Electric moves, boosts SpAtk
-    registry.registerAbilityBuilder(AbilityType::LightningRod,
-        [](Ability& a, AddTypeImmunity addT, AddStatusImmunity) {
+    registry.registerAbility(AbilityType::LightningRod,
+        [](Ability& a) {
             a.passive.redirectsElectricMoves = true;
-            addT(Type::Electric, false, 0);
+            a.addTypeImmunity(Type::Electric, false, 0);
         });
 
     // Soundproof: immune to sound-based moves
-    registry.registerAbilityBuilder(AbilityType::Soundproof,
-        [](Ability& a, AddTypeImmunity, AddStatusImmunity) {
+    registry.registerAbility(AbilityType::Soundproof,
+        [](Ability& a) {
             a.passive.blocksSoundMoves = true;
         });
 
     // Trace: copies opponent's ability on entry
-    registry.registerAbilityBuilder(AbilityType::Trace,
-        [](Ability& a, AddTypeImmunity, AddStatusImmunity) {
+    registry.registerAbility(AbilityType::Trace,
+        [](Ability& a) {
             a.passive.copiesOpponentAbility = true;
         });
 
@@ -2418,21 +2418,21 @@ void initializeCoreAbilities(GameRegistry& registry) {
     regPassive(AbilityType::Gluttony, [](auto& p) { p.earlyBerryConsumption = true; });
 
     // Effect Spore: 30% to inflict random status on contact
-    registry.registerAbilityBuilder(AbilityType::EffectSpore,
-        [](Ability& a, AddTypeImmunity, AddStatusImmunity) {
+    registry.registerAbility(AbilityType::EffectSpore,
+        [](Ability& a) {
             a.passive.inflictsRandomContactStatus = true;
         });
 
     // Water Veil: prevents burn
-    registry.registerAbilityBuilder(AbilityType::WaterVeil,
-        [](Ability&, AddTypeImmunity, AddStatusImmunity addS) {
-            addS(StatusType::Burn);
+    registry.registerAbility(AbilityType::WaterVeil,
+        [](Ability& a) {
+            a.addStatusImmunity(StatusType::Burn);
         });
 
     // Magma Armor: prevents freeze
-    registry.registerAbilityBuilder(AbilityType::MagmaArmor,
-        [](Ability&, AddTypeImmunity, AddStatusImmunity addS) {
-            addS(StatusType::Freeze);
+    registry.registerAbility(AbilityType::MagmaArmor,
+        [](Ability& a) {
+            a.addStatusImmunity(StatusType::Freeze);
         });
 
     // Liquid Ooze: inverts draining moves (damage instead of heal)

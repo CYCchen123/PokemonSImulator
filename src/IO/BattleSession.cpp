@@ -618,3 +618,39 @@ nlohmann::json BattleSession::processTurn(const nlohmann::json& turnRequest) {
     response["battle"] = battleAllInfo.value("battle", nlohmann::json::object());
     return response;
 }
+
+nlohmann::json BattleSession::processForceSwitch(char sideToken, int switchIndex) {
+    nlohmann::json response;
+    if (!battle) {
+        response["ok"] = false;
+        response["error"] = "No active battle";
+        return response;
+    }
+
+    Side* side = nullptr;
+    if (sideToken == 'a' || sideToken == 'A') side = &battle->getSideA();
+    else if (sideToken == 'b' || sideToken == 'B') side = &battle->getSideB();
+
+    if (!side) {
+        response["ok"] = false;
+        response["error"] = "Invalid side token";
+        return response;
+    }
+
+    if (!battle->hasPendingSwitch(*side)) {
+        response["ok"] = false;
+        response["error"] = "No pending switch for this side";
+        return response;
+    }
+
+    if (!battle->processForcedSwitch(*side, switchIndex)) {
+        response["ok"] = false;
+        response["error"] = "Failed to process forced switch";
+        return response;
+    }
+
+    response["ok"] = true;
+    nlohmann::json battleAllInfo = BattleToJson::battleAllInfoToJson(*battle);
+    response["state"] = battleAllInfo;
+    return response;
+}

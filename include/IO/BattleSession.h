@@ -26,6 +26,7 @@ public:
     nlohmann::json processTurn(const nlohmann::json& turnRequest);
     Battle* getBattle() { return battle.get(); }
     const Battle* getBattle() const { return battle.get(); }
+    nlohmann::json processForceSwitch(char sideToken, int switchIndex);
 
     static std::string normalizeKey(const std::string& value);
 

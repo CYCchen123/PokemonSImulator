@@ -1,0 +1,361 @@
+{
+  "seed": 12345,
+  "side_a": {
+    "name": "Side A (Sand)",
+    "pokemon": [
+      {
+        "ability": 45,
+        "evs": {
+          "attack": 0,
+          "defense": 128,
+          "hp": 252,
+          "specialAttack": 0,
+          "specialDefense": 128,
+          "speed": 0
+        },
+        "item": 260,
+        "ivs": {
+          "attack": 31,
+          "defense": 31,
+          "hp": 31,
+          "specialAttack": 31,
+          "specialDefense": 31,
+          "speed": 31
+        },
+        "level": 50,
+        "moves": [
+          444,
+          242,
+          446,
+          89
+        ],
+        "nature": 3,
+        "speciesID": 248
+      },
+      {
+        "ability": 146,
+        "evs": {
+          "attack": 252,
+          "defense": 0,
+          "hp": 4,
+          "specialAttack": 0,
+          "specialDefense": 0,
+          "speed": 252
+        },
+        "item": 247,
+        "ivs": {
+          "attack": 31,
+          "defense": 31,
+          "hp": 31,
+          "specialAttack": 31,
+          "specialDefense": 31,
+          "speed": 31
+        },
+        "level": 50,
+        "moves": [
+          89,
+          14,
+          229,
+          317
+        ],
+        "nature": 3,
+        "speciesID": 530
+      },
+      {
+        "ability": 49,
+        "evs": {
+          "attack": 0,
+          "defense": 0,
+          "hp": 4,
+          "specialAttack": 252,
+          "specialDefense": 0,
+          "speed": 252
+        },
+        "item": 1178,
+        "ivs": {
+          "attack": 31,
+          "defense": 31,
+          "hp": 31,
+          "specialAttack": 31,
+          "specialDefense": 31,
+          "speed": 31
+        },
+        "level": 50,
+        "moves": [
+          53,
+          483,
+          450,
+          202
+        ],
+        "nature": 3,
+        "speciesID": 637
+      },
+      {
+        "ability": 126,
+        "evs": {
+          "attack": 0,
+          "defense": 0,
+          "hp": 4,
+          "specialAttack": 252,
+          "specialDefense": 0,
+          "speed": 252
+        },
+        "item": 211,
+        "ivs": {
+          "attack": 31,
+          "defense": 31,
+          "hp": 31,
+          "specialAttack": 31,
+          "specialDefense": 31,
+          "speed": 31
+        },
+        "level": 50,
+        "moves": [
+          437,
+          164,
+          73,
+          137
+        ],
+        "nature": 3,
+        "speciesID": 497
+      },
+      {
+        "ability": 101,
+        "evs": {
+          "attack": 252,
+          "defense": 0,
+          "hp": 4,
+          "specialAttack": 0,
+          "specialDefense": 0,
+          "speed": 252
+        },
+        "item": 197,
+        "ivs": {
+          "attack": 31,
+          "defense": 31,
+          "hp": 31,
+          "specialAttack": 31,
+          "specialDefense": 31,
+          "speed": 31
+        },
+        "level": 50,
+        "moves": [
+          418,
+          369,
+          282,
+          276
+        ],
+        "nature": 3,
+        "speciesID": 212
+      },
+      {
+        "ability": 24,
+        "evs": {
+          "attack": 252,
+          "defense": 0,
+          "hp": 4,
+          "specialAttack": 0,
+          "specialDefense": 0,
+          "speed": 252
+        },
+        "item": 583,
+        "ivs": {
+          "attack": 31,
+          "defense": 31,
+          "hp": 31,
+          "specialAttack": 31,
+          "specialDefense": 31,
+          "speed": 31
+        },
+        "level": 50,
+        "moves": [
+          89,
+          337,
+          14,
+          424
+        ],
+        "nature": 3,
+        "speciesID": 445
+      }
+    ]
+  },
+  "side_b": {
+    "name": "Side B (Rain)",
+    "pokemon": [
+      {
+        "ability": 2,
+        "evs": {
+          "attack": 0,
+          "defense": 128,
+          "hp": 252,
+          "specialAttack": 0,
+          "specialDefense": 128,
+          "speed": 0
+        },
+        "item": 262,
+        "ivs": {
+          "attack": 31,
+          "defense": 31,
+          "hp": 31,
+          "specialAttack": 31,
+          "specialDefense": 31,
+          "speed": 31
+        },
+        "level": 50,
+        "moves": [
+          542,
+          240,
+          369,
+          355
+        ],
+        "nature": 3,
+        "speciesID": 279
+      },
+      {
+        "ability": 160,
+        "evs": {
+          "attack": 0,
+          "defense": 128,
+          "hp": 252,
+          "specialAttack": 0,
+          "specialDefense": 128,
+          "speed": 0
+        },
+        "item": 583,
+        "ivs": {
+          "attack": 31,
+          "defense": 31,
+          "hp": 31,
+          "specialAttack": 31,
+          "specialDefense": 31,
+          "speed": 31
+        },
+        "level": 50,
+        "moves": [
+          73,
+          438,
+          360,
+          191
+        ],
+        "nature": 3,
+        "speciesID": 598
+      },
+      {
+        "ability": 98,
+        "evs": {
+          "attack": 0,
+          "defense": 0,
+          "hp": 4,
+          "specialAttack": 252,
+          "specialDefense": 0,
+          "speed": 252
+        },
+        "item": 247,
+        "ivs": {
+          "attack": 31,
+          "defense": 31,
+          "hp": 31,
+          "specialAttack": 31,
+          "specialDefense": 31,
+          "speed": 31
+        },
+        "level": 50,
+        "moves": [
+          585,
+          347,
+          135,
+          86
+        ],
+        "nature": 3,
+        "speciesID": 36
+      },
+      {
+        "ability": 144,
+        "evs": {
+          "attack": 0,
+          "defense": 128,
+          "hp": 252,
+          "specialAttack": 0,
+          "specialDefense": 128,
+          "speed": 0
+        },
+        "item": 258,
+        "ivs": {
+          "attack": 31,
+          "defense": 31,
+          "hp": 31,
+          "specialAttack": 31,
+          "specialDefense": 31,
+          "speed": 31
+        },
+        "level": 50,
+        "moves": [
+          503,
+          390,
+          105,
+          114
+        ],
+        "nature": 3,
+        "speciesID": 748
+      },
+      {
+        "ability": 209,
+        "evs": {
+          "attack": 252,
+          "defense": 0,
+          "hp": 4,
+          "specialAttack": 0,
+          "specialDefense": 0,
+          "speed": 252
+        },
+        "item": 252,
+        "ivs": {
+          "attack": 31,
+          "defense": 31,
+          "hp": 31,
+          "specialAttack": 31,
+          "specialDefense": 31,
+          "speed": 31
+        },
+        "level": 50,
+        "moves": [
+          425,
+          583,
+          14,
+          164
+        ],
+        "nature": 3,
+        "speciesID": 778
+      },
+      {
+        "ability": 240,
+        "evs": {
+          "attack": 0,
+          "defense": 128,
+          "hp": 252,
+          "specialAttack": 0,
+          "specialDefense": 128,
+          "speed": 0
+        },
+        "item": 211,
+        "ivs": {
+          "attack": 31,
+          "defense": 31,
+          "hp": 31,
+          "specialAttack": 31,
+          "specialDefense": 31,
+          "speed": 31
+        },
+        "level": 50,
+        "moves": [
+          776,
+          334,
+          355,
+          432
+        ],
+        "nature": 3,
+        "speciesID": 823
+      }
+    ]
+  }
+}

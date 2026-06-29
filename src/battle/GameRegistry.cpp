@@ -24,8 +24,8 @@ void GameRegistry::initAbilities() {
 
     for (int i = 0; i < static_cast<int>(AbilityType::Count); ++i) {
         AbilityType type = static_cast<AbilityType>(i);
-        auto it = abilityBuilders.find(type);
-        if (it != abilityBuilders.end()) {
+        auto it = abilityHandlers.find(type);
+        if (it != abilityHandlers.end()) {
             Ability ability;
             AbilityData data = getAbilityData(type);
             if (data.type == AbilityType::None && type != AbilityType::None) {
@@ -37,14 +37,7 @@ void GameRegistry::initAbilities() {
             ability = Ability(data);
             ability.damageModifier = {1.0f, true};
 
-            AddTypeImmunity addType = [&ability](Type moveType, bool healInstead, int healPercent) {
-                ability.typeImmunities.push_back({static_cast<int>(moveType), healInstead, healPercent});
-            };
-            AddStatusImmunity addStatus = [&ability](StatusType status) {
-                ability.statusImmunities.push_back({static_cast<int>(status)});
-            };
-
-            it->second(ability, addType, addStatus);
+            it->second(ability);
             abilities.emplace(type, std::move(ability));
         } else {
             // Fallback: use old switch-based getAbility() for not-yet-migrated types
@@ -58,8 +51,8 @@ void GameRegistry::initItems() {
 
     for (int i = 0; i < static_cast<int>(ItemType::Count); ++i) {
         ItemType type = static_cast<ItemType>(i);
-        auto it = itemBuilders.find(type);
-        if (it != itemBuilders.end()) {
+        auto it = itemHandlers.find(type);
+        if (it != itemHandlers.end()) {
             Item item(type, getItemName(type));
             it->second(item);
             items.emplace(type, std::move(item));
@@ -130,12 +123,12 @@ void GameRegistry::registerMoveRule(const std::string& name, MoveRuleHandler han
     moveRules[normalized] = std::move(handler);
 }
 
-void GameRegistry::registerAbilityBuilder(AbilityType type, AbilityBuilder builder) {
-    abilityBuilders[type] = std::move(builder);
+void GameRegistry::registerAbility(AbilityType type, AbilityHandler handler) {
+    abilityHandlers[type] = std::move(handler);
 }
 
-void GameRegistry::registerItemBuilder(ItemType type, ItemBuilder builder) {
-    itemBuilders[type] = std::move(builder);
+void GameRegistry::registerItem(ItemType type, ItemHandler handler) {
+    itemHandlers[type] = std::move(handler);
 }
 
 bool GameRegistry::hasAbility(AbilityType type) const {

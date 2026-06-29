@@ -1,0 +1,37 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pip install *)",
+      "Bash(curl -s http://localhost:8000/api/v1/health)",
+      "Bash(curl -s http://localhost:8000/api/v1/data/enums)",
+      "Bash(curl -sI \"https://play.pokemonshowdown.com/sprites/ani/pikachu.gif\")",
+      "Bash(curl -sI \"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown/25.gif\")",
+      "Bash(curl -sI \"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/25.gif\")",
+      "Bash(curl -sI \"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png\")",
+      "Bash(pkill -f \"standalone_server\")",
+      "Bash(pkill -f standalone_server)",
+      "Bash(pkill -9 -f standalone_server)",
+      "Bash(pkill -9 -f uvicorn)",
+      "Bash(lsof -ti:8000)",
+      "Bash(xargs kill -9)",
+      "Bash(echo \"PID=$!\")",
+      "Bash(curl -s -X POST http://localhost:8000/api/v1/battles -H 'Content-Type: application/json' -d '{\"team_a_json\": \"{\\\\\"name\\\\\":\\\\\"Ash\\\\\",\\\\\"pokemon\\\\\":[{\\\\\"speciesID\\\\\":25,\\\\\"level\\\\\":50,\\\\\"ability\\\\\":9,\\\\\"nature\\\\\":3,\\\\\"moves\\\\\":[85,94]}]}\", *)",
+      "Bash(fuser -k 8000/tcp)",
+      "Bash(fuser 8000/tcp)",
+      "Bash(curl -s -X POST http://localhost:8000/api/v1/battles/79d7c9a2/turns -H 'Content-Type: application/json' -d '{\"actions\":[{\"side\":\"a\",\"type\":\"attack\",\"move_index\":0},{\"side\":\"b\",\"type\":\"attack\",\"move_index\":0}]}')",
+      "Bash(fuser -k 8000/tcp 2>/dev/null; sleep 1 *)",
+      "Bash(curl -s http://localhost:8000/api/v1/data/moves/85)",
+      "Bash(curl -s http://localhost:8000/api/v1/data/abilities/9)",
+      "Bash(curl -s http://localhost:8000/api/v1/data/abilities/66)",
+      "Bash(curl -s \"http://localhost:8000/api/v1/matchmaking/join?player_id=Ash&team_json=%7B%22name%22%3A%22Ash%22%2C%22pokemon%22%3A%5B%7B%22speciesID%22%3A25%2C%22level%22%3A50%2C%22ability%22%3A9%2C%22nature%22%3A3%2C%22moves%22%3A%5B85%5D%7D%5D%7D\")",
+      "Bash(curl -s \"http://localhost:8000/api/v1/matchmaking/join?player_id=Gary&team_json=%7B%22name%22%3A%22Gary%22%2C%22pokemon%22%3A%5B%7B%22speciesID%22%3A6%2C%22level%22%3A50%2C%22ability%22%3A66%2C%22nature%22%3A10%2C%22moves%22%3A%5B53%5D%7D%5D%7D\")",
+      "Bash(curl -s \"http://localhost:8000/api/v1/matchmaking/status?player_id=Ash\")",
+      "Bash(curl -s \"http://localhost:8000/api/v1/matchmaking/status?player_id=Gary\")",
+      "Bash(curl -s -X POST http://localhost:8000/api/v1/matchmaking/join -H 'Content-Type: application/json' -d '{\"player_id\":\"Ash\",\"team_json\":\"{\\\\\"name\\\\\":\\\\\"Ash\\\\\",\\\\\"pokemon\\\\\":[{\\\\\"speciesID\\\\\":25,\\\\\"level\\\\\":50,\\\\\"ability\\\\\":9,\\\\\"nature\\\\\":3,\\\\\"moves\\\\\":[85]}]}\"}')",
+      "Bash(curl -s -X POST http://localhost:8000/api/v1/matchmaking/join -H 'Content-Type: application/json' -d '{\"player_id\":\"Gary\",\"team_json\":\"{\\\\\"name\\\\\":\\\\\"Gary\\\\\",\\\\\"pokemon\\\\\":[{\\\\\"speciesID\\\\\":6,\\\\\"level\\\\\":50,\\\\\"ability\\\\\":66,\\\\\"nature\\\\\":10,\\\\\"moves\\\\\":[53]}]}\"}')"
+    ],
+    "additionalDirectories": [
+      "/tmp"
+    ]
+  }
+}
