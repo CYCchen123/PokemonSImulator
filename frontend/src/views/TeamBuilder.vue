@@ -15,7 +15,7 @@
         class="rounded-xl p-2.5 cursor-pointer border-2 transition-all"
         :class="activeIdx===idx ? 'border-rose-300 shadow-sm' : 'border-transparent hover:border-gray-200'">
         <div class="flex items-center gap-3">
-          <div class="w-10 h-10 flex items-center justify-center shrink-0">
+          <div class="flex items-center justify-center shrink-0">
             <IconSprite v-if="slot.pkm" :species-id="slot.pkm.speciesID" size="md" />
             <span v-else class="text-gray-400 text-lg">+</span>
           </div>
@@ -34,10 +34,16 @@
       <!-- Pokemon summary bar (when selected) -->
       <div v-if="activeSlot.pkm" class="px-4 py-3 border-b border-gray-100 shrink-0 flex items-start gap-3 flex-wrap bg-gradient-to-b from-white to-gray-50/50">
         <!-- Left: name + sprite (stacked) -->
-        <div class="flex flex-col items-center shrink-0 w-[72px]">
+        <div class="flex flex-col items-center shrink-0 w-24">
           <div class="text-xs font-bold text-gray-800 text-center truncate w-full">{{ activeSlot._name }}</div>
           <div class="text-[10px] text-gray-400">#{{ activeSlot.pkm.speciesID }}</div>
-          <img :src="'/sprites/'+activeSlot.pkm.speciesID+'.gif'" class="w-20 h-20 drop-shadow-md mt-0.5" />
+          <div class="w-24 h-24 mt-0.5">
+            <img v-if="!summaryGifFailed"
+                 :src="'/sprites/'+activeSlot.pkm.speciesID+'.gif'"
+                 @error="summaryGifFailed = true"
+                 class="w-24 h-24 object-contain drop-shadow-md" />
+            <IconSprite v-else :species-id="activeSlot.pkm.speciesID" size="lg" class="drop-shadow-md" />
+          </div>
           <div class="flex gap-0.5 mt-0.5">
             <img v-for="t in (activeSlot._types||[]).filter(isValidType)" :key="t" :src="'/sprites/types/'+capitalize(t)+'.png'" class="h-4 w-auto" />
           </div>
@@ -106,21 +112,43 @@
       <!-- Search + List -->
       <div class="flex-1 flex flex-col overflow-hidden">
         <div class="p-3 shrink-0">
-          <input v-if="activeTab==='species'" v-model="speciesSearch" @input="onSpeciesSearch" placeholder="搜索宝可梦..." class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm" />
+          <input v-if="activeTab==='species'" v-model="speciesSearch" placeholder="搜索名称/ID/属性..." class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm" />
           <input v-if="activeTab==='moves'" v-model="moveSearch" @input="onMoveSearch" placeholder="搜索招式..." class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm" />
           <input v-if="activeTab==='items'" v-model="itemSearch" @input="onItemSearch" placeholder="搜索道具..." class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm" />
         </div>
 
         <div class="flex-1 overflow-y-auto px-3 pb-3">
-          <!-- Species list -->
-          <div v-if="activeTab==='species'">
-            <div v-for="sp in speciesResults" :key="sp.id" @click="pickSpecies(sp)"
-              class="flex items-center gap-3 px-3 py-2 hover:bg-rose-50 cursor-pointer rounded-xl border-b border-gray-50"
-              :class="{'bg-rose-100': activeSlot.pkm?.speciesID===sp.id}">
-              <IconSprite :species-id="sp.id" size="lg" />
-              <div class="flex-1"><span class="text-sm text-gray-800 font-medium">{{ sp.name }}</span><span class="text-gray-400 text-xs ml-1">#{{ sp.id }}</span></div>
-              <img v-for="t in (sp.types||[]).filter(isValidType)" :key="t" :src="'/sprites/types/'+capitalize(t)+'.png'" class="h-4 w-auto" />
-              <span class="text-gray-400 text-xs ml-2">{{ (sp.baseStats||[0]*6).reduce((a,b)=>a+b,0) }}</span>
+          <!-- Species Sheet -->
+          <div v-if="activeTab==='species'" class="flex flex-col h-full">
+            <!-- Column headers -->
+            <div class="flex items-center gap-1 text-[10px] text-gray-400 uppercase tracking-wider px-1 pb-1 shrink-0 border-b border-gray-100">
+              <span class="w-7 text-center cursor-pointer hover:text-gray-600" @click="toggleSpeciesSort('id')">#</span>
+              <span class="w-24"></span>
+              <span class="flex-1 cursor-pointer hover:text-gray-600 pl-1" @click="toggleSpeciesSort('name')">名称</span>
+              <span class="w-14 text-center">属性</span>
+              <span v-for="s in statCols" :key="s.k" class="w-8 text-center cursor-pointer hover:text-gray-600" @click="toggleSpeciesSort(s.k)">{{ s.n }}</span>
+              <span class="w-10 text-center cursor-pointer hover:text-gray-600" @click="toggleSpeciesSort('bst')">BST</span>
+            </div>
+            <!-- Rows -->
+            <div class="flex-1 overflow-y-auto">
+              <div v-for="sp in speciesSorted" :key="sp.id"
+                @click="pickSpecies(sp)"
+                class="flex items-center gap-1 px-1 py-0.5 cursor-pointer border-b border-gray-50 hover:bg-rose-50/60 transition-colors"
+                :class="activeSlot.pkm?.speciesID===sp.id ? 'bg-rose-100 ring-1 ring-rose-200 rounded' : ''">
+                <span class="w-7 text-center text-[10px] text-gray-400 font-mono shrink-0">#{{ sp.id }}</span>
+                <IconSprite :species-id="sp.id" size="lg" class="shrink-0" />
+                <span class="flex-1 text-sm text-gray-800 font-medium truncate pl-1">{{ sp.name }}</span>
+                <div class="w-14 flex gap-0.5 justify-center shrink-0">
+                  <span v-for="t in (sp.types||[]).filter(isValidType)" :key="t"
+                    class="px-1 py-px rounded-full text-white text-[9px] font-medium leading-tight"
+                    :style="{ backgroundColor: typeColor(t) }">{{ typeLabel(t) }}</span>
+                </div>
+                <span v-for="(s,i) in statCols" :key="s.k"
+                  class="w-8 text-center text-[11px] font-mono shrink-0"
+                  :class="statColor(s.k, (sp.baseStats||[])[i])">{{ (sp.baseStats||[])[i] ?? '-' }}</span>
+                <span class="w-10 text-center text-[11px] font-bold font-mono text-gray-700 shrink-0">{{ (sp.baseStats||[]).reduce((a,b)=>a+b,0) }}</span>
+              </div>
+              <div v-if="!speciesSorted.length" class="text-center text-gray-400 py-8 text-sm">没有匹配的宝可梦</div>
             </div>
           </div>
 
@@ -172,7 +200,9 @@
               <div class="grid grid-cols-6 gap-1 text-xs">
                 <div v-for="s in EVS" :key="s.k" class="text-center">
                   <div class="text-gray-400">{{ s.n }}</div>
-                  <input v-model.number="activeSlot.pkm.evs[s.k]" type="number" min="0" max="252" class="w-full bg-gray-50 border border-gray-200 rounded px-1 py-0.5 text-gray-700 text-center" />
+                  <input v-model.number="activeSlot.pkm.evs[s.k]" type="number" min="0" max="255"
+                    @change="clampEV(s.k)" @blur="clampEV(s.k)"
+                    class="w-full bg-gray-50 border border-gray-200 rounded px-1 py-0.5 text-gray-700 text-center" />
                 </div>
               </div>
             </div>
@@ -199,6 +229,7 @@ import { ITEM_SHEET } from '../utils/itemSheet'
 const teamName = ref('Team')
 const activeIdx = ref(0)
 const activeTab = ref('species')
+const summaryGifFailed = ref(false)
 const speciesSearch = ref(''); const speciesResults = ref([])
 const moveSearch = ref(''); const mvResults = ref([]); const editMoveSlot = ref(-1)
 const itemSearch = ref(''); const itemResults = ref([])
@@ -213,6 +244,71 @@ const tabs = [{key:'species',label:'🔍 宝可梦'},{key:'moves',label:'⚔️ 
 const slots = reactive(Array.from({length:6}, () => ({ pkm: null, _name: '', _types: [], _species: null, _moveNames: [], _itemName: '' })))
 const activeSlot = computed(() => slots[activeIdx.value])
 const evTotal = computed(() => activeSlot.value.pkm?.evs ? Object.values(activeSlot.value.pkm.evs).reduce((a,b)=>a+b,0) : 0)
+function clampEV(key) {
+  if (!activeSlot.value.pkm?.evs) return
+  let v = activeSlot.value.pkm.evs[key]
+  if (isNaN(v) || v < 0) v = 0
+  if (v > 255) v = 255
+  // Enforce 508 total cap
+  const others = Object.entries(activeSlot.value.pkm.evs).reduce((s, [k, val]) => k === key ? s : s + (parseInt(val)||0), 0)
+  if (v + others > 508) v = Math.max(0, 508 - others)
+  activeSlot.value.pkm.evs[key] = v
+}
+
+// -- Species sheet state --
+const allSpeciesCache = ref([])
+const speciesSortKey = ref('id')
+const speciesSortAsc = ref(true)
+const statCols = [
+  { k: 'hp', n: 'HP' },
+  { k: 'atk', n: 'Atk' },
+  { k: 'def', n: 'Def' },
+  { k: 'spa', n: 'SpA' },
+  { k: 'spd', n: 'SpD' },
+  { k: 'spe', n: 'Spe' },
+]
+
+const speciesFiltered = computed(() => {
+  const q = speciesSearch.value.toLowerCase().trim()
+  if (!q) return allSpeciesCache.value
+  return allSpeciesCache.value.filter(s => {
+    const key = `${s.id} ${s.name} ${(s.types||[]).join(' ')}`.toLowerCase()
+    return key.includes(q)
+  })
+})
+
+const speciesSorted = computed(() => {
+  const arr = [...speciesFiltered.value]
+  const k = speciesSortKey.value
+  arr.sort((a, b) => {
+    let va, vb
+    if (k === 'id') { va = a.id; vb = b.id }
+    else if (k === 'name') { va = a.name || ''; vb = b.name || '' }
+    else if (k === 'bst') { va = (a.baseStats||[]).reduce((x,y)=>x+y,0); vb = (b.baseStats||[]).reduce((x,y)=>x+y,0) }
+    else {
+      const i = statCols.findIndex(s => s.k === k)
+      va = (a.baseStats||[])[i] ?? 0
+      vb = (b.baseStats||[])[i] ?? 0
+    }
+    if (typeof va === 'string') return speciesSortAsc.value ? va.localeCompare(vb) : vb.localeCompare(va)
+    return speciesSortAsc.value ? va - vb : vb - va
+  })
+  return arr
+})
+
+function toggleSpeciesSort(key) {
+  if (speciesSortKey.value === key) { speciesSortAsc.value = !speciesSortAsc.value; return }
+  speciesSortKey.value = key
+  speciesSortAsc.value = true
+}
+function statColor(k, v) {
+  if (v == null) return ''
+  if (k === 'hp' && v >= 100) return 'text-green-600 font-bold'
+  if (v >= 130) return 'text-rose-600 font-bold'
+  if (v >= 100) return 'text-orange-600'
+  if (v >= 70) return 'text-gray-600'
+  return 'text-gray-400'
+}
 
 function capitalize(s) { return s ? s.charAt(0).toUpperCase()+s.slice(1).toLowerCase() : '' }
 function moveType(mid) {
@@ -231,6 +327,10 @@ function typeColor(n) {
   const nl = String(n).toLowerCase()
   for (const t of Object.values(TYPES)) { if (t.name.toLowerCase()===nl) return t.color }
   return '#666'
+}
+function typeLabel(t) {
+  const found = Object.values(TYPES).find(x => x.name && x.name.toLowerCase() === String(t).toLowerCase())
+  return found ? found.label : t
 }
 function natureName(v) { const n = NATURES.find(x=>x.v===v); return n ? n.name : '性格' }
 function natureDesc(v) { const n = NATURES.find(x=>x.v===v); return n ? n.desc : '' }
@@ -258,7 +358,8 @@ function removePokemon() {
   activeTab.value = 'species'
 }
 
-watch(activeIdx, () => { loadSlotData() }, { immediate: true })
+watch(activeIdx, () => { loadSlotData(); summaryGifFailed.value = false }, { immediate: true })
+watch(() => activeSlot.value.pkm?.speciesID, () => { summaryGifFailed.value = false })
 watch(activeTab, (tab) => {
   if (tab === 'items' && !itemResults.value.length) loadItems()
 })
@@ -266,7 +367,7 @@ function loadSlotData() {
   let sp = activeSlot.value._species
   // Try to find species from results if _species is null
   if (!sp && activeSlot.value.pkm?.speciesID) {
-    sp = speciesResults.value.find(s => s.id === activeSlot.value.pkm.speciesID)
+    sp = allSpeciesCache.value.find(s => s.id === activeSlot.value.pkm.speciesID)
     if (sp) activeSlot.value._species = sp
   }
   if (sp && (sp.learnableMoves||[]).length > 0) {
@@ -281,17 +382,14 @@ function loadItems() {
 
 onMounted(async () => {
   await connect('TeamBuilder')
-  speciesResults.value = await request('get_species',{search:'',limit:1100}).catch(()=>[])
+  const all = await request('get_species',{search:'',limit:1100}).catch(()=>[])
+  allSpeciesCache.value = all || []
+  speciesResults.value = allSpeciesCache.value
   await loadSavedTeams()
   // Preload items for all slots
   request('get_items',{search:'',limit:200}).then(r=>{itemResults.value=r})
 })
 
-async function onSpeciesSearch() {
-  clearTimeout(timers.sp); timers.sp = setTimeout(async () => {
-    try { speciesResults.value = await request('get_species',{search:speciesSearch.value,limit:200}) } catch { speciesResults.value = [] }
-  }, 150)
-}
 function pickSpecies(sp) {
   const s = slots[activeIdx.value]
   s.pkm = { speciesID: sp.id, level: 50, ability: (sp.abilities && sp.abilities[0]) || 0, nature: 3, moves: [], item: 0, evs: {hp:0,atk:0,def:0,spa:0,spd:0,spe:0} }
@@ -376,7 +474,7 @@ async function loadTeam(t) {
   const promises = []
   t.pokemon.forEach((p,i) => {
     if (i>=6) return
-    const sp = speciesResults.value.find(s=>s.id===p.speciesID)
+    const sp = allSpeciesCache.value.find(s=>s.id===p.speciesID)
     slots[i].pkm = { speciesID: p.speciesID, level: 50, ability: p.ability||0, nature: p.nature||3, moves: p.moves||[], item: p.item||0, evs: p.evs||{hp:0,atk:0,def:0,spa:0,spd:0,spe:0} }
     slots[i]._name = sp?.name||'#'+p.speciesID; slots[i]._types = sp?.types||[]; slots[i]._species = sp||null
     if (p.moves) p.moves.forEach(mid => {
@@ -394,7 +492,7 @@ async function loadTeam(t) {
   loadSlotData()
 }
 function saveTeam() {
-  const pokemon = slots.filter(s=>s.pkm).map(s=>({speciesID:s.pkm.speciesID,level:50,ability:s.pkm.ability||0,nature:s.pkm.nature||3,moves:(s.pkm.moves||[]).filter(m=>m!==0),item:s.pkm.item||0}))
+  const pokemon = slots.filter(s=>s.pkm).map(s=>({speciesID:s.pkm.speciesID,level:50,ability:s.pkm.ability||0,nature:s.pkm.nature||3,moves:(s.pkm.moves||[]).filter(m=>m!==0),item:s.pkm.item||0,evs:s.pkm.evs||{hp:0,atk:0,def:0,spa:0,spd:0,spe:0}}))
   if (!pokemon.length) return
   send('save_team',{user_id:getPlayerId(),name:teamName.value,pokemon})
   setTimeout(loadSavedTeams, 500)

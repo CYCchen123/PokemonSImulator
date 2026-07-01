@@ -1,2 +1,6 @@
 .deepseek/
 deploy.tar.gz
+/build
+report.md
+Target.md
+

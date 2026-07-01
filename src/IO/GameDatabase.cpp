@@ -1,9 +1,7 @@
 #include "IO/GameDatabase.h"
 #include "battle/Types.h"
-#include "battle/Natures.h"
 #include <iostream>
 #include <filesystem>
-#include <cstring>
 
 namespace {
 
@@ -16,6 +14,13 @@ struct StmtGuard {
 int sqlStep(sqlite3* db, const char* sql, sqlite3_stmt** out) {
     return sqlite3_prepare_v2(db, sql, -1, out, nullptr);
 }
+
+std::string colText(sqlite3_stmt* stmt, int col) {
+    const char* t = reinterpret_cast<const char*>(sqlite3_column_text(stmt, col));
+    return t ? std::string(t) : "";
+}
+
+// ---- Enum parsers ----
 
 Type parseTypeStr(const std::string& s) {
     if (s == "normal") return Type::Normal;
@@ -39,9 +44,69 @@ Type parseTypeStr(const std::string& s) {
     return Type::Count;
 }
 
-std::string colText(sqlite3_stmt* stmt, int col) {
-    const char* t = reinterpret_cast<const char*>(sqlite3_column_text(stmt, col));
-    return t ? std::string(t) : "";
+Category parseCategoryStr(const std::string& s) {
+    if (s == "physical") return Category::Physical;
+    if (s == "special") return Category::Special;
+    return Category::Status;
+}
+
+MoveEffect parseEffectStr(const std::string& s) {
+    if (s == "None" || s.empty()) return MoveEffect::None;
+    if (s == "Pursuit") return MoveEffect::Pursuit;
+    if (s == "Encore") return MoveEffect::Encore;
+    if (s == "Dig") return MoveEffect::Dig;
+    if (s == "Round") return MoveEffect::Round;
+    if (s == "KnockOff") return MoveEffect::KnockOff;
+    if (s == "WeatherBall") return MoveEffect::WeatherBall;
+    if (s == "Status") return MoveEffect::Status;
+    if (s == "StatChange") return MoveEffect::StatChange;
+    if (s == "Recoil") return MoveEffect::Recoil;
+    if (s == "Drain") return MoveEffect::Drain;
+    if (s == "Flinch") return MoveEffect::Flinch;
+    if (s == "Paralyze") return MoveEffect::Paralyze;
+    if (s == "Sleep") return MoveEffect::Sleep;
+    if (s == "Freeze") return MoveEffect::Freeze;
+    if (s == "Burn") return MoveEffect::Burn;
+    if (s == "Poison") return MoveEffect::Poison;
+    if (s == "Confuse") return MoveEffect::Confuse;
+    if (s == "LeechSeed") return MoveEffect::LeechSeed;
+    if (s == "Reflect") return MoveEffect::Reflect;
+    if (s == "LightScreen") return MoveEffect::LightScreen;
+    if (s == "Safeguard") return MoveEffect::Safeguard;
+    if (s == "Tailwind") return MoveEffect::Tailwind;
+    if (s == "StealthRock") return MoveEffect::StealthRock;
+    if (s == "Spikes") return MoveEffect::Spikes;
+    if (s == "ToxicSpikes") return MoveEffect::ToxicSpikes;
+    return MoveEffect::None;
+}
+
+Target parseTargetStr(const std::string& s) {
+    if (s == "self") return Target::Self;
+    if (s == "ally" || s == "selected-pokemon-me-first" || s == "user-and-allies") return Target::Ally;
+    if (s == "selected-pokemon" || s == "all-other-pokemon" || s == "random-opponent" ||
+        s == "all-opponents" || s == "opponent" || s == "specific-move") return Target::Opponent;
+    if (s == "all-allies") return Target::AllAllies;
+    if (s == "all-opponents") return Target::AllOpponents;
+    if (s == "all" || s == "entire-field" || s == "users-field") return Target::All;
+    return Target::Opponent; // default
+}
+
+EggGroup parseEggGroupStr(const std::string& s) {
+    if (s == "monster") return EggGroup::Monster;
+    if (s == "water1") return EggGroup::Water1;
+    if (s == "water2") return EggGroup::Water2;
+    if (s == "bug") return EggGroup::Bug;
+    if (s == "flying") return EggGroup::Flying;
+    if (s == "field") return EggGroup::Field;
+    if (s == "fairy") return EggGroup::Fairy;
+    if (s == "grass" || s == "plant") return EggGroup::Grass;
+    if (s == "human-like" || s == "humanlike") return EggGroup::HumanLike;
+    if (s == "mineral") return EggGroup::Mineral;
+    if (s == "amorphous") return EggGroup::Amorphous;
+    if (s == "ditto") return EggGroup::Ditto;
+    if (s == "dragon") return EggGroup::Dragon;
+    if (s == "undiscovered") return EggGroup::Undiscovered;
+    return EggGroup::None;
 }
 
 } // anonymous namespace
@@ -77,7 +142,6 @@ std::map<int, Species> GameDatabase::loadAllSpecies() {
     std::map<int, Species> result;
     if (!db_ && !open()) return result;
 
-    // Load species base data
     sqlite3_stmt* stmt = nullptr;
     sqlStep(db_, "SELECT id, name, type1, type2, base_hp, base_atk, base_def, "
            "base_spa, base_spd, base_spe, height, weight, male_ratio, "
@@ -105,6 +169,11 @@ std::map<int, Species> GameDatabase::loadAllSpecies() {
         sp.maleRatio = static_cast<float>(sqlite3_column_double(stmt, 12));
         sp.evolutionLevel = sqlite3_column_int(stmt, 13);
         sp.nextEvolutionID = sqlite3_column_int(stmt, 14);
+        // egg groups
+        std::string eg1 = colText(stmt, 15);
+        std::string eg2 = colText(stmt, 16);
+        if (!eg1.empty()) sp.eggGroups.push_back(parseEggGroupStr(eg1));
+        if (!eg2.empty() && eg2 != eg1) sp.eggGroups.push_back(parseEggGroupStr(eg2));
         sp.hiddenAbility = static_cast<AbilityType>(sqlite3_column_int(stmt, 17));
         result[id] = std::move(sp);
     }
@@ -127,9 +196,6 @@ std::map<int, Species> GameDatabase::loadAllSpecies() {
             }
         }
     }
-
-    // Note: learnableMoves are NOT loaded into Species struct (kept as IDs in learnsets table).
-    // Use loadLearnsetForSpecies() to get move IDs for a specific species when needed.
 
     std::cout << "[DB] Loaded " << result.size() << " species" << std::endl;
     return result;
@@ -157,7 +223,6 @@ Species GameDatabase::loadSpeciesById(int id) {
         sp.hiddenAbility = static_cast<AbilityType>(sqlite3_column_int(stmt, 17));
     }
 
-    // Load abilities
     sqlite3_stmt* sa = nullptr;
     sqlStep(db_, ("SELECT ability_id, is_hidden FROM species_abilities WHERE species_id=" + std::to_string(id)).c_str(), &sa);
     if (sa) {
@@ -168,7 +233,6 @@ Species GameDatabase::loadSpeciesById(int id) {
             else sp.abilities.push_back(static_cast<AbilityType>(aid));
         }
     }
-
     return sp;
 }
 
@@ -214,7 +278,7 @@ std::map<int, MoveData> GameDatabase::loadAllMoveData() {
 
     sqlite3_stmt* stmt = nullptr;
     sqlStep(db_, "SELECT id, name, api_name, type, category, power, accuracy, pp, "
-           "priority, target, effect, effect_chance, description FROM moves", &stmt);
+           "priority, target, effect, effect_chance, effect_param1, effect_param2, description FROM moves", &stmt);
     if (!stmt) return result;
     StmtGuard g{stmt};
 
@@ -223,10 +287,21 @@ std::map<int, MoveData> GameDatabase::loadAllMoveData() {
         md.id = sqlite3_column_int(stmt, 0);
         md.name = colText(stmt, 1);
         md.apiName = colText(stmt, 2);
-        md.description = colText(stmt, 13);
-        // type, category, effect, target parsed later by parseMoveEntry
+        md.type = parseTypeStr(colText(stmt, 3));
+        md.category = parseCategoryStr(colText(stmt, 4));
+        md.power = sqlite3_column_int(stmt, 5);
+        md.accuracy = sqlite3_column_int(stmt, 6);
+        md.pp = sqlite3_column_int(stmt, 7);
+        md.priority = sqlite3_column_int(stmt, 8);
+        md.target = parseTargetStr(colText(stmt, 9));
+        md.effect = parseEffectStr(colText(stmt, 10));
+        md.effectChance = sqlite3_column_int(stmt, 11);
+        md.effectParam1 = sqlite3_column_int(stmt, 12);
+        md.effectParam2 = sqlite3_column_int(stmt, 13);
+        md.description = colText(stmt, 14);
         result[md.id] = md;
     }
+    std::cout << "[DB] Loaded " << result.size() << " moves" << std::endl;
     return result;
 }
 
@@ -236,7 +311,8 @@ MoveData GameDatabase::loadMoveDataById(int id) {
 
     sqlite3_stmt* stmt = nullptr;
     sqlStep(db_, ("SELECT id, name, api_name, type, category, power, accuracy, pp, "
-            "priority, target, effect, effect_chance, description FROM moves WHERE id=" + std::to_string(id)).c_str(), &stmt);
+            "priority, target, effect, effect_chance, effect_param1, effect_param2, description "
+            "FROM moves WHERE id=" + std::to_string(id)).c_str(), &stmt);
     if (!stmt) return md;
     StmtGuard g{stmt};
 
@@ -245,7 +321,17 @@ MoveData GameDatabase::loadMoveDataById(int id) {
         md.name = colText(stmt, 1);
         md.apiName = colText(stmt, 2);
         md.type = parseTypeStr(colText(stmt, 3));
-        // parseCategory, parseEffect etc.
+        md.category = parseCategoryStr(colText(stmt, 4));
+        md.power = sqlite3_column_int(stmt, 5);
+        md.accuracy = sqlite3_column_int(stmt, 6);
+        md.pp = sqlite3_column_int(stmt, 7);
+        md.priority = sqlite3_column_int(stmt, 8);
+        md.target = parseTargetStr(colText(stmt, 9));
+        md.effect = parseEffectStr(colText(stmt, 10));
+        md.effectChance = sqlite3_column_int(stmt, 11);
+        md.effectParam1 = sqlite3_column_int(stmt, 12);
+        md.effectParam2 = sqlite3_column_int(stmt, 13);
+        md.description = colText(stmt, 14);
     }
     return md;
 }
@@ -273,6 +359,28 @@ nlohmann::json GameDatabase::loadAbilitiesJson() {
     return root;
 }
 
+std::map<int, AbilityData> GameDatabase::loadAllAbilityData() {
+    std::map<int, AbilityData> result;
+    if (!db_ && !open()) return result;
+
+    sqlite3_stmt* stmt = nullptr;
+    sqlStep(db_, "SELECT id, name, api_name, description FROM abilities", &stmt);
+    if (!stmt) return result;
+    StmtGuard g{stmt};
+
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        AbilityData ad;
+        ad.id = sqlite3_column_int(stmt, 0);
+        ad.name = colText(stmt, 1);
+        ad.apiName = colText(stmt, 2);
+        ad.description = colText(stmt, 3);
+        ad.type = AbilityType::None;  // resolved by caller
+        result[ad.id] = ad;
+    }
+    std::cout << "[DB] Loaded " << result.size() << " abilities" << std::endl;
+    return result;
+}
+
 // ---- Items ----
 nlohmann::json GameDatabase::loadItemsJson() {
     using json = nlohmann::json;
@@ -297,6 +405,30 @@ nlohmann::json GameDatabase::loadItemsJson() {
     return root;
 }
 
+std::map<int, ItemData> GameDatabase::loadAllItemData() {
+    std::map<int, ItemData> result;
+    if (!db_ && !open()) return result;
+
+    sqlite3_stmt* stmt = nullptr;
+    sqlStep(db_, "SELECT id, name, api_name, description, is_battle FROM items", &stmt);
+    if (!stmt) return result;
+    StmtGuard g{stmt};
+
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        ItemData idat;
+        idat.id = sqlite3_column_int(stmt, 0);
+        idat.name = colText(stmt, 1);
+        idat.apiName = colText(stmt, 2);
+        idat.description = colText(stmt, 3);
+        idat.isBattle = sqlite3_column_int(stmt, 4) != 0;
+        idat.mappedType = ItemType::None;  // resolved by caller
+        result[idat.id] = idat;
+    }
+    std::cout << "[DB] Loaded " << result.size() << " items" << std::endl;
+    return result;
+}
+
+// ---- Learnsets ----
 std::vector<int> GameDatabase::loadLearnsetForSpecies(int speciesId) {
     std::vector<int> result;
     if (!db_ && !open()) return result;

@@ -1,8 +1,9 @@
 {
   "descriptions": [
-    "BatteryHolder 上场了（初始上场）。",
-    "BatteryHolder 上场了（初始上场）。",
-    "BatteryHolder 受到了道具 Cell Battery 的效果。"
+    "Test Pokemon 上场了（初始上场）。",
+    "Test Pokemon 上场了（初始上场）。",
+    "发生了 faint 事件。",
+    "发生了 faint 事件。"
   ],
   "turn": 1,
   "battle": {
@@ -12,26 +13,27 @@
     },
     "sides": [
       {
+        "_pendingSwitch": true,
         "active": 0,
         "count": 1,
-        "name": "A",
+        "name": "Player",
         "pokemons": [
           {
-            "abilityId": 302,
-            "fainted": false,
-            "hp": 158,
+            "abilityId": 0,
+            "fainted": true,
+            "hp": 0,
             "inBattleStatus": [],
-            "itemId": 0,
+            "itemId": 194,
             "maxHp": 175,
             "moves": [],
             "slot": 0,
-            "speciesId": 9105,
+            "speciesId": 1,
             "statStages": [
               1,
-              0,
-              0,
-              0,
-              0,
+              1,
+              1,
+              1,
+              1,
               0,
               0
             ],
@@ -57,18 +59,18 @@
       {
         "active": 0,
         "count": 1,
-        "name": "B",
+        "name": "Opponent",
         "pokemons": [
           {
-            "abilityId": 302,
+            "abilityId": 0,
             "fainted": false,
-            "hp": 175,
+            "hp": 1,
             "inBattleStatus": [],
             "itemId": 0,
             "maxHp": 175,
             "moves": [],
             "slot": 0,
-            "speciesId": 9105,
+            "speciesId": 1,
             "statStages": [
               0,
               0,
@@ -106,53 +108,61 @@
   },
   "events": [
     {
-      "description": "BatteryHolder 上场了（初始上场）。",
+      "description": "Test Pokemon 上场了（初始上场）。",
       "details": {
-        "pokemon": "BatteryHolder",
+        "pokemon": "Test Pokemon",
         "pokemon_ref": {
           "pokemon_index": 0,
           "side_index": 0
         },
         "reason": "initial_send_out",
-        "side": "A",
+        "side": "Player",
         "side_index": 0
       },
       "timeline_index": 0,
       "turn_index": 0
     },
     {
-      "description": "BatteryHolder 上场了（初始上场）。",
+      "description": "Test Pokemon 上场了（初始上场）。",
       "details": {
-        "pokemon": "BatteryHolder",
+        "pokemon": "Test Pokemon",
         "pokemon_ref": {
           "pokemon_index": 0,
           "side_index": 0
         },
         "reason": "initial_send_out",
-        "side": "B",
+        "side": "Opponent",
         "side_index": 1
       },
       "timeline_index": 1,
       "turn_index": 0
     },
     {
-      "description": "BatteryHolder 受到了道具 Cell Battery 的效果。",
+      "description": "发生了 faint 事件。",
       "details": {
-        "item": "Cell Battery",
-        "item_index": 589,
-        "opponent": "BatteryHolder",
-        "opponent_ref": {
-          "pokemon_index": 0,
-          "side_index": 0
-        },
-        "pokemon": "BatteryHolder",
+        "pokemon": "Test Pokemon",
         "pokemon_ref": {
           "pokemon_index": 0,
           "side_index": 0
         },
-        "trigger": "on_damage"
+        "reason": "damage",
+        "side": "Player",
+        "side_index": 0
       },
       "timeline_index": 2,
+      "turn_index": 1
+    },
+    {
+      "description": "发生了 faint 事件。",
+      "details": {
+        "pokemon": "Test Pokemon",
+        "pokemon_ref": {
+          "pokemon_index": 0,
+          "side_index": 0
+        },
+        "reason": "residual_damage"
+      },
+      "timeline_index": 3,
       "turn_index": 1
     }
   ]

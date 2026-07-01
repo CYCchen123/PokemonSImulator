@@ -127,9 +127,6 @@ Move createMoveFromData(const MoveData& data);
 Move createMoveById(int id);
 Move createMoveByName(const std::string& name);
 
-// 预拉取项目中引用到的 move id 并写回 data/moves.json。
-bool prefetchMovesFromPokeAPI(bool refreshExisting = false);
-
 // 半无敌状态下，某招式是否能命中
 enum class SemiInvulnerableState;
 bool canMoveHitThroughSemiInvulnerable(const Move& move, SemiInvulnerableState defenderState);

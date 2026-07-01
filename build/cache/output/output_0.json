@@ -1,7 +1,7 @@
 {
   "descriptions": [
-    "BatteryHolder 上场了（初始上场）。",
-    "BatteryHolder 上场了（初始上场）。"
+    "Test Pokemon 上场了（初始上场）。",
+    "Test Pokemon 上场了（初始上场）。"
   ],
   "turn": 0,
   "battle": {
@@ -13,18 +13,18 @@
       {
         "active": 0,
         "count": 1,
-        "name": "A",
+        "name": "Player",
         "pokemons": [
           {
-            "abilityId": 302,
+            "abilityId": 0,
             "fainted": false,
             "hp": 175,
             "inBattleStatus": [],
-            "itemId": 589,
+            "itemId": 0,
             "maxHp": 175,
             "moves": [],
             "slot": 0,
-            "speciesId": 9105,
+            "speciesId": 1,
             "statStages": [
               0,
               0,
@@ -56,10 +56,10 @@
       {
         "active": 0,
         "count": 1,
-        "name": "B",
+        "name": "Opponent",
         "pokemons": [
           {
-            "abilityId": 302,
+            "abilityId": 0,
             "fainted": false,
             "hp": 175,
             "inBattleStatus": [],
@@ -67,7 +67,7 @@
             "maxHp": 175,
             "moves": [],
             "slot": 0,
-            "speciesId": 9105,
+            "speciesId": 1,
             "statStages": [
               0,
               0,
@@ -105,30 +105,30 @@
   },
   "events": [
     {
-      "description": "BatteryHolder 上场了（初始上场）。",
+      "description": "Test Pokemon 上场了（初始上场）。",
       "details": {
-        "pokemon": "BatteryHolder",
+        "pokemon": "Test Pokemon",
         "pokemon_ref": {
           "pokemon_index": 0,
           "side_index": 0
         },
         "reason": "initial_send_out",
-        "side": "A",
+        "side": "Player",
         "side_index": 0
       },
       "timeline_index": 0,
       "turn_index": 0
     },
     {
-      "description": "BatteryHolder 上场了（初始上场）。",
+      "description": "Test Pokemon 上场了（初始上场）。",
       "details": {
-        "pokemon": "BatteryHolder",
+        "pokemon": "Test Pokemon",
         "pokemon_ref": {
           "pokemon_index": 0,
           "side_index": 0
         },
         "reason": "initial_send_out",
-        "side": "B",
+        "side": "Opponent",
         "side_index": 1
       },
       "timeline_index": 1,

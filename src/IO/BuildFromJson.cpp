@@ -324,156 +324,39 @@ std::map<int, Species> loadSpeciesFromFile() {
     return GameDatabase::instance().loadAllSpecies();
 }
 
-// 从abilities.json加载所有特性信息
+// 从数据库加载所有特性信息
 std::map<int, Ability> loadAbilitiesFromFile() {
     std::map<int, Ability> abilityMap;
-    
-    // 尝试使用不同的路径
-    std::string paths[] = {
-        "data/abilities.json",
-        "../data/abilities.json",
-        "../../data/abilities.json"
-    };
-    
-    std::ifstream file;
-    bool fileOpened = false;
-    
-    for (const auto& path : paths) {
-        file.open(path);
-        if (file.is_open()) {
-            fileOpened = true;
-            break;
-        }
-        file.close();
-    }
-    
-    if (!fileOpened) {
-        std::cerr << "Error: Could not open abilities.json file" << std::endl;
-        return abilityMap;
-    }
-    
-    json jsonData;
-    file >> jsonData;
-    file.close();
-    
-    if (jsonData.contains("abilities")) {
-        for (const auto& abilityData : jsonData["abilities"]) {
-            int id = abilityData.value("id", 0);
-            abilityMap[id] = getAbility(getAbilityTypeById(id));
+    auto abilityDataMap = GameDatabase::instance().loadAllAbilityData();
+    for (const auto& [id, data] : abilityDataMap) {
+        if (data.type != AbilityType::None) {
+            abilityMap[id] = getAbility(data.type);
         }
     }
-    
     return abilityMap;
 }
 
-// 从items.json加载所有物品信息
+// 从数据库加载所有物品信息
 std::map<int, Item> loadItemsFromFile() {
     std::map<int, Item> itemMap;
-    
-    // 尝试使用不同的路径
-    std::string paths[] = {
-        "data/items.json",
-        "../data/items.json",
-        "../../data/items.json"
-    };
-    
-    std::ifstream file;
-    bool fileOpened = false;
-    
-    for (const auto& path : paths) {
-        file.open(path);
-        if (file.is_open()) {
-            fileOpened = true;
-            break;
-        }
-        file.close();
-    }
-    
-    if (!fileOpened) {
-        std::cerr << "Error: Could not open items.json file" << std::endl;
-        return itemMap;
-    }
-    
-    json jsonData;
-    file >> jsonData;
-    file.close();
-    
-    if (jsonData.contains("items")) {
-        for (const auto& itemData : jsonData["items"]) {
-            int id = itemData.value("id", 0);
-            std::string name = itemData.value("name", "");
-            std::string description = itemData.value("description", "");
-            
-            // 通过switch case获取物品实例
-            Item item;
-            switch (id) {
-                case 1:
-                    item = getItem(ItemType::None); // 暂时使用None代替Leppa Berry
-                    break;
-                default:
-                    item = getItem(ItemType::None);
-                    break;
-            }
-            
-            itemMap[id] = item;
+    auto itemDataMap = GameDatabase::instance().loadAllItemData();
+    for (const auto& [id, data] : itemDataMap) {
+        if (data.mappedType != ItemType::None) {
+            itemMap[id] = getItem(data.mappedType);
         }
     }
-    
     return itemMap;
 }
 
-// 从moves.json加载所有技能信息
+// 从数据库加载所有技能信息
 std::map<int, Move> loadMovesFromFile() {
     std::map<int, Move> moveMap;
-    
-    // 尝试使用不同的路径
-    std::string paths[] = {
-        "data/moves.json",
-        "../data/moves.json",
-        "../../data/moves.json"
-    };
-    
-    std::ifstream file;
-    bool fileOpened = false;
-    
-    for (const auto& path : paths) {
-        file.open(path);
-        if (file.is_open()) {
-            fileOpened = true;
-            break;
-        }
-        file.close();
-    }
-    
-    if (!fileOpened) {
-        std::cerr << "Error: Could not open moves.json file" << std::endl;
-        return moveMap;
-    }
-    
-    json jsonData;
-    file >> jsonData;
-    file.close();
-    
-    if (jsonData.contains("moves") && jsonData["moves"].is_array()) {
-        for (const auto& moveData : jsonData["moves"]) {
-            Move move = createMoveByName("Tackle");
-            int id = moveData.value("id", 0);
-
-            if (id > 0) {
-                move = createMoveById(id);
-            } else if (moveData.contains("apiName") && moveData["apiName"].is_string()) {
-                move = createMoveByName(moveData["apiName"].get<std::string>());
-            } else if (moveData.contains("name") && moveData["name"].is_string()) {
-                move = createMoveByName(moveData["name"].get<std::string>());
-            }
-
-            const int moveId = move.getData().id > 0 ? move.getData().id : id;
-            if (moveId > 0) {
-                moveMap[moveId] = move;
-            }
+    auto moveDataMap = GameDatabase::instance().loadAllMoveData();
+    for (const auto& [id, data] : moveDataMap) {
+        if (id > 0) {
+            moveMap[id] = createMoveFromData(data);
         }
     }
-    
     return moveMap;
 }
 

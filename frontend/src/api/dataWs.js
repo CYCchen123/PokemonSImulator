@@ -72,9 +72,9 @@ export async function getSpriteUrl(speciesId) {
   await ensure()
   try {
     const data = await request('get_sprite_url', { id: speciesId })
-    spriteUrlCache[speciesId] = data.url || `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown/${speciesId}.gif`
+    spriteUrlCache[speciesId] = data.url || `/sprites/icons/${speciesId}.png`
   } catch {
-    spriteUrlCache[speciesId] = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown/${speciesId}.gif`
+    spriteUrlCache[speciesId] = `/sprites/icons/${speciesId}.png`
   }
   return spriteUrlCache[speciesId]
 }

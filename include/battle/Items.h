@@ -423,9 +423,6 @@ Item createItemFromData(const ItemData& data);
 Item createItemById(int id);
 Item createItemByName(const std::string& name);
 
-// 预拉取 items 到 data/items.json。
-bool prefetchItemsFromPokeAPI(bool refreshExisting = false);
-
 // 物品工厂函数
 Item getItem(ItemType type);
 Item createOranBerry();

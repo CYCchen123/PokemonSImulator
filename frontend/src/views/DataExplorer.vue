@@ -78,11 +78,12 @@ const tabs = [
   { key: 'enums', label: '📋 枚举表' },
 ]
 
+// ========================
+// Type Chart
+// ========================
 const types = Object.values(TYPES)
 
-// Simplified type effectiveness (Gen6+)
 const TYPE_CHART = {
-  // [attacker]: { [defender]: multiplier }
   'Normal': { 'Rock': 0.5, 'Steel': 0.5, 'Ghost': 0 },
   'Fire': { 'Fire': 0.5, 'Water': 0.5, 'Grass': 2, 'Ice': 2, 'Bug': 2, 'Rock': 0.5, 'Dragon': 0.5, 'Steel': 2 },
   'Water': { 'Fire': 2, 'Water': 0.5, 'Grass': 0.5, 'Ground': 2, 'Rock': 2, 'Dragon': 0.5 },

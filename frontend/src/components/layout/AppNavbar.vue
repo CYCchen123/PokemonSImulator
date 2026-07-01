@@ -1,12 +1,11 @@
 <template>
-  <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b-2 border-b-gray-200 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.08),0_0_1px_rgba(0,0,0,0.04)]">
+  <nav class="sticky top-0 z-50 bg-white/25 backdrop-blur-sm border-b border-white/20 shadow-[0_1px_4px_-1px_rgba(0,0,0,0.06)]">
     <div class="container mx-auto px-6 max-w-7xl">
       <div class="flex items-center justify-between h-12">
         <router-link to="/" class="text-lg font-bold text-gray-700 hover:text-rose-400 transition-colors">
           PokemonSimulator
         </router-link>
         <div class="flex items-center gap-0.5">
-          <router-link to="/battles" class="nav-link" active-class="nav-active">对战</router-link>
           <router-link to="/matchmaking" class="nav-link" active-class="nav-active">匹配</router-link>
           <router-link to="/teams" class="nav-link" active-class="nav-active">组队</router-link>
           <router-link to="/history" class="nav-link" active-class="nav-active">历史</router-link>
@@ -25,11 +24,16 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+const router = useRouter()
 const username = ref('')
 onMounted(() => { username.value = localStorage.getItem('trainer_name') || '' })
-// Poll for login changes (LoginPage sets localStorage)
 setInterval(() => { const n = localStorage.getItem('trainer_name')||''; if (n !== username.value) username.value = n }, 500)
-function logout() { username.value = ''; localStorage.removeItem('trainer_name') }
+function logout() {
+  username.value = ''
+  localStorage.removeItem('trainer_name')
+  router.push('/login')
+}
 </script>
 
 <style scoped>

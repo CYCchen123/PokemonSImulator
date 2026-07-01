@@ -42,13 +42,17 @@
         </span>
       </div>
 
-      <!-- Moves -->
+      <!-- Moves with type/category icons -->
       <div class="grid grid-cols-2 gap-1">
         <div v-for="(move, i) in (active.moves || [])" :key="i"
-          class="text-xs px-2 py-1 rounded bg-gray-700 text-gray-300 flex justify-between"
+          class="text-xs px-2 py-1 rounded bg-gray-700"
         >
-          <span>#{{ move.id }}</span>
-          <span class="text-gray-500">{{ move.pp }}/{{ move.maxPp }}</span>
+          <div class="flex items-center gap-1 mb-0.5">
+            <img v-if="moveInfo[move.id]?.type" :src="'/sprites/types/'+capitalize(moveInfo[move.id].type)+'.png'" class="h-3 w-auto" />
+            <img v-if="moveInfo[move.id]?.category" :src="'/sprites/categories/'+moveInfo[move.id].category+'.png'" class="h-3 w-auto" />
+            <span class="text-gray-500 ml-auto font-mono text-[10px]">{{ move.pp }}/{{ move.maxPp }}</span>
+          </div>
+          <div class="text-gray-300 font-medium truncate text-[11px]">{{ moveInfo[move.id]?.name || '#'+move.id }}</div>
         </div>
       </div>
     </div>
@@ -72,13 +76,14 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import HPBar from './HPBar.vue'
 import StatusBadge from './StatusBadge.vue'
 import TypeBadge from '../shared/TypeBadge.vue'
 import PokemonSprite from '../shared/PokemonSprite.vue'
 import { formatStatStage, statStageClass } from '../../utils/formatters'
 import { STAT_NAMES } from '../../utils/enums'
+import { getMove } from '../../api/dataWs'
 
 const props = defineProps({
   side: { type: Object, default: null },
@@ -111,4 +116,22 @@ const hasStatChanges = computed(() => {
 
 const statsToShow = computed(() => active.value?.statStages?.slice(0, 5) || [])
 const statNames = STAT_NAMES
+
+// Move info cache
+const moveInfo = ref({})
+function capitalize(s) { return s ? s.charAt(0).toUpperCase()+s.slice(1).toLowerCase() : '' }
+
+watch(active, async (pkm) => {
+  if (!pkm?.moves) return
+  for (const m of pkm.moves) {
+    if (m.id && !moveInfo.value[m.id]) {
+      const data = await getMove(m.id)
+      moveInfo.value[m.id] = {
+        name: data?.name || '#'+m.id,
+        type: data?.type || '',
+        category: data?.category || '',
+      }
+    }
+  }
+}, { immediate: true })
 </script>

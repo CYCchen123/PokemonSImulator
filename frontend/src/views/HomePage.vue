@@ -2,10 +2,11 @@
   <div class="text-center py-12 relative overflow-hidden">
     <!-- Animated Pokemon background -->
     <div class="absolute inset-0 pointer-events-none opacity-10">
-      <img v-for="p in bgPokemon" :key="p.id"
-        :src="'/sprites/icons/'+p.id+'.png'"
+      <div v-for="p in bgPokemon" :key="p.id"
         class="absolute animate-float-bg"
-        :style="{left:p.x+'%',top:p.y+'%',animationDelay:p.delay+'s',width:p.size+'px',height:p.size+'px'}" />
+        :style="{left:p.x+'%',top:p.y+'%',animationDelay:p.delay+'s'}">
+        <IconSprite :species-id="p.id" :size="p.size >= 56 ? 'lg' : 'md'" />
+      </div>
     </div>
     <h1 class="text-4xl font-extrabold text-gray-800 mb-3 tracking-tight">
       宝可梦<span class="text-rose-400">对战平台</span>
@@ -59,6 +60,8 @@
 </template>
 
 <script setup>
+import IconSprite from '../components/shared/IconSprite.vue'
+
 const bgPokemon = [
   {id:25,x:5,y:10,delay:0,size:48},{id:6,x:15,y:60,delay:2,size:56},
   {id:1,x:25,y:30,delay:4,size:40},{id:133,x:35,y:70,delay:1,size:44},
