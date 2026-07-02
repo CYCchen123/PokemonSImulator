@@ -14,6 +14,7 @@ from analytics_service import (
     get_type_distribution, get_battle_hp_curve, get_event_distribution,
     get_battle_survival, get_deep_stats_package, get_analysis_summary,
     get_pokemon_hp, get_species_detail,
+    get_team_synergy, get_head_to_head,
 )
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s [ws] %(levelname)s: %(message)s')
@@ -908,6 +909,14 @@ def api_deep_events():
 def api_deep_survival():
     """Get pokemon survival rates."""
     return {"ok": True, "data": get_battle_survival()}
+
+@app.get("/api/v1/stats/deep/team-synergy")
+def api_team_synergy():
+    return {"ok": True, "data": get_team_synergy()}
+
+@app.get("/api/v1/stats/deep/head-to-head")
+def api_head_to_head(s1: int = 0, s2: int = 0):
+    return {"ok": True, "data": get_head_to_head(s1, s2)}
 
 @app.get("/api/v1/stats/deep/live")
 def api_deep_live():

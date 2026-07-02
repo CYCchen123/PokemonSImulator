@@ -212,5 +212,49 @@ def get_deep_stats_package():
         "survival": get_battle_survival()[:20],
     }}
 
+# ── Team Synergy ──────────────────────────────────────────────────
+
+def get_team_synergy():
+    """Top Pokemon pairs that appear together on the same team."""
+    return [dict(r) for r in _db().execute("""
+        WITH teams AS (
+            SELECT DISTINCT battle_id, side_index, species_id
+            FROM battle_pokemon_states
+        )
+        SELECT a.species_id AS s1, b.species_id AS s2, COUNT(*) AS times
+        FROM teams a JOIN teams b
+          ON a.battle_id = b.battle_id AND a.side_index = b.side_index
+        WHERE a.species_id < b.species_id
+        GROUP BY 1, 2
+        ORDER BY 3 DESC
+        LIMIT 30
+    """).fetchall()]
+
+
+# ── Head-to-Head Win Rate ───────────────────────────────────────
+
+def get_head_to_head(s1: int, s2: int):
+    """Head-to-head matchup: species s1 vs species s2 on opposite sides."""
+    return [dict(r) for r in _db().execute("""
+        WITH matches AS (
+            SELECT a.battle_id, a.side_index AS s1_side, b.side_index AS s2_side,
+                   SUM(CASE WHEN a.fainted=0 THEN 1 ELSE 0 END) AS s1_alive,
+                   SUM(CASE WHEN b.fainted=0 THEN 1 ELSE 0 END) AS s2_alive
+            FROM battle_pokemon_states a
+            JOIN battle_pokemon_states b ON a.battle_id=b.battle_id
+            WHERE a.species_id=? AND b.species_id=? AND a.side_index != b.side_index
+            GROUP BY a.battle_id
+        )
+        SELECT COUNT(*) AS total,
+               SUM(CASE WHEN s1_alive > s2_alive THEN 1 ELSE 0 END) AS s1_wins,
+               SUM(CASE WHEN s2_alive > s1_alive THEN 1 ELSE 0 END) AS s2_wins,
+               ROUND(100.0*SUM(CASE WHEN s1_alive > s2_alive THEN 1 ELSE 0 END)/MAX(1,COUNT(*)),1) AS s1_rate,
+               ROUND(100.0*SUM(CASE WHEN s2_alive > s1_alive THEN 1 ELSE 0 END)/MAX(1,COUNT(*)),1) AS s2_rate,
+               (SELECT ROUND(AVG(hp_pct),1) FROM battle_pokemon_states WHERE species_id=?) AS s1_avg_hp,
+               (SELECT ROUND(AVG(hp_pct),1) FROM battle_pokemon_states WHERE species_id=?) AS s2_avg_hp
+        FROM matches
+    """, (s1, s2, s1, s2)).fetchall()]
+
+
 def is_available():
     return _has_data()

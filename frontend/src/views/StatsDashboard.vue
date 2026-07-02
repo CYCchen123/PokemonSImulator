@@ -132,9 +132,9 @@
 
     <!-- Tab: Battle Data -->
     <div v-if="activeTab === 'battle'" class="space-y-6">
-      <HpCurveLine :loading="loading" :battle-id="selectedBattle" />
+      <HeadToHeadChart :loading="loading" />
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <EventBarChart :loading="loading" :battle-id="selectedBattle" />
+        <TeamSynergyChart :loading="loading" />
         <DataTable title="💀 宝可梦生存率" :columns="survivalCols" :rows="survivalRows" :loading="loading"
           search-placeholder="搜索..." id-key="species_id" defaultSort="total_appearances" />
       </div>
@@ -178,6 +178,8 @@ import { statsAPI } from '../api/stats'
 import { connect, on, disconnect } from '../api/wsClient'
 
 import TypePieChart from '../components/charts/TypePieChart.vue'
+import TeamSynergyChart from '../components/charts/TeamSynergyChart.vue'
+import HeadToHeadChart from '../components/charts/HeadToHeadChart.vue'
 import HpCurveLine from '../components/charts/HpCurveLine.vue'
 import EventBarChart from '../components/charts/EventBarChart.vue'
 import DataTable from '../components/charts/DataTable.vue'

@@ -17,6 +17,8 @@ export const statsAPI = {
   deepLive: () => client.get('/stats/deep/live'),
   deepRefresh: () => client.post('/stats/deep/refresh', {}),
   pokemonDetail: (speciesId) => client.get(`/stats/deep/pokemon/${speciesId}`),
+  deepTeamSynergy: () => client.get('/stats/deep/team-synergy'),
+  deepHeadToHead: (s1, s2) => client.get('/stats/deep/head-to-head', { params: { s1, s2 } }),
 }
 
 export const dataAPI = {

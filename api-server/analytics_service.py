@@ -476,6 +476,51 @@ def get_species_detail(species_id: int) -> dict:
     }
 
 
+# ── Team Synergy ──────────────────────────────────────────────────
+
+def get_team_synergy():
+    sa = _get_sql()
+    if sa is not None:
+        try:
+            pairs = sa.get_team_synergy()
+            for p in pairs:
+                p["s1_name"] = _species_name(_int(p.get("s1")))
+                p["s2_name"] = _species_name(_int(p.get("s2")))
+            return pairs
+        except Exception: pass
+    return []
+
+def get_head_to_head(s1: int = 0, s2: int = 0):
+    sa = _get_sql()
+    if sa is not None and s1 > 0 and s2 > 0:
+        try:
+            rows = sa.get_head_to_head(s1, s2)
+            if rows and rows[0].get("total", 0) > 0:
+                r = rows[0]
+                r["s1_name"] = _species_name(s1)
+                r["s2_name"] = _species_name(s2)
+                r["s1_sprite"] = _species_sprite_url(s1)
+                r["s2_sprite"] = _species_sprite_url(s2)
+                r["s1_id"] = s1
+                r["s2_id"] = s2
+                # Type info from pokemon.db
+                try:
+                    import sqlite3
+                    poke = sqlite3.connect(str(DATA_DIR / "pokemon.db"))
+                    VALID_TYPES = {"Normal","Fire","Water","Electric","Grass","Ice","Fighting",
+                        "Poison","Ground","Flying","Psychic","Bug","Rock","Ghost","Dragon","Dark","Steel","Fairy"}
+                    for sid, key in [(s1, "s1_types"), (s2, "s2_types")]:
+                        t = poke.execute("SELECT type1, type2 FROM species WHERE id=?", (sid,)).fetchone()
+                        if t:
+                            t2 = f"/{t[1]}" if t[1] and t[1] in VALID_TYPES else ""
+                            r[key] = f"{t[0]}{t2}"
+                    poke.close()
+                except: pass
+                return r
+        except Exception: pass
+    return {"total": 0}
+
+
 def get_deep_stats_package() -> dict:
     """Get a full package of all deep stats (for WebSocket or single request)."""
     sa = _get_sql()
