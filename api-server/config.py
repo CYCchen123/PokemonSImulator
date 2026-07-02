@@ -1,18 +1,10 @@
 """
-PokemonSimulator API Server Configuration
+PokemonSimulator API Server Configuration (Person A)
 
-所有环境变量集中管理，支持 Docker 和物理机部署（Linux + Windows）。
-大数据组件（Kafka/HDFS/Spark/Redis）为可选，Windows 使用 standalone 模式。
+所有环境变量集中管理，支持 Docker 和物理机部署。
+大数据组件（Kafka/HDFS/Spark/Redis）地址指向外部物理机集群。
 """
 import os
-import sys
-import platform
-
-# ============================================================
-# Platform detection
-# ============================================================
-IS_WINDOWS = platform.system() == "Windows"
-IS_LINUX = platform.system() == "Linux"
 
 # ============================================================
 # Server
@@ -22,12 +14,7 @@ API_PORT = int(os.getenv("API_PORT", "8000"))
 DEBUG = os.getenv("DEBUG", "false").lower() in ("true", "1", "yes")
 
 # ============================================================
-# Mode: "standalone" (Windows/no-BigData) or "cluster" (Linux+Docker)
-# ============================================================
-SIMULATOR_MODE = os.getenv("SIMULATOR_MODE", "standalone" if IS_WINDOWS else "cluster")
-
-# ============================================================
-# Kafka (外部物理机集群) — 仅 cluster 模式使用
+# Kafka (外部物理机集群, Person C)
 # ============================================================
 KAFKA_BROKER = os.getenv("KAFKA_BROKER", "100.107.105.99:9092,<node2-ip>:9092,<node3-ip>:9092")
 
@@ -39,9 +26,9 @@ KAFKA_TOPIC_ANALYTICS = os.getenv("KAFKA_TOPIC_ANALYTICS", "battle.analytics")
 KAFKA_CONSUMER_GROUP = os.getenv("KAFKA_CONSUMER_GROUP", "api-server-group")
 
 # ============================================================
-# PostgreSQL (Docker 或本地)
+# PostgreSQL (Docker, Node3)
 # ============================================================
-POSTGRES_HOST = os.getenv("POSTGRES_HOST", "localhost" if IS_WINDOWS else "postgres")
+POSTGRES_HOST = os.getenv("POSTGRES_HOST", "postgres")
 POSTGRES_PORT = int(os.getenv("POSTGRES_PORT", "5432"))
 POSTGRES_USER = os.getenv("POSTGRES_USER", "pokemon")
 POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD", "pokemon123")
@@ -52,7 +39,7 @@ DATABASE_URL = os.getenv(
 )
 
 # ============================================================
-# HDFS (WebHDFS, 外部物理机集群) — 仅 cluster 模式使用
+# HDFS (WebHDFS, 外部物理机集群, Person B)
 # ============================================================
 HDFS_NAMENODE = os.getenv("HDFS_NAMENODE", "100.107.105.99")
 HDFS_PORT = int(os.getenv("HDFS_PORT", "9870"))
@@ -60,13 +47,13 @@ HDFS_USER = os.getenv("HDFS_USER", "root")
 HDFS_BASE_PATH = os.getenv("HDFS_BASE_PATH", "/user/pokemon")
 
 # ============================================================
-# Redis (外部物理机集群) — 仅 cluster 模式使用
+# Redis (外部物理机集群, Person C)
 # ============================================================
-REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
-REDIS_SENTINEL = os.getenv("REDIS_SENTINEL", "")
+REDIS_URL = os.getenv("REDIS_URL", "redis://100.107.105.99:6379/0")
+REDIS_SENTINEL = os.getenv("REDIS_SENTINEL", "")  # Sentinel 地址，可选
 
 # ============================================================
-# Spark Master (外部物理机集群) — 仅 cluster 模式使用
+# Spark Master (外部物理机集群, Person B)
 # ============================================================
 SPARK_MASTER_URL = os.getenv("SPARK_MASTER_URL", "spark://100.107.105.99:7077")
 SPARK_REST_URL = os.getenv("SPARK_REST_URL", "http://100.107.105.99:6066")
@@ -74,19 +61,6 @@ SPARK_REST_URL = os.getenv("SPARK_REST_URL", "http://100.107.105.99:6066")
 # ============================================================
 # C++ Battle Engine
 # ============================================================
-if IS_WINDOWS:
-    _default_engine = os.path.join(
-        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-        "build", "PokemonSimulator.exe"
-    )
-    _default_cache = os.path.join(os.environ.get("TEMP", "C:\\Windows\\Temp"), "pokemon-engine")
-else:
-    _default_engine = os.path.join(
-        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-        "build", "PokemonSimulator"
-    )
-    _default_cache = "/tmp/pokemon-engine"
-
-ENGINE_BINARY = os.getenv("ENGINE_BINARY", _default_engine)
-ENGINE_CACHE_DIR = os.getenv("ENGINE_CACHE_DIR", _default_cache)
+ENGINE_BINARY = os.getenv("ENGINE_BINARY", "./build/PokemonSimulator")
+ENGINE_CACHE_DIR = os.getenv("ENGINE_CACHE_DIR", "/tmp/pokemon-engine")
 ENGINE_TIMEOUT = int(os.getenv("ENGINE_TIMEOUT", "30"))  # seconds per turn

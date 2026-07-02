@@ -2,7 +2,7 @@
  * WebSocket client for PokemonSimulator.
  * Singleton connection with message routing via type-based callbacks.
  */
-const WS_URL = `ws://${location.hostname}:${location.port}/ws`
+const WS_URL = `ws://${location.hostname}:8000/ws`
 
 let ws = null
 let playerId = null
