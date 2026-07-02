@@ -11,10 +11,6 @@
     min-height: 100vh;
     color: #2d2d3a;
   }
-  body.battle-mode {
-    background: #0a0a0f;
-    color: #ccc;
-  }
 }
 
 /* === Scrollbar (light) === */

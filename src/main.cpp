@@ -329,6 +329,21 @@ int main(int argc, char** argv){
 
     if (argc >= 2) {
         const std::string arg = argv[1];
+        if (arg == "--prefetch-moves") {
+            const bool refresh = (argc >= 3 && std::string(argv[2]) == "--refresh");
+            const bool ok = prefetchMovesFromPokeAPI(refresh);
+            return ok ? 0 : 1;
+        }
+        if (arg == "--prefetch-abilities") {
+            const bool refresh = (argc >= 3 && std::string(argv[2]) == "--refresh");
+            const bool ok = prefetchAbilitiesFromPokeAPI(refresh);
+            return ok ? 0 : 1;
+        }
+        if (arg == "--prefetch-items") {
+            const bool refresh = (argc >= 3 && std::string(argv[2]) == "--refresh");
+            const bool ok = prefetchItemsFromPokeAPI(refresh);
+            return ok ? 0 : 1;
+        }
         if (arg == "--run-item-tests") {
             const ItemTestSummary summary = runAllItemTests(std::cout, std::cerr);
             if (!summary.failedItemNames.empty()) {
@@ -435,6 +450,9 @@ int main(int argc, char** argv){
 
     std::cout << "PokemonSimulator (server-only CLI)" << std::endl;
     std::cout << "Usage:" << std::endl;
+    std::cout << "  --prefetch-moves [--refresh]" << std::endl;
+    std::cout << "  --prefetch-abilities [--refresh]" << std::endl;
+    std::cout << "  --prefetch-items [--refresh]" << std::endl;
     std::cout << "  --run-item-tests" << std::endl;
     std::cout << "  --run-move-tests" << std::endl;
     std::cout << "  --run-turn-json <request.json>" << std::endl;

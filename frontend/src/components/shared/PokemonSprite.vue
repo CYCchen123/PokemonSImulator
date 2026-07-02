@@ -1,44 +1,39 @@
 <template>
   <div class="pokemon-sprite" :class="sizeClass">
-    <!-- GIF first (animated), fallback to sprite sheet on error -->
     <img
-      v-if="!gifFailed"
-      :src="gifUrl"
+      v-if="!imgError"
+      :src="spriteUrl"
       :alt="`#${speciesId}`"
-      class="pixelated"
-      @error="gifFailed = true"
+      :class="animated ? 'pixelated' : ''"
+      @error="onImgError"
       loading="lazy"
     />
-    <IconSprite v-else :species-id="speciesId" :size="spriteSheetSize" />
+    <!-- Fallback: show species ID -->
+    <div v-else class="sprite-fallback">
+      <span class="text-xs text-gray-500">#{{ speciesId }}</span>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { computed, ref, watch } from 'vue'
-import IconSprite from './IconSprite.vue'
+import { computed, ref } from 'vue'
+import { getAnimatedSprite, getIconSprite } from '../../utils/sprites'
 
 const props = defineProps({
   speciesId: { type: Number, required: true },
   animated: { type: Boolean, default: true },
-  size: { type: String, default: 'md' }, // sm, md, lg, xl
+  size: { type: String, default: 'md' }, // sm, md, lg
   back: { type: Boolean, default: false },
 })
 
-const gifFailed = ref(false)
+const imgError = ref(false)
 
-// Reset when species changes
-watch(() => props.speciesId, () => { gifFailed.value = false })
-
-const gifUrl = computed(() => `/sprites/${props.speciesId}.gif`)
-
-// Map PokemonSprite size to IconSprite size
-const spriteSheetSize = computed(() => {
-  switch (props.size) {
-    case 'sm': return 'sm'     // 32px
-    case 'lg': return 'lg'     // 96px
-    case 'xl': return 'xl'     // 128px
-    default: return 'md'       // 48px
+const spriteUrl = computed(() => {
+  if (props.size === 'sm' || props.size === 'icon') {
+    return getIconSprite(props.speciesId)
   }
+  // Use animated Showdown-style sprites from PokeAPI
+  return getAnimatedSprite(props.speciesId)
 })
 
 const sizeClass = computed(() => {
@@ -49,6 +44,10 @@ const sizeClass = computed(() => {
     default: return 'w-16 h-16'
   }
 })
+
+function onImgError() {
+  imgError.value = true
+}
 </script>
 
 <style scoped>
@@ -64,5 +63,14 @@ const sizeClass = computed(() => {
 }
 .pixelated {
   image-rendering: pixelated;
+}
+.sprite-fallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.05);
+  border-radius: 50%;
 }
 </style>

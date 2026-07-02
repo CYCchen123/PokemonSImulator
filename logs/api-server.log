@@ -1,0 +1,23 @@
+D:\poke_simulator\PokemonSImulator\api-server\standalone_server.py:704: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("startup")
+D:\poke_simulator\PokemonSImulator\api-server\standalone_server.py:713: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("shutdown")
+2026-07-02 08:56:16,851 [ws] INFO: Engine: D:\poke_simulator\PokemonSImulator\build\PokemonSimulator ¡ª MISSING
+2026-07-02 08:56:16,851 [ws] INFO: Data: 1025 species, 937 moves, 367 abilities
+2026-07-02 08:56:16,851 [ws] INFO: Starting WebSocket server on ws://0.0.0.0:8000/ws ...
+INFO:     Started server process [13016]
+INFO:     Waiting for application startup.
+2026-07-02 08:56:16,873 [ws] INFO: [live] Live watcher started
+2026-07-02 08:56:16,873 [ws] INFO: [live] File watcher started
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)

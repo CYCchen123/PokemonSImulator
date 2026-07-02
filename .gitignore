@@ -1,6 +1,10 @@
 .deepseek/
 deploy.tar.gz
-/build
-report.md
-Target.md
-
+venv/
+node_modules/
+__pycache__/
+*.db-wal
+*.db-shm
+logs/
+battle_logs/
+cache/

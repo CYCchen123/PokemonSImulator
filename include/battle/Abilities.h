@@ -945,6 +945,9 @@ AbilityData getAbilityData(AbilityType type);
 AbilityType getAbilityTypeById(int id);
 AbilityType getAbilityTypeByNameFromData(const std::string& name);
 
+// Prefetch referenced ability entries and persist to data/abilities.json.
+bool prefetchAbilitiesFromPokeAPI(bool refreshExisting = false);
+
 // Get all abilities for a Pokemon (in case multiple)
 std::vector<Ability> getAbilitiesForPokemon(AbilityType type);
 
