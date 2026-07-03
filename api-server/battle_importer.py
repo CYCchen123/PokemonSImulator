@@ -107,12 +107,44 @@ def _insert_rows(conn, rows):
     return inserted
 
 
+def _ensure_schema(conn):
+    """Create tables if they don't exist."""
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS battle_pokemon_states (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            battle_id TEXT NOT NULL,
+            turn INTEGER NOT NULL DEFAULT 0,
+            side_index INTEGER NOT NULL DEFAULT 0,
+            pokemon_index INTEGER NOT NULL DEFAULT 0,
+            species_id INTEGER NOT NULL DEFAULT 0,
+            hp INTEGER NOT NULL DEFAULT 0,
+            max_hp INTEGER NOT NULL DEFAULT 0,
+            hp_pct REAL NOT NULL DEFAULT 0.0,
+            fainted INTEGER NOT NULL DEFAULT 0,
+            ability_id INTEGER NOT NULL DEFAULT 0,
+            item_id INTEGER NOT NULL DEFAULT 0,
+            move_ids TEXT NOT NULL DEFAULT '[]',
+            slot INTEGER NOT NULL DEFAULT 0,
+            created_at TEXT NOT NULL DEFAULT (datetime('now'))
+        )
+    """)
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS _imported_files (
+            filepath TEXT PRIMARY KEY,
+            created_at TEXT NOT NULL DEFAULT (datetime('now'))
+        )
+    """)
+    conn.commit()
+
+
 def import_new_battles(db_path: str = None) -> int:
     """Scan for new output files and import into BOTH historical + recent DBs.
     Returns the number of new rows inserted into historical DB.
     """
     hist_conn = sqlite3.connect(str(DB_PATH))
     recent_conn = sqlite3.connect(str(RECENT_DB_PATH))
+    _ensure_schema(hist_conn)
+    _ensure_schema(recent_conn)
 
     # Purge old data from recent DB (older than 1 hour)
     recent_conn.execute(

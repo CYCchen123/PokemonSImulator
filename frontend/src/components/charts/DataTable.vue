@@ -298,7 +298,6 @@ async function _tickUpdate(target) {
 }
 
 watch(() => props.rows, (rows) => {
-  page.value = 1
   const target = [...rows]
   if (sortableCols.value.length > 0) {
     if (!sortBy.value) {
