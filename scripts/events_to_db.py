@@ -1,10 +1,15 @@
 #!/usr/bin/env python3
 """
-Convert frontend events (battle events) into battle_pokemon_states rows.
-Reads events JSONL, extracts species appearances, KOs, damage into output.db.
+Convert event_new.jsonl (Gen9 simulator events) into battle_pokemon_states rows.
 
-Usage:
-    python scripts/events_to_db.py events_2026-07-06.jsonl
+New event types:
+  battle_init     → full team (species, moves, item, ability)
+  turn_damage     → damage dealt
+  turn_faint      → KO tracking
+  turn_switch     → species appearances
+  turn_heal       → heal info
+  turn_ability    → ability trigger
+  battle_result   → battle outcome
 """
 import json, sqlite3, sys
 from pathlib import Path
@@ -12,7 +17,6 @@ from collections import defaultdict
 
 PROJECT = Path(__file__).resolve().parent.parent
 OUTPUT_DB = PROJECT / "data" / "output.db"
-POKEMON_DB = PROJECT / "data" / "pokemon.db"
 
 
 def ensure_schema(conn):
@@ -45,73 +49,130 @@ def ensure_schema(conn):
 
 
 def import_events(filepath: str) -> int:
-    """Parse events JSONL and insert battle_pokemon_states rows."""
     with open(filepath, "r", encoding="utf-8") as f:
         events = [json.loads(l) for l in f if l.strip()]
 
-    # Group events by battle_id
-    battles = defaultdict(lambda: {"species": set(), "faints": set(), "sides": {},
-                                    "appearances": {}, "player_id": "", "session_id": ""})
-    battle_events = [e for e in events if e["event"] in
-                     ("battle_start", "battle_end", "turn_action", "damage_dealt",
-                      "faint", "switch_in")]
+    # Track per-battle state
+    battles = {}  # battle_id → {teams, damage, faints, hp_tracker}
 
-    for e in battle_events:
+    for e in events:
         evt = e["event"]
         d = e.get("data", {})
-        bid = d.get("battle_id", e.get("session_id", "unknown"))
-        b = battles[bid]
-        b["player_id"] = e.get("player_id", "")
-        b["session_id"] = e.get("session_id", "")
 
-        if evt == "battle_start":
-            side_char = d.get("side", "a")
-            b["sides"][side_char] = {"team_size": d.get("team_size", 0)}
-            b["battle_id"] = bid
+        # ── battle_init: capture full team info ──
+        if evt == "battle_init":
+            bid = d.get("battle_id", "")
+            if not bid:
+                continue
+            side_a = d.get("side_a", [])
+            side_b = d.get("side_b", [])
+            battles[bid] = {
+                "teams": {"a": side_a, "b": side_b},
+                "hp": {"a": {}, "b": {}},        # slot → current hp_pct
+                "faints": set(),
+                "faint_side": {},
+            }
+            # Init HP tracker
+            for side_key, team in [("a", side_a), ("b", side_b)]:
+                for slot, mon in enumerate(team):
+                    # estimate max HP from species base
+                    sid = mon.get("speciesID", 0)
+                    hp_pct = 100.0
+                    battles[bid]["hp"][side_key][slot] = hp_pct
 
-        elif evt == "switch_in":
-            species_id = d.get("pokemon", 0)
-            side = d.get("side", "a")
-            turn = d.get("turn", 0)
-            if species_id:
-                key = f"{side}_{species_id}"
-                b["species"].add((side, species_id))
-                b["appearances"][key] = b["appearances"].get(key, 0) + 1
+        # ── turn_damage: track HP loss ──
+        elif evt == "turn_damage":
+            bid = d.get("battle_id", "")
+            if bid not in battles:
+                continue
+            target_side = d.get("target_side", "b")
+            species = d.get("target_species", 0)
+            damage = d.get("damage", 0)
+            # Find which slot this species is in
+            team = battles[bid]["teams"].get(target_side, [])
+            for slot, mon in enumerate(team):
+                if mon.get("speciesID") == species:
+                    hp = battles[bid]["hp"][target_side]
+                    prev = hp.get(slot, 100.0)
+                    # estimate HP% reduction (rough: ~150 total HP per mon)
+                    pct_loss = min(prev, damage / 150.0 * 100)
+                    hp[slot] = max(0.0, prev - pct_loss)
+                    if d.get("fainted"):
+                        battles[bid]["faints"].add((target_side, species))
+                        battles[bid]["faint_side"][(target_side, species)] = d.get("turn", 0)
+                        hp[slot] = 0.0
+                    break
 
-        elif evt == "faint":
-            species_id = d.get("pokemon", 0)
-            side = d.get("side", "b")  # target side
-            turn = d.get("turn", 0)
-            if species_id:
-                b["species"].add((side, species_id))
-                b["faints"].add((side, species_id))
+        # ── turn_faint: mark KO ──
+        elif evt == "turn_faint":
+            bid = d.get("battle_id", "")
+            side = d.get("side", "")
+            species = d.get("species", 0)
+            if bid in battles:
+                battles[bid]["faints"].add((side, species))
+                # Mark HP as 0
+                team = battles[bid]["teams"].get(side, [])
+                for slot, mon in enumerate(team):
+                    if mon.get("speciesID") == species:
+                        battles[bid]["hp"][side][slot] = 0.0
+                        break
 
-        elif evt == "damage_dealt":
-            side = d.get("target_side", "b")
-            # track that damage happened to estimate HP loss
-            pass
+        # ── turn_switch: track appearances ──
+        elif evt == "turn_switch":
+            bid = d.get("battle_id", "")
+            side = d.get("side", "")
+            species = d.get("species", 0)
+            if bid in battles:
+                team = battles[bid]["teams"].get(side, [])
+                for slot, mon in enumerate(team):
+                    if mon.get("speciesID") == species:
+                        battles[bid]["hp"][side][slot] = 100.0  # reset HP on switch in
+                        break
 
-    # Flatten battles into rows
+        # ── turn_heal: restore HP ──
+        elif evt == "turn_heal":
+            bid = d.get("battle_id", "")
+            side = d.get("target_side", "")
+            species = d.get("target_species", 0)
+            heal = d.get("heal", 0)
+            if bid in battles:
+                team = battles[bid]["teams"].get(side, [])
+                for slot, mon in enumerate(team):
+                    if mon.get("speciesID") == species:
+                        hp = battles[bid]["hp"][side]
+                        prev = hp.get(slot, 100.0)
+                        pct_heal = heal / 150.0 * 100
+                        hp[slot] = min(100.0, prev + pct_heal)
+                        break
+
+    # ── Flatten into battle_pokemon_states rows ──
     conn = sqlite3.connect(str(OUTPUT_DB))
     ensure_schema(conn)
-
     total = 0
+
     for bid, b in battles.items():
-        if b.get("battle_id"):
-            bid = b["battle_id"]
-        for (side, species_id) in b["species"]:
-            side_index = 0 if side == "a" else 1
-            fainted = 1 if (side, species_id) in b["faints"] else 0
-            hp_pct = 0.0 if fainted else 70.0  # default 70% for survivors
-            hp = int(hp_pct)
-            appearances = b["appearances"].get(f"{side}_{species_id}", 1)
-            for slot in range(appearances):
+        for side_key in ("a", "b"):
+            side_index = 0 if side_key == "a" else 1
+            team = b["teams"].get(side_key, [])
+            hp_tracker = b["hp"].get(side_key, {})
+            for slot, mon in enumerate(team):
+                species_id = mon.get("speciesID", 0)
+                if not species_id:
+                    continue
+                ability_id = mon.get("ability", 0)
+                item_id = mon.get("item", 0)
+                move_ids = json.dumps(mon.get("moves", []))
+                hp_pct = round(hp_tracker.get(slot, 100.0), 1)
+                hp_val = int(hp_pct)
+                fainted = 1 if (side_key, species_id) in b["faints"] else 0
+
                 cur = conn.execute("""
                     INSERT OR IGNORE INTO battle_pokemon_states
                         (battle_id, turn, side_index, pokemon_index, species_id,
                          hp, max_hp, hp_pct, fainted, ability_id, item_id, move_ids, slot)
-                    VALUES (?, 0, ?, ?, ?, ?, 100, ?, ?, 0, 0, '[]', ?)
-                """, (str(bid), side_index, slot, species_id, hp, hp_pct, fainted, slot))
+                    VALUES (?, 0, ?, ?, ?, ?, 100, ?, ?, ?, ?, ?, ?)
+                """, (str(bid), side_index, slot, species_id,
+                      hp_val, hp_pct, fainted, ability_id, item_id, move_ids, slot))
                 if cur.rowcount and cur.rowcount > 0:
                     total += 1
 
@@ -122,10 +183,10 @@ def import_events(filepath: str) -> int:
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print(f"Usage: python {__file__} <events.jsonl>")
+        print(f"Usage: python {__file__} <event_new.jsonl>")
         sys.exit(1)
 
     n = import_events(sys.argv[1])
     with open(sys.argv[1], "r", encoding="utf-8") as f:
         event_count = sum(1 for _ in f if _.strip())
-    print(f"Imported {n} rows from {event_count} events")
+    print(f"Imported {n} rows ({len([e for l in open(sys.argv[1],encoding='utf-8') if (e:=json.loads(l.strip())).get('event','')=='battle_init'])} battles) from {event_count} events")

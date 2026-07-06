@@ -24,31 +24,7 @@ from pyspark.sql.types import (
 from pyspark.sql import Row
 
 
-# ── Kafka event schema (frontend telemetry) ──
-FRONTEND_EVENT_SCHEMA = StructType([
-    StructField("event", StringType(), True),
-    StructField("session_id", StringType(), True),
-    StructField("player_id", StringType(), True),
-    StructField("timestamp", StringType(), True),
-    StructField("data", StructType([
-        StructField("player_id", StringType(), True),
-        StructField("page", StringType(), True),
-        StructField("team_name", StringType(), True),
-        StructField("pokemon_count", IntegerType(), True),
-        StructField("opponent_type", StringType(), True),
-        StructField("battle_id", StringType(), True),
-        StructField("side", StringType(), True),
-        StructField("team_size", IntegerType(), True),
-        StructField("result", StringType(), True),
-        StructField("turn", IntegerType(), True),
-        StructField("damage", IntegerType(), True),
-        StructField("fainted", BooleanType(), True),
-        StructField("move", StringType(), True),
-        StructField("target_side", StringType(), True),
-        StructField("pokemon", StringType(), True),
-        StructField("reason", StringType(), True),
-    ]), True),
-])
+# No strict schema — parse JSON string in writer
 
 
 def write_users(df_rows, db_path: str):
@@ -164,37 +140,107 @@ def write_battle_states(df_rows, db_path: str):
     return count
 
 
+def write_battle_init_teams(df_rows, db_path: str):
+    """Write battle_init events: extract full team (species, moves, items, abilities)."""
+    conn = sqlite3.connect(db_path)
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS battle_pokemon_states (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            battle_id TEXT NOT NULL, turn INTEGER DEFAULT 0,
+            side_index INTEGER DEFAULT 0, pokemon_index INTEGER DEFAULT 0,
+            species_id INTEGER DEFAULT 0, hp INTEGER DEFAULT 0, max_hp INTEGER DEFAULT 100,
+            hp_pct REAL DEFAULT 100.0, fainted INTEGER DEFAULT 0,
+            ability_id INTEGER DEFAULT 0, item_id INTEGER DEFAULT 0,
+            move_ids TEXT DEFAULT '[]', slot INTEGER DEFAULT 0,
+            created_at TEXT DEFAULT (datetime('now'))
+        )
+    """)
+    count = 0
+    for row in df_rows:
+        d = row.get("data", {})
+        bid = d.get("battle_id", "")
+        if not bid:
+            continue
+        for side_key in ("a", "b"):
+            side_index = 0 if side_key == "a" else 1
+            team = d.get(f"side_{side_key}", [])
+            for slot, mon in enumerate(team):
+                species_id = mon.get("speciesID", 0) if isinstance(mon, dict) else 0
+                if not species_id:
+                    continue
+                ability_id = mon.get("ability", 0) if isinstance(mon, dict) else 0
+                item_id = mon.get("item", 0) if isinstance(mon, dict) else 0
+                moves = json.dumps(mon.get("moves", [])) if isinstance(mon, dict) else "[]"
+                conn.execute(
+                    "INSERT OR IGNORE INTO battle_pokemon_states (battle_id, turn, side_index, pokemon_index, species_id, hp, max_hp, hp_pct, fainted, ability_id, item_id, move_ids, slot) VALUES (?,0,?,?,?,100,100,100.0,0,?,?,?,?)",
+                    (bid, side_index, slot, species_id, ability_id, item_id, moves, slot))
+                count += 1
+    conn.commit()
+    conn.close()
+    return count
+
+
+def write_battle_results(df_rows, db_path: str):
+    """Write battle_result events into battles table."""
+    conn = sqlite3.connect(db_path)
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS battles (
+            battle_id TEXT, side TEXT, player_id TEXT, session_id TEXT,
+            event_type TEXT, result TEXT, winner TEXT, turns INTEGER,
+            own_remaining INTEGER, opp_remaining INTEGER, timestamp TEXT
+        )
+    """)
+    count = 0
+    for row in df_rows:
+        d = row.get("data", {})
+        bid = d.get("battle_id", "")
+        if bid:
+            conn.execute(
+                "INSERT INTO battles VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+                (bid, d.get("side",""), row.get("player_id",""), row.get("session_id",""),
+                 "battle_result", d.get("result",""), d.get("winner",""),
+                 d.get("turns",0), d.get("own_remaining",0), d.get("opp_remaining",0),
+                 row.get("timestamp","")))
+            count += 1
+    conn.commit()
+    conn.close()
+    return count
+
+
 EVENT_WRITERS = {
     ("session_start", "users"):        write_users,
-    ("matchmaking_join", "users"):     write_users,
     ("team_save", "user_teams"):       write_user_teams,
-    ("battle_start", "battles"):       write_battle_events,
-    ("battle_end", "battles"):         write_battle_events,
-    ("faint", "battle_states"):        write_battle_states,
-    ("switch_in", "battle_states"):    write_battle_states,
+    ("battle_init", "battle_states"):  write_battle_init_teams,
+    ("battle_result", "battles"):      write_battle_results,
 }
 
 
+def _parse_rows(df):
+    """Convert Spark rows (json_str) to Python dicts."""
+    import json
+    result = []
+    for r in df.collect():
+        try:
+            result.append(json.loads(r.json_str))
+        except:
+            pass
+    return result
+
+
 def process_batch(df, epoch_id, pokemon_db: str, output_db: str):
-    """Process one microbatch: categorize events and write to appropriate DB."""
-    rows = [r.asDict() for r in df.collect()]
+    """Process one microbatch."""
+    rows = _parse_rows(df)
     if not rows:
         return
-
     print(f"\n=== Batch {epoch_id}: {len(rows)} events ===")
-
-    # Route each event type to the right writer
     for (event_type, target), writer in EVENT_WRITERS.items():
         subset = [r for r in rows if r.get("event") == event_type]
         if subset:
             db = pokemon_db if target in ("users", "user_teams") else output_db
             n = writer(subset, db)
             print(f"  {event_type} → {target}: {n} rows")
-
-    # Log event type distribution
     from collections import Counter
-    dist = Counter(r.get("event", "?") for r in rows)
-    print(f"  Distribution: {dict(dist)}")
+    print(f"  Distribution: {dict(Counter(r.get('event','?') for r in rows))}")
 
 
 def main():
@@ -211,36 +257,22 @@ def main():
         .config("spark.sql.adaptive.enabled", "true") \
         .getOrCreate()
 
+    kafka_opts = {"kafka.bootstrap.servers": args.broker, "subscribe": args.topic}
     if args.batch:
-        # Batch mode: read all from beginning
-        df = spark.read \
-            .format("kafka") \
-            .option("kafka.bootstrap.servers", args.broker) \
-            .option("subscribe", args.topic) \
-            .option("startingOffsets", "earliest") \
-            .option("endingOffsets", "latest") \
-            .load() \
-            .selectExpr("CAST(value AS STRING) as json_str") \
-            .select(from_json("json_str", FRONTEND_EVENT_SCHEMA).alias("e")) \
-            .select("e.*")
+        df = spark.read.format("kafka").options(**kafka_opts) \
+            .option("startingOffsets", "earliest").option("endingOffsets", "latest") \
+            .load().selectExpr("CAST(value AS STRING) as json_str")
     else:
-        # Streaming mode
-        df = spark.readStream \
-            .format("kafka") \
-            .option("kafka.bootstrap.servers", args.broker) \
-            .option("subscribe", args.topic) \
-            .option("startingOffsets", "latest") \
-            .load() \
-            .selectExpr("CAST(value AS STRING) as json_str") \
-            .select(from_json("json_str", FRONTEND_EVENT_SCHEMA).alias("e")) \
-            .select("e.*")
+        df = spark.readStream.format("kafka").options(**kafka_opts) \
+            .option("startingOffsets", "latest").load() \
+            .selectExpr("CAST(value AS STRING) as json_str")
 
     print(f"Broker: {args.broker}, Topic: {args.topic}")
     print(f"Pokemon DB: {args.pokemon_db}, Output DB: {args.output_db}")
     print(f"Mode: {'batch' if args.batch else 'streaming'}")
 
     if args.batch:
-        rows = [r.asDict() for r in df.collect()]
+        rows = _parse_rows(df)
         print(f"Fetched {len(rows)} events")
         for (event_type, target), writer in EVENT_WRITERS.items():
             subset = [r for r in rows if r.get("event") == event_type]
@@ -249,8 +281,7 @@ def main():
                 n = writer(subset, db)
                 print(f"  {event_type} → {target}: {n} rows")
         from collections import Counter
-        dist = Counter(r.get("event", "?") for r in rows)
-        print(f"Distribution: {dict(dist)}")
+        print(f"Distribution: {dict(Counter(r.get('event','?') for r in rows))}")
         print("Done.")
     else:
         streaming_query = df.writeStream \

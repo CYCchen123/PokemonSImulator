@@ -60,6 +60,18 @@
                   {{ liveConnected ? '📡 实时' : '📡 实时' }}
                 </span>
               </div>
+              <!-- Data gen toggle -->
+              <div class="flex items-center gap-1.5">
+                <button @click="toggleGen"
+                  class="relative w-10 h-5 rounded-full transition-colors duration-200"
+                  :class="genRunning ? 'bg-emerald-400' : 'bg-white/20'">
+                  <span class="absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-all duration-200"
+                    :class="genRunning ? 'left-5' : 'left-0.5'" />
+                </button>
+                <span class="text-xs" :class="genRunning ? 'text-emerald-300' : 'text-blue-200/50'">
+                  {{ genRunning ? '⚡ 产数中' : '⚡ 产数' }}
+                </span>
+              </div>
               <button @click="doRefresh" :disabled="refreshing"
                 class="px-6 py-3 rounded-full font-bold text-sm transition-all duration-300 flex items-center gap-2"
                 :class="refreshing
@@ -133,11 +145,7 @@
     <!-- Tab: Battle Data -->
     <div v-if="activeTab === 'battle'" class="space-y-6">
       <HeadToHeadChart :loading="loading" />
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <TeamSynergyChart :loading="loading" />
-        <DataTable title="💀 宝可梦生存率" :columns="survivalCols" :rows="survivalRows" :loading="loading"
-          search-placeholder="搜索..." id-key="species_id" defaultSort="total_appearances" />
-      </div>
+      <TeamSynergyChart :loading="loading" />
     </div>
 
     <!-- Tab: Types -->
@@ -193,6 +201,7 @@ const autoRefresh = ref(false)
 const countdown = ref(300)
 const liveMode = ref(true)  // default on for real-time monitoring
 const liveConnected = ref(false)
+const genRunning = ref(false)
 let _unsubStats = null
 
 let _timer = null
@@ -254,7 +263,6 @@ const moveRows = ref([])
 const itemRows = ref([])
 const abilityRows = ref([])
 const typeRows = ref([])
-const survivalRows = ref([])
 const top10Rows = computed(() => speciesRows.value.slice(0, 10))
 const summaryData = ref({})
 const _battleRows = ref([])
@@ -283,8 +291,6 @@ const quickCards = computed(() => [
 const speciesCols = [
   { key: 'species_name', label: '精灵', sortable: true, image: 'sprite_url' },
   { key: 'appearances', label: '出场', sortable: true, spark: true, class: 'text-right' },
-  { key: 'avg_hp_pct', label: '平均HP%', sortable: true, class: 'text-right', format: v => `${v}%` },
-  { key: 'ko_rate', label: 'KO率', sortable: true, class: 'text-right', format: v => `${v}%` },
 ]
 const moveCols = [
   { key: 'move_name', label: '招式', sortable: true },
@@ -301,12 +307,6 @@ const abilityCols = [
 const typeCols = [
   { key: 'type_name', label: '属性', sortable: true },
   { key: 'appearances', label: '出现次数', sortable: true, spark: true, class: 'text-right' },
-]
-const survivalCols = [
-  { key: 'species_name', label: '精灵', sortable: true },
-  { key: 'total_appearances', label: '出场', sortable: true, class: 'text-right' },
-  { key: 'total_kos', label: '被KO', sortable: true, class: 'text-right' },
-  { key: 'ko_rate', label: 'KO率', sortable: true, class: 'text-right', format: v => `${v}%` },
 ]
 
 function onBattleChange() {
@@ -353,8 +353,8 @@ async function loadAllData() {
     moveRows.value = moves.data || moves || []
     itemRows.value = items.data || items || []
     abilityRows.value = abilities.data || abilities || []
+    console.log('loadAllData done:', {species: speciesRows.value.length, moves: moveRows.value.length, items: itemRows.value.length, abilities: abilityRows.value.length})
     typeRows.value = types.data || types || []
-    survivalRows.value = survival.data || survival || []
     _battleRows.value = battle.data || battle || []
     _eventRows.value = events.data || events || []
   } catch (e) {
@@ -386,7 +386,6 @@ async function loadStreaming() {
     itemRows.value = d.item_usage || []
     abilityRows.value = d.ability_usage || []
     typeRows.value = d.type_distribution || []
-    survivalRows.value = d.survival || []
     _battleRows.value = d.hp_curve || []
     _eventRows.value = d.event_distribution || []
   } catch (e) { console.error('Stream update failed:', e) }
@@ -413,9 +412,27 @@ async function doRefresh() {
   setTimeout(() => { showToast.value = false }, 3000)
 }
 
+async function toggleGen() {
+  const api = genRunning.value ? '/api/v1/cluster/gen/stop' : '/api/v1/cluster/gen/start'
+  try {
+    const resp = await fetch(api, { method: 'POST' })
+    const d = await resp.json()
+    if (d.ok) genRunning.value = !genRunning.value
+  } catch { /* cluster only */ }
+}
+
+async function checkGenStatus() {
+  try {
+    const resp = await fetch('/api/v1/cluster/gen/status')
+    const d = await resp.json()
+    genRunning.value = d.running
+  } catch {}
+}
+
 onMounted(async () => {
   await loadAllData()
   if (liveMode.value) startLiveMode()
+  checkGenStatus()
 })
 </script>
 

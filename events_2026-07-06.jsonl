@@ -1,0 +1,256 @@
+{"event":"session_start","data":{"player_id":"Ash"},"session_id":"m08s","player_id":"Ash","timestamp":"2026-07-05T17:40:36.416Z"}
+{"event":"session_start","data":{"player_id":"Serena"},"session_id":"cjph","player_id":"Serena","timestamp":"2026-07-05T19:40:36.416Z"}
+{"event":"session_start","data":{"player_id":"Leon"},"session_id":"7qpm","player_id":"Leon","timestamp":"2026-07-05T21:40:36.416Z"}
+{"event":"session_start","data":{"player_id":"Cynthia"},"session_id":"l029","player_id":"Cynthia","timestamp":"2026-07-05T23:40:36.416Z"}
+{"event":"page_view","data":{"page":"/"},"session_id":"m08s","player_id":"Ash","timestamp":"2026-07-05T21:40:36.416Z"}
+{"event":"page_view","data":{"page":"/matchmaking"},"session_id":"m08s","player_id":"Ash","timestamp":"2026-07-05T21:40:36.416Z"}
+{"event":"page_view","data":{"page":"/teams"},"session_id":"m08s","player_id":"Ash","timestamp":"2026-07-05T21:40:36.416Z"}
+{"event":"page_view","data":{"page":"/stats"},"session_id":"m08s","player_id":"Ash","timestamp":"2026-07-05T21:40:36.416Z"}
+{"event":"page_view","data":{"page":"/history"},"session_id":"m08s","player_id":"Ash","timestamp":"2026-07-05T21:40:36.416Z"}
+{"event":"page_view","data":{"page":"/data"},"session_id":"m08s","player_id":"Ash","timestamp":"2026-07-05T21:40:36.416Z"}
+{"event":"page_view","data":{"page":"/"},"session_id":"cjph","player_id":"Serena","timestamp":"2026-07-05T22:40:36.416Z"}
+{"event":"page_view","data":{"page":"/matchmaking"},"session_id":"cjph","player_id":"Serena","timestamp":"2026-07-05T22:40:36.416Z"}
+{"event":"page_view","data":{"page":"/teams"},"session_id":"cjph","player_id":"Serena","timestamp":"2026-07-05T22:40:36.416Z"}
+{"event":"page_view","data":{"page":"/stats"},"session_id":"cjph","player_id":"Serena","timestamp":"2026-07-05T22:40:36.416Z"}
+{"event":"page_view","data":{"page":"/history"},"session_id":"cjph","player_id":"Serena","timestamp":"2026-07-05T22:40:36.416Z"}
+{"event":"page_view","data":{"page":"/data"},"session_id":"cjph","player_id":"Serena","timestamp":"2026-07-05T22:40:36.416Z"}
+{"event":"page_view","data":{"page":"/"},"session_id":"7qpm","player_id":"Leon","timestamp":"2026-07-05T23:40:36.416Z"}
+{"event":"page_view","data":{"page":"/matchmaking"},"session_id":"7qpm","player_id":"Leon","timestamp":"2026-07-05T23:40:36.416Z"}
+{"event":"page_view","data":{"page":"/teams"},"session_id":"7qpm","player_id":"Leon","timestamp":"2026-07-05T23:40:36.416Z"}
+{"event":"page_view","data":{"page":"/stats"},"session_id":"7qpm","player_id":"Leon","timestamp":"2026-07-05T23:40:36.416Z"}
+{"event":"page_view","data":{"page":"/history"},"session_id":"7qpm","player_id":"Leon","timestamp":"2026-07-05T23:40:36.416Z"}
+{"event":"page_view","data":{"page":"/data"},"session_id":"7qpm","player_id":"Leon","timestamp":"2026-07-05T23:40:36.416Z"}
+{"event":"page_view","data":{"page":"/"},"session_id":"l029","player_id":"Cynthia","timestamp":"2026-07-06T00:40:36.416Z"}
+{"event":"page_view","data":{"page":"/matchmaking"},"session_id":"l029","player_id":"Cynthia","timestamp":"2026-07-06T00:40:36.416Z"}
+{"event":"page_view","data":{"page":"/teams"},"session_id":"l029","player_id":"Cynthia","timestamp":"2026-07-06T00:40:36.416Z"}
+{"event":"page_view","data":{"page":"/stats"},"session_id":"l029","player_id":"Cynthia","timestamp":"2026-07-06T00:40:36.416Z"}
+{"event":"page_view","data":{"page":"/history"},"session_id":"l029","player_id":"Cynthia","timestamp":"2026-07-06T00:40:36.416Z"}
+{"event":"page_view","data":{"page":"/data"},"session_id":"l029","player_id":"Cynthia","timestamp":"2026-07-06T00:40:36.416Z"}
+{"event":"team_save","data":{"team_name":"龙队","pokemon_count":5},"session_id":"l029","player_id":"Leon","timestamp":"2026-07-05T10:45:43.965Z"}
+{"event":"team_save","data":{"team_name":"强化队","pokemon_count":3},"session_id":"l029","player_id":"Ash","timestamp":"2026-07-05T16:28:27.613Z"}
+{"event":"team_save","data":{"team_name":"顺风队","pokemon_count":6},"session_id":"l029","player_id":"Serena","timestamp":"2026-07-05T14:43:13.360Z"}
+{"event":"team_save","data":{"team_name":"平衡队","pokemon_count":5},"session_id":"l029","player_id":"Leon","timestamp":"2026-07-05T23:07:27.807Z"}
+{"event":"team_save","data":{"team_name":"沙暴队","pokemon_count":6},"session_id":"m08s","player_id":"Ash","timestamp":"2026-07-05T02:43:10.209Z"}
+{"event":"team_save","data":{"team_name":"沙暴队","pokemon_count":3},"session_id":"cjph","player_id":"Serena","timestamp":"2026-07-05T22:11:41.443Z"}
+{"event":"team_save","data":{"team_name":"龙队","pokemon_count":3},"session_id":"l029","player_id":"Ash","timestamp":"2026-07-05T02:32:21.706Z"}
+{"event":"team_save","data":{"team_name":"晴天队","pokemon_count":3},"session_id":"cjph","player_id":"Leon","timestamp":"2026-07-05T12:58:41.383Z"}
+{"event":"matchmaking_join","data":{"opponent_type":"human"},"session_id":"cjph","player_id":"Ash","timestamp":"2026-07-06T01:35:08.882Z"}
+{"event":"matchmaking_join","data":{"opponent_type":"human"},"session_id":"m08s","player_id":"Serena","timestamp":"2026-07-05T16:42:26.210Z"}
+{"event":"matchmaking_join","data":{"opponent_type":"human"},"session_id":"7qpm","player_id":"Ash","timestamp":"2026-07-05T18:17:05.179Z"}
+{"event":"matchmaking_join","data":{"opponent_type":"human"},"session_id":"l029","player_id":"Ash","timestamp":"2026-07-05T05:56:28.863Z"}
+{"event":"matchmaking_join","data":{"opponent_type":"bot"},"session_id":"l029","player_id":"Leon","timestamp":"2026-07-05T08:17:31.138Z"}
+{"event":"matchmaking_join","data":{"opponent_type":"human"},"session_id":"cjph","player_id":"Ash","timestamp":"2026-07-05T10:43:44.510Z"}
+{"event":"battle_start","data":{"battle_id":"battle_d142","side":"a","opponent_type":"bot","team_size":3},"session_id":"m08s","player_id":"Serena","timestamp":"2026-07-05T13:53:20.751Z"}
+{"event":"turn_action","data":{"battle_id":"battle_d142","turn":1,"action":{"type":"attack","move_index":0}},"session_id":"m08s","player_id":"Serena","timestamp":"2026-07-05T13:54:20.751Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_d142","turn":1,"target_side":"b","move":"Thunderbolt","damage":59,"fainted":false},"session_id":"m08s","player_id":"Serena","timestamp":"2026-07-05T13:54:22.751Z"}
+{"event":"faint","data":{"battle_id":"battle_d142","turn":1,"pokemon":778,"side":"b"},"session_id":"m08s","player_id":"Serena","timestamp":"2026-07-05T13:54:23.751Z"}
+{"event":"turn_action","data":{"battle_id":"battle_d142","turn":2,"action":{"type":"attack","move_index":3}},"session_id":"m08s","player_id":"Serena","timestamp":"2026-07-05T13:55:20.751Z"}
+{"event":"switch_in","data":{"battle_id":"battle_d142","turn":2,"pokemon":248,"side":"a","reason":"manual"},"session_id":"m08s","player_id":"Serena","timestamp":"2026-07-05T13:55:21.751Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_d142","turn":2,"target_side":"b","move":"Shadow Ball","damage":52,"fainted":true},"session_id":"m08s","player_id":"Serena","timestamp":"2026-07-05T13:55:22.751Z"}
+{"event":"turn_action","data":{"battle_id":"battle_d142","turn":3,"action":{"type":"attack","move_index":3}},"session_id":"m08s","player_id":"Serena","timestamp":"2026-07-05T13:56:20.751Z"}
+{"event":"switch_in","data":{"battle_id":"battle_d142","turn":3,"pokemon":3,"side":"a","reason":"manual"},"session_id":"m08s","player_id":"Serena","timestamp":"2026-07-05T13:56:21.751Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_d142","turn":3,"target_side":"b","move":"Stealth Rock","damage":39,"fainted":true},"session_id":"m08s","player_id":"Serena","timestamp":"2026-07-05T13:56:22.751Z"}
+{"event":"turn_action","data":{"battle_id":"battle_d142","turn":4,"action":{"type":"attack","move_index":1}},"session_id":"m08s","player_id":"Serena","timestamp":"2026-07-05T13:57:20.751Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_d142","turn":4,"target_side":"b","move":"Moonblast","damage":82,"fainted":false},"session_id":"m08s","player_id":"Serena","timestamp":"2026-07-05T13:57:22.751Z"}
+{"event":"faint","data":{"battle_id":"battle_d142","turn":4,"pokemon":778,"side":"b"},"session_id":"m08s","player_id":"Serena","timestamp":"2026-07-05T13:57:23.751Z"}
+{"event":"turn_action","data":{"battle_id":"battle_d142","turn":5,"action":{"type":"attack","move_index":1}},"session_id":"m08s","player_id":"Serena","timestamp":"2026-07-05T13:58:20.751Z"}
+{"event":"switch_in","data":{"battle_id":"battle_d142","turn":5,"pokemon":730,"side":"a","reason":"faint_replace"},"session_id":"m08s","player_id":"Serena","timestamp":"2026-07-05T13:58:21.751Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_d142","turn":5,"target_side":"b","move":"U-turn","damage":41,"fainted":false},"session_id":"m08s","player_id":"Serena","timestamp":"2026-07-05T13:58:22.751Z"}
+{"event":"battle_end","data":{"battle_id":"battle_d142","side":"a","result":"completed"},"session_id":"m08s","player_id":"Serena","timestamp":"2026-07-05T13:58:25.751Z"}
+{"event":"battle_start","data":{"battle_id":"battle_gzkl","side":"b","opponent_type":"human","team_size":4},"session_id":"7qpm","player_id":"Serena","timestamp":"2026-07-05T12:31:12.335Z"}
+{"event":"turn_action","data":{"battle_id":"battle_gzkl","turn":1,"action":{"type":"attack","move_index":3}},"session_id":"7qpm","player_id":"Serena","timestamp":"2026-07-05T12:32:12.335Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_gzkl","turn":1,"target_side":"a","move":"Close Combat","damage":28,"fainted":false},"session_id":"7qpm","player_id":"Serena","timestamp":"2026-07-05T12:32:14.335Z"}
+{"event":"turn_action","data":{"battle_id":"battle_gzkl","turn":2,"action":{"type":"attack","move_index":0}},"session_id":"7qpm","player_id":"Serena","timestamp":"2026-07-05T12:33:12.335Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_gzkl","turn":2,"target_side":"a","move":"Close Combat","damage":12,"fainted":false},"session_id":"7qpm","player_id":"Serena","timestamp":"2026-07-05T12:33:14.335Z"}
+{"event":"turn_action","data":{"battle_id":"battle_gzkl","turn":3,"action":{"type":"attack","move_index":2}},"session_id":"7qpm","player_id":"Serena","timestamp":"2026-07-05T12:34:12.335Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_gzkl","turn":3,"target_side":"a","move":"Dragon Darts","damage":37,"fainted":true},"session_id":"7qpm","player_id":"Serena","timestamp":"2026-07-05T12:34:14.335Z"}
+{"event":"faint","data":{"battle_id":"battle_gzkl","turn":3,"pokemon":658,"side":"a"},"session_id":"7qpm","player_id":"Serena","timestamp":"2026-07-05T12:34:15.335Z"}
+{"event":"turn_action","data":{"battle_id":"battle_gzkl","turn":4,"action":{"type":"attack","move_index":2}},"session_id":"7qpm","player_id":"Serena","timestamp":"2026-07-05T12:35:12.335Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_gzkl","turn":4,"target_side":"a","move":"Dragon Darts","damage":133,"fainted":false},"session_id":"7qpm","player_id":"Serena","timestamp":"2026-07-05T12:35:14.335Z"}
+{"event":"turn_action","data":{"battle_id":"battle_gzkl","turn":5,"action":{"type":"attack","move_index":0}},"session_id":"7qpm","player_id":"Serena","timestamp":"2026-07-05T12:36:12.335Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_gzkl","turn":5,"target_side":"a","move":"Phantom Force","damage":80,"fainted":false},"session_id":"7qpm","player_id":"Serena","timestamp":"2026-07-05T12:36:14.335Z"}
+{"event":"faint","data":{"battle_id":"battle_gzkl","turn":5,"pokemon":248,"side":"a"},"session_id":"7qpm","player_id":"Serena","timestamp":"2026-07-05T12:36:15.335Z"}
+{"event":"turn_action","data":{"battle_id":"battle_gzkl","turn":6,"action":{"type":"attack","move_index":2}},"session_id":"7qpm","player_id":"Serena","timestamp":"2026-07-05T12:37:12.335Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_gzkl","turn":6,"target_side":"a","move":"Thunderbolt","damage":110,"fainted":true},"session_id":"7qpm","player_id":"Serena","timestamp":"2026-07-05T12:37:14.335Z"}
+{"event":"faint","data":{"battle_id":"battle_gzkl","turn":6,"pokemon":149,"side":"a"},"session_id":"7qpm","player_id":"Serena","timestamp":"2026-07-05T12:37:15.335Z"}
+{"event":"turn_action","data":{"battle_id":"battle_gzkl","turn":7,"action":{"type":"attack","move_index":1}},"session_id":"7qpm","player_id":"Serena","timestamp":"2026-07-05T12:38:12.335Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_gzkl","turn":7,"target_side":"a","move":"Thunderbolt","damage":57,"fainted":false},"session_id":"7qpm","player_id":"Serena","timestamp":"2026-07-05T12:38:14.335Z"}
+{"event":"faint","data":{"battle_id":"battle_gzkl","turn":7,"pokemon":248,"side":"a"},"session_id":"7qpm","player_id":"Serena","timestamp":"2026-07-05T12:38:15.335Z"}
+{"event":"turn_action","data":{"battle_id":"battle_gzkl","turn":8,"action":{"type":"attack","move_index":3}},"session_id":"7qpm","player_id":"Serena","timestamp":"2026-07-05T12:39:12.335Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_gzkl","turn":8,"target_side":"a","move":"Thunderbolt","damage":14,"fainted":false},"session_id":"7qpm","player_id":"Serena","timestamp":"2026-07-05T12:39:14.335Z"}
+{"event":"turn_action","data":{"battle_id":"battle_gzkl","turn":9,"action":{"type":"attack","move_index":1}},"session_id":"7qpm","player_id":"Serena","timestamp":"2026-07-05T12:40:12.335Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_gzkl","turn":9,"target_side":"a","move":"Earthquake","damage":18,"fainted":false},"session_id":"7qpm","player_id":"Serena","timestamp":"2026-07-05T12:40:14.335Z"}
+{"event":"turn_action","data":{"battle_id":"battle_gzkl","turn":10,"action":{"type":"attack","move_index":1}},"session_id":"7qpm","player_id":"Serena","timestamp":"2026-07-05T12:41:12.335Z"}
+{"event":"switch_in","data":{"battle_id":"battle_gzkl","turn":10,"pokemon":448,"side":"b","reason":"faint_replace"},"session_id":"7qpm","player_id":"Serena","timestamp":"2026-07-05T12:41:13.335Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_gzkl","turn":10,"target_side":"a","move":"Swords Dance","damage":142,"fainted":false},"session_id":"7qpm","player_id":"Serena","timestamp":"2026-07-05T12:41:14.335Z"}
+{"event":"turn_action","data":{"battle_id":"battle_gzkl","turn":11,"action":{"type":"attack","move_index":3}},"session_id":"7qpm","player_id":"Serena","timestamp":"2026-07-05T12:42:12.335Z"}
+{"event":"switch_in","data":{"battle_id":"battle_gzkl","turn":11,"pokemon":448,"side":"b","reason":"manual"},"session_id":"7qpm","player_id":"Serena","timestamp":"2026-07-05T12:42:13.335Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_gzkl","turn":11,"target_side":"a","move":"Stealth Rock","damage":61,"fainted":false},"session_id":"7qpm","player_id":"Serena","timestamp":"2026-07-05T12:42:14.335Z"}
+{"event":"turn_action","data":{"battle_id":"battle_gzkl","turn":12,"action":{"type":"attack","move_index":1}},"session_id":"7qpm","player_id":"Serena","timestamp":"2026-07-05T12:43:12.335Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_gzkl","turn":12,"target_side":"a","move":"Phantom Force","damage":13,"fainted":false},"session_id":"7qpm","player_id":"Serena","timestamp":"2026-07-05T12:43:14.335Z"}
+{"event":"faint","data":{"battle_id":"battle_gzkl","turn":12,"pokemon":445,"side":"a"},"session_id":"7qpm","player_id":"Serena","timestamp":"2026-07-05T12:43:15.335Z"}
+{"event":"turn_action","data":{"battle_id":"battle_gzkl","turn":13,"action":{"type":"attack","move_index":3}},"session_id":"7qpm","player_id":"Serena","timestamp":"2026-07-05T12:44:12.335Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_gzkl","turn":13,"target_side":"a","move":"U-turn","damage":40,"fainted":false},"session_id":"7qpm","player_id":"Serena","timestamp":"2026-07-05T12:44:14.335Z"}
+{"event":"faint","data":{"battle_id":"battle_gzkl","turn":13,"pokemon":3,"side":"a"},"session_id":"7qpm","player_id":"Serena","timestamp":"2026-07-05T12:44:15.335Z"}
+{"event":"turn_action","data":{"battle_id":"battle_gzkl","turn":14,"action":{"type":"attack","move_index":3}},"session_id":"7qpm","player_id":"Serena","timestamp":"2026-07-05T12:45:12.335Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_gzkl","turn":14,"target_side":"a","move":"Iron Head","damage":132,"fainted":false},"session_id":"7qpm","player_id":"Serena","timestamp":"2026-07-05T12:45:14.335Z"}
+{"event":"battle_end","data":{"battle_id":"battle_gzkl","side":"b","result":"abandoned"},"session_id":"7qpm","player_id":"Serena","timestamp":"2026-07-05T12:45:17.335Z"}
+{"event":"battle_start","data":{"battle_id":"battle_3nrq","side":"b","opponent_type":"bot","team_size":5},"session_id":"l029","player_id":"Cynthia","timestamp":"2026-07-06T00:49:46.453Z"}
+{"event":"turn_action","data":{"battle_id":"battle_3nrq","turn":1,"action":{"type":"attack","move_index":1}},"session_id":"l029","player_id":"Cynthia","timestamp":"2026-07-06T00:50:46.453Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_3nrq","turn":1,"target_side":"a","move":"Stealth Rock","damage":77,"fainted":false},"session_id":"l029","player_id":"Cynthia","timestamp":"2026-07-06T00:50:48.453Z"}
+{"event":"faint","data":{"battle_id":"battle_3nrq","turn":1,"pokemon":778,"side":"a"},"session_id":"l029","player_id":"Cynthia","timestamp":"2026-07-06T00:50:49.453Z"}
+{"event":"turn_action","data":{"battle_id":"battle_3nrq","turn":2,"action":{"type":"attack","move_index":2}},"session_id":"l029","player_id":"Cynthia","timestamp":"2026-07-06T00:51:46.453Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_3nrq","turn":2,"target_side":"a","move":"Thunderbolt","damage":18,"fainted":false},"session_id":"l029","player_id":"Cynthia","timestamp":"2026-07-06T00:51:48.453Z"}
+{"event":"faint","data":{"battle_id":"battle_3nrq","turn":2,"pokemon":983,"side":"a"},"session_id":"l029","player_id":"Cynthia","timestamp":"2026-07-06T00:51:49.453Z"}
+{"event":"turn_action","data":{"battle_id":"battle_3nrq","turn":3,"action":{"type":"attack","move_index":3}},"session_id":"l029","player_id":"Cynthia","timestamp":"2026-07-06T00:52:46.453Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_3nrq","turn":3,"target_side":"a","move":"Earthquake","damage":90,"fainted":true},"session_id":"l029","player_id":"Cynthia","timestamp":"2026-07-06T00:52:48.453Z"}
+{"event":"turn_action","data":{"battle_id":"battle_3nrq","turn":4,"action":{"type":"attack","move_index":1}},"session_id":"l029","player_id":"Cynthia","timestamp":"2026-07-06T00:53:46.453Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_3nrq","turn":4,"target_side":"a","move":"Moonblast","damage":101,"fainted":false},"session_id":"l029","player_id":"Cynthia","timestamp":"2026-07-06T00:53:48.453Z"}
+{"event":"turn_action","data":{"battle_id":"battle_3nrq","turn":5,"action":{"type":"attack","move_index":0}},"session_id":"l029","player_id":"Cynthia","timestamp":"2026-07-06T00:54:46.453Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_3nrq","turn":5,"target_side":"a","move":"Protect","damage":149,"fainted":false},"session_id":"l029","player_id":"Cynthia","timestamp":"2026-07-06T00:54:48.453Z"}
+{"event":"turn_action","data":{"battle_id":"battle_3nrq","turn":6,"action":{"type":"attack","move_index":0}},"session_id":"l029","player_id":"Cynthia","timestamp":"2026-07-06T00:55:46.453Z"}
+{"event":"switch_in","data":{"battle_id":"battle_3nrq","turn":6,"pokemon":248,"side":"b","reason":"manual"},"session_id":"l029","player_id":"Cynthia","timestamp":"2026-07-06T00:55:47.453Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_3nrq","turn":6,"target_side":"a","move":"Swords Dance","damage":152,"fainted":false},"session_id":"l029","player_id":"Cynthia","timestamp":"2026-07-06T00:55:48.453Z"}
+{"event":"battle_end","data":{"battle_id":"battle_3nrq","side":"b","result":"completed"},"session_id":"l029","player_id":"Cynthia","timestamp":"2026-07-06T00:55:51.453Z"}
+{"event":"battle_start","data":{"battle_id":"battle_vfpd","side":"b","opponent_type":"bot","team_size":5},"session_id":"l029","player_id":"Cynthia","timestamp":"2026-07-05T16:25:45.412Z"}
+{"event":"turn_action","data":{"battle_id":"battle_vfpd","turn":1,"action":{"type":"attack","move_index":2}},"session_id":"l029","player_id":"Cynthia","timestamp":"2026-07-05T16:26:45.412Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_vfpd","turn":1,"target_side":"a","move":"Shadow Ball","damage":60,"fainted":true},"session_id":"l029","player_id":"Cynthia","timestamp":"2026-07-05T16:26:47.412Z"}
+{"event":"turn_action","data":{"battle_id":"battle_vfpd","turn":2,"action":{"type":"attack","move_index":1}},"session_id":"l029","player_id":"Cynthia","timestamp":"2026-07-05T16:27:45.412Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_vfpd","turn":2,"target_side":"a","move":"Moonblast","damage":82,"fainted":false},"session_id":"l029","player_id":"Cynthia","timestamp":"2026-07-05T16:27:47.412Z"}
+{"event":"turn_action","data":{"battle_id":"battle_vfpd","turn":3,"action":{"type":"attack","move_index":3}},"session_id":"l029","player_id":"Cynthia","timestamp":"2026-07-05T16:28:45.412Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_vfpd","turn":3,"target_side":"a","move":"Thunderbolt","damage":60,"fainted":false},"session_id":"l029","player_id":"Cynthia","timestamp":"2026-07-05T16:28:47.412Z"}
+{"event":"turn_action","data":{"battle_id":"battle_vfpd","turn":4,"action":{"type":"attack","move_index":1}},"session_id":"l029","player_id":"Cynthia","timestamp":"2026-07-05T16:29:45.412Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_vfpd","turn":4,"target_side":"a","move":"Moonblast","damage":48,"fainted":false},"session_id":"l029","player_id":"Cynthia","timestamp":"2026-07-05T16:29:47.412Z"}
+{"event":"battle_end","data":{"battle_id":"battle_vfpd","side":"b","result":"completed"},"session_id":"l029","player_id":"Cynthia","timestamp":"2026-07-05T16:29:50.412Z"}
+{"event":"battle_start","data":{"battle_id":"battle_2xbn","side":"a","opponent_type":"human","team_size":3},"session_id":"cjph","player_id":"Cynthia","timestamp":"2026-07-05T03:13:19.313Z"}
+{"event":"turn_action","data":{"battle_id":"battle_2xbn","turn":1,"action":{"type":"attack","move_index":2}},"session_id":"cjph","player_id":"Cynthia","timestamp":"2026-07-05T03:14:19.313Z"}
+{"event":"switch_in","data":{"battle_id":"battle_2xbn","turn":1,"pokemon":3,"side":"a","reason":"faint_replace"},"session_id":"cjph","player_id":"Cynthia","timestamp":"2026-07-05T03:14:20.313Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_2xbn","turn":1,"target_side":"b","move":"Flamethrower","damage":74,"fainted":false},"session_id":"cjph","player_id":"Cynthia","timestamp":"2026-07-05T03:14:21.313Z"}
+{"event":"turn_action","data":{"battle_id":"battle_2xbn","turn":2,"action":{"type":"attack","move_index":0}},"session_id":"cjph","player_id":"Cynthia","timestamp":"2026-07-05T03:15:19.313Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_2xbn","turn":2,"target_side":"b","move":"Thunderbolt","damage":61,"fainted":false},"session_id":"cjph","player_id":"Cynthia","timestamp":"2026-07-05T03:15:21.313Z"}
+{"event":"turn_action","data":{"battle_id":"battle_2xbn","turn":3,"action":{"type":"attack","move_index":3}},"session_id":"cjph","player_id":"Cynthia","timestamp":"2026-07-05T03:16:19.313Z"}
+{"event":"switch_in","data":{"battle_id":"battle_2xbn","turn":3,"pokemon":983,"side":"a","reason":"manual"},"session_id":"cjph","player_id":"Cynthia","timestamp":"2026-07-05T03:16:20.313Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_2xbn","turn":3,"target_side":"b","move":"Protect","damage":149,"fainted":false},"session_id":"cjph","player_id":"Cynthia","timestamp":"2026-07-05T03:16:21.313Z"}
+{"event":"faint","data":{"battle_id":"battle_2xbn","turn":3,"pokemon":9,"side":"b"},"session_id":"cjph","player_id":"Cynthia","timestamp":"2026-07-05T03:16:22.313Z"}
+{"event":"turn_action","data":{"battle_id":"battle_2xbn","turn":4,"action":{"type":"attack","move_index":2}},"session_id":"cjph","player_id":"Cynthia","timestamp":"2026-07-05T03:17:19.313Z"}
+{"event":"switch_in","data":{"battle_id":"battle_2xbn","turn":4,"pokemon":983,"side":"a","reason":"manual"},"session_id":"cjph","player_id":"Cynthia","timestamp":"2026-07-05T03:17:20.313Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_2xbn","turn":4,"target_side":"b","move":"Swords Dance","damage":109,"fainted":false},"session_id":"cjph","player_id":"Cynthia","timestamp":"2026-07-05T03:17:21.313Z"}
+{"event":"turn_action","data":{"battle_id":"battle_2xbn","turn":5,"action":{"type":"attack","move_index":3}},"session_id":"cjph","player_id":"Cynthia","timestamp":"2026-07-05T03:18:19.313Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_2xbn","turn":5,"target_side":"b","move":"Phantom Force","damage":128,"fainted":true},"session_id":"cjph","player_id":"Cynthia","timestamp":"2026-07-05T03:18:21.313Z"}
+{"event":"turn_action","data":{"battle_id":"battle_2xbn","turn":6,"action":{"type":"attack","move_index":1}},"session_id":"cjph","player_id":"Cynthia","timestamp":"2026-07-05T03:19:19.313Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_2xbn","turn":6,"target_side":"b","move":"Earthquake","damage":47,"fainted":false},"session_id":"cjph","player_id":"Cynthia","timestamp":"2026-07-05T03:19:21.313Z"}
+{"event":"faint","data":{"battle_id":"battle_2xbn","turn":6,"pokemon":448,"side":"b"},"session_id":"cjph","player_id":"Cynthia","timestamp":"2026-07-05T03:19:22.313Z"}
+{"event":"turn_action","data":{"battle_id":"battle_2xbn","turn":7,"action":{"type":"attack","move_index":2}},"session_id":"cjph","player_id":"Cynthia","timestamp":"2026-07-05T03:20:19.313Z"}
+{"event":"switch_in","data":{"battle_id":"battle_2xbn","turn":7,"pokemon":448,"side":"a","reason":"manual"},"session_id":"cjph","player_id":"Cynthia","timestamp":"2026-07-05T03:20:20.313Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_2xbn","turn":7,"target_side":"b","move":"Giga Impact","damage":32,"fainted":false},"session_id":"cjph","player_id":"Cynthia","timestamp":"2026-07-05T03:20:21.313Z"}
+{"event":"turn_action","data":{"battle_id":"battle_2xbn","turn":8,"action":{"type":"attack","move_index":0}},"session_id":"cjph","player_id":"Cynthia","timestamp":"2026-07-05T03:21:19.313Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_2xbn","turn":8,"target_side":"b","move":"Stealth Rock","damage":37,"fainted":false},"session_id":"cjph","player_id":"Cynthia","timestamp":"2026-07-05T03:21:21.313Z"}
+{"event":"faint","data":{"battle_id":"battle_2xbn","turn":8,"pokemon":983,"side":"b"},"session_id":"cjph","player_id":"Cynthia","timestamp":"2026-07-05T03:21:22.313Z"}
+{"event":"turn_action","data":{"battle_id":"battle_2xbn","turn":9,"action":{"type":"attack","move_index":1}},"session_id":"cjph","player_id":"Cynthia","timestamp":"2026-07-05T03:22:19.313Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_2xbn","turn":9,"target_side":"b","move":"Giga Impact","damage":140,"fainted":false},"session_id":"cjph","player_id":"Cynthia","timestamp":"2026-07-05T03:22:21.313Z"}
+{"event":"turn_action","data":{"battle_id":"battle_2xbn","turn":10,"action":{"type":"attack","move_index":3}},"session_id":"cjph","player_id":"Cynthia","timestamp":"2026-07-05T03:23:19.313Z"}
+{"event":"switch_in","data":{"battle_id":"battle_2xbn","turn":10,"pokemon":248,"side":"a","reason":"manual"},"session_id":"cjph","player_id":"Cynthia","timestamp":"2026-07-05T03:23:20.313Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_2xbn","turn":10,"target_side":"b","move":"Close Combat","damage":23,"fainted":false},"session_id":"cjph","player_id":"Cynthia","timestamp":"2026-07-05T03:23:21.313Z"}
+{"event":"faint","data":{"battle_id":"battle_2xbn","turn":10,"pokemon":3,"side":"b"},"session_id":"cjph","player_id":"Cynthia","timestamp":"2026-07-05T03:23:22.313Z"}
+{"event":"turn_action","data":{"battle_id":"battle_2xbn","turn":11,"action":{"type":"attack","move_index":2}},"session_id":"cjph","player_id":"Cynthia","timestamp":"2026-07-05T03:24:19.313Z"}
+{"event":"switch_in","data":{"battle_id":"battle_2xbn","turn":11,"pokemon":9,"side":"a","reason":"manual"},"session_id":"cjph","player_id":"Cynthia","timestamp":"2026-07-05T03:24:20.313Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_2xbn","turn":11,"target_side":"b","move":"Shadow Ball","damage":12,"fainted":false},"session_id":"cjph","player_id":"Cynthia","timestamp":"2026-07-05T03:24:21.313Z"}
+{"event":"turn_action","data":{"battle_id":"battle_2xbn","turn":12,"action":{"type":"attack","move_index":3}},"session_id":"cjph","player_id":"Cynthia","timestamp":"2026-07-05T03:25:19.313Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_2xbn","turn":12,"target_side":"b","move":"Earthquake","damage":149,"fainted":false},"session_id":"cjph","player_id":"Cynthia","timestamp":"2026-07-05T03:25:21.313Z"}
+{"event":"turn_action","data":{"battle_id":"battle_2xbn","turn":13,"action":{"type":"attack","move_index":1}},"session_id":"cjph","player_id":"Cynthia","timestamp":"2026-07-05T03:26:19.313Z"}
+{"event":"switch_in","data":{"battle_id":"battle_2xbn","turn":13,"pokemon":730,"side":"a","reason":"manual"},"session_id":"cjph","player_id":"Cynthia","timestamp":"2026-07-05T03:26:20.313Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_2xbn","turn":13,"target_side":"b","move":"Dragon Darts","damage":78,"fainted":false},"session_id":"cjph","player_id":"Cynthia","timestamp":"2026-07-05T03:26:21.313Z"}
+{"event":"faint","data":{"battle_id":"battle_2xbn","turn":13,"pokemon":901,"side":"b"},"session_id":"cjph","player_id":"Cynthia","timestamp":"2026-07-05T03:26:22.313Z"}
+{"event":"turn_action","data":{"battle_id":"battle_2xbn","turn":14,"action":{"type":"attack","move_index":3}},"session_id":"cjph","player_id":"Cynthia","timestamp":"2026-07-05T03:27:19.313Z"}
+{"event":"switch_in","data":{"battle_id":"battle_2xbn","turn":14,"pokemon":823,"side":"a","reason":"faint_replace"},"session_id":"cjph","player_id":"Cynthia","timestamp":"2026-07-05T03:27:20.313Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_2xbn","turn":14,"target_side":"b","move":"Thunderbolt","damage":23,"fainted":false},"session_id":"cjph","player_id":"Cynthia","timestamp":"2026-07-05T03:27:21.313Z"}
+{"event":"faint","data":{"battle_id":"battle_2xbn","turn":14,"pokemon":9,"side":"b"},"session_id":"cjph","player_id":"Cynthia","timestamp":"2026-07-05T03:27:22.313Z"}
+{"event":"battle_end","data":{"battle_id":"battle_2xbn","side":"a","result":"completed"},"session_id":"cjph","player_id":"Cynthia","timestamp":"2026-07-05T03:27:24.313Z"}
+{"event":"battle_start","data":{"battle_id":"battle_zm7i","side":"b","opponent_type":"human","team_size":5},"session_id":"m08s","player_id":"Ash","timestamp":"2026-07-05T04:13:35.237Z"}
+{"event":"turn_action","data":{"battle_id":"battle_zm7i","turn":1,"action":{"type":"attack","move_index":1}},"session_id":"m08s","player_id":"Ash","timestamp":"2026-07-05T04:14:35.237Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_zm7i","turn":1,"target_side":"a","move":"Protect","damage":115,"fainted":false},"session_id":"m08s","player_id":"Ash","timestamp":"2026-07-05T04:14:37.237Z"}
+{"event":"turn_action","data":{"battle_id":"battle_zm7i","turn":2,"action":{"type":"attack","move_index":2}},"session_id":"m08s","player_id":"Ash","timestamp":"2026-07-05T04:15:35.237Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_zm7i","turn":2,"target_side":"a","move":"Iron Head","damage":65,"fainted":true},"session_id":"m08s","player_id":"Ash","timestamp":"2026-07-05T04:15:37.237Z"}
+{"event":"turn_action","data":{"battle_id":"battle_zm7i","turn":3,"action":{"type":"attack","move_index":3}},"session_id":"m08s","player_id":"Ash","timestamp":"2026-07-05T04:16:35.237Z"}
+{"event":"switch_in","data":{"battle_id":"battle_zm7i","turn":3,"pokemon":6,"side":"b","reason":"manual"},"session_id":"m08s","player_id":"Ash","timestamp":"2026-07-05T04:16:36.237Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_zm7i","turn":3,"target_side":"a","move":"Dragon Darts","damage":88,"fainted":false},"session_id":"m08s","player_id":"Ash","timestamp":"2026-07-05T04:16:37.237Z"}
+{"event":"faint","data":{"battle_id":"battle_zm7i","turn":3,"pokemon":248,"side":"a"},"session_id":"m08s","player_id":"Ash","timestamp":"2026-07-05T04:16:38.237Z"}
+{"event":"turn_action","data":{"battle_id":"battle_zm7i","turn":4,"action":{"type":"attack","move_index":2}},"session_id":"m08s","player_id":"Ash","timestamp":"2026-07-05T04:17:35.237Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_zm7i","turn":4,"target_side":"a","move":"Giga Impact","damage":149,"fainted":false},"session_id":"m08s","player_id":"Ash","timestamp":"2026-07-05T04:17:37.237Z"}
+{"event":"faint","data":{"battle_id":"battle_zm7i","turn":4,"pokemon":887,"side":"a"},"session_id":"m08s","player_id":"Ash","timestamp":"2026-07-05T04:17:38.237Z"}
+{"event":"turn_action","data":{"battle_id":"battle_zm7i","turn":5,"action":{"type":"attack","move_index":2}},"session_id":"m08s","player_id":"Ash","timestamp":"2026-07-05T04:18:35.237Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_zm7i","turn":5,"target_side":"a","move":"Protect","damage":50,"fainted":true},"session_id":"m08s","player_id":"Ash","timestamp":"2026-07-05T04:18:37.237Z"}
+{"event":"faint","data":{"battle_id":"battle_zm7i","turn":5,"pokemon":25,"side":"a"},"session_id":"m08s","player_id":"Ash","timestamp":"2026-07-05T04:18:38.237Z"}
+{"event":"turn_action","data":{"battle_id":"battle_zm7i","turn":6,"action":{"type":"attack","move_index":3}},"session_id":"m08s","player_id":"Ash","timestamp":"2026-07-05T04:19:35.237Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_zm7i","turn":6,"target_side":"a","move":"Swords Dance","damage":40,"fainted":false},"session_id":"m08s","player_id":"Ash","timestamp":"2026-07-05T04:19:37.237Z"}
+{"event":"faint","data":{"battle_id":"battle_zm7i","turn":6,"pokemon":887,"side":"a"},"session_id":"m08s","player_id":"Ash","timestamp":"2026-07-05T04:19:38.237Z"}
+{"event":"turn_action","data":{"battle_id":"battle_zm7i","turn":7,"action":{"type":"attack","move_index":1}},"session_id":"m08s","player_id":"Ash","timestamp":"2026-07-05T04:20:35.237Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_zm7i","turn":7,"target_side":"a","move":"Phantom Force","damage":123,"fainted":false},"session_id":"m08s","player_id":"Ash","timestamp":"2026-07-05T04:20:37.237Z"}
+{"event":"turn_action","data":{"battle_id":"battle_zm7i","turn":8,"action":{"type":"attack","move_index":1}},"session_id":"m08s","player_id":"Ash","timestamp":"2026-07-05T04:21:35.237Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_zm7i","turn":8,"target_side":"a","move":"Moonblast","damage":42,"fainted":false},"session_id":"m08s","player_id":"Ash","timestamp":"2026-07-05T04:21:37.237Z"}
+{"event":"turn_action","data":{"battle_id":"battle_zm7i","turn":9,"action":{"type":"attack","move_index":0}},"session_id":"m08s","player_id":"Ash","timestamp":"2026-07-05T04:22:35.237Z"}
+{"event":"switch_in","data":{"battle_id":"battle_zm7i","turn":9,"pokemon":146,"side":"b","reason":"manual"},"session_id":"m08s","player_id":"Ash","timestamp":"2026-07-05T04:22:36.237Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_zm7i","turn":9,"target_side":"a","move":"Earthquake","damage":42,"fainted":false},"session_id":"m08s","player_id":"Ash","timestamp":"2026-07-05T04:22:37.237Z"}
+{"event":"turn_action","data":{"battle_id":"battle_zm7i","turn":10,"action":{"type":"attack","move_index":1}},"session_id":"m08s","player_id":"Ash","timestamp":"2026-07-05T04:23:35.237Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_zm7i","turn":10,"target_side":"a","move":"Dragon Darts","damage":65,"fainted":true},"session_id":"m08s","player_id":"Ash","timestamp":"2026-07-05T04:23:37.237Z"}
+{"event":"faint","data":{"battle_id":"battle_zm7i","turn":10,"pokemon":9,"side":"a"},"session_id":"m08s","player_id":"Ash","timestamp":"2026-07-05T04:23:38.237Z"}
+{"event":"turn_action","data":{"battle_id":"battle_zm7i","turn":11,"action":{"type":"attack","move_index":0}},"session_id":"m08s","player_id":"Ash","timestamp":"2026-07-05T04:24:35.237Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_zm7i","turn":11,"target_side":"a","move":"Thunderbolt","damage":58,"fainted":true},"session_id":"m08s","player_id":"Ash","timestamp":"2026-07-05T04:24:37.237Z"}
+{"event":"turn_action","data":{"battle_id":"battle_zm7i","turn":12,"action":{"type":"attack","move_index":1}},"session_id":"m08s","player_id":"Ash","timestamp":"2026-07-05T04:25:35.237Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_zm7i","turn":12,"target_side":"a","move":"Flamethrower","damage":19,"fainted":false},"session_id":"m08s","player_id":"Ash","timestamp":"2026-07-05T04:25:37.237Z"}
+{"event":"faint","data":{"battle_id":"battle_zm7i","turn":12,"pokemon":149,"side":"a"},"session_id":"m08s","player_id":"Ash","timestamp":"2026-07-05T04:25:38.237Z"}
+{"event":"turn_action","data":{"battle_id":"battle_zm7i","turn":13,"action":{"type":"attack","move_index":1}},"session_id":"m08s","player_id":"Ash","timestamp":"2026-07-05T04:26:35.237Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_zm7i","turn":13,"target_side":"a","move":"Stealth Rock","damage":99,"fainted":false},"session_id":"m08s","player_id":"Ash","timestamp":"2026-07-05T04:26:37.237Z"}
+{"event":"faint","data":{"battle_id":"battle_zm7i","turn":13,"pokemon":149,"side":"a"},"session_id":"m08s","player_id":"Ash","timestamp":"2026-07-05T04:26:38.237Z"}
+{"event":"turn_action","data":{"battle_id":"battle_zm7i","turn":14,"action":{"type":"attack","move_index":3}},"session_id":"m08s","player_id":"Ash","timestamp":"2026-07-05T04:27:35.237Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_zm7i","turn":14,"target_side":"a","move":"Moonblast","damage":64,"fainted":true},"session_id":"m08s","player_id":"Ash","timestamp":"2026-07-05T04:27:37.237Z"}
+{"event":"battle_end","data":{"battle_id":"battle_zm7i","side":"b","result":"completed"},"session_id":"m08s","player_id":"Ash","timestamp":"2026-07-05T04:27:40.237Z"}
+{"event":"battle_start","data":{"battle_id":"battle_12a0","side":"b","opponent_type":"bot","team_size":6},"session_id":"m08s","player_id":"Leon","timestamp":"2026-07-05T03:48:59.821Z"}
+{"event":"turn_action","data":{"battle_id":"battle_12a0","turn":1,"action":{"type":"attack","move_index":0}},"session_id":"m08s","player_id":"Leon","timestamp":"2026-07-05T03:49:59.821Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_12a0","turn":1,"target_side":"a","move":"Giga Impact","damage":54,"fainted":true},"session_id":"m08s","player_id":"Leon","timestamp":"2026-07-05T03:50:01.821Z"}
+{"event":"turn_action","data":{"battle_id":"battle_12a0","turn":2,"action":{"type":"attack","move_index":2}},"session_id":"m08s","player_id":"Leon","timestamp":"2026-07-05T03:50:59.821Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_12a0","turn":2,"target_side":"a","move":"Phantom Force","damage":126,"fainted":false},"session_id":"m08s","player_id":"Leon","timestamp":"2026-07-05T03:51:01.821Z"}
+{"event":"turn_action","data":{"battle_id":"battle_12a0","turn":3,"action":{"type":"attack","move_index":2}},"session_id":"m08s","player_id":"Leon","timestamp":"2026-07-05T03:51:59.821Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_12a0","turn":3,"target_side":"a","move":"Flamethrower","damage":117,"fainted":false},"session_id":"m08s","player_id":"Leon","timestamp":"2026-07-05T03:52:01.821Z"}
+{"event":"turn_action","data":{"battle_id":"battle_12a0","turn":4,"action":{"type":"attack","move_index":0}},"session_id":"m08s","player_id":"Leon","timestamp":"2026-07-05T03:52:59.821Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_12a0","turn":4,"target_side":"a","move":"Protect","damage":58,"fainted":false},"session_id":"m08s","player_id":"Leon","timestamp":"2026-07-05T03:53:01.821Z"}
+{"event":"faint","data":{"battle_id":"battle_12a0","turn":4,"pokemon":25,"side":"a"},"session_id":"m08s","player_id":"Leon","timestamp":"2026-07-05T03:53:02.821Z"}
+{"event":"turn_action","data":{"battle_id":"battle_12a0","turn":5,"action":{"type":"attack","move_index":1}},"session_id":"m08s","player_id":"Leon","timestamp":"2026-07-05T03:53:59.821Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_12a0","turn":5,"target_side":"a","move":"Iron Head","damage":17,"fainted":false},"session_id":"m08s","player_id":"Leon","timestamp":"2026-07-05T03:54:01.821Z"}
+{"event":"turn_action","data":{"battle_id":"battle_12a0","turn":6,"action":{"type":"attack","move_index":0}},"session_id":"m08s","player_id":"Leon","timestamp":"2026-07-05T03:54:59.821Z"}
+{"event":"switch_in","data":{"battle_id":"battle_12a0","turn":6,"pokemon":887,"side":"b","reason":"manual"},"session_id":"m08s","player_id":"Leon","timestamp":"2026-07-05T03:55:00.821Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_12a0","turn":6,"target_side":"a","move":"Protect","damage":148,"fainted":true},"session_id":"m08s","player_id":"Leon","timestamp":"2026-07-05T03:55:01.821Z"}
+{"event":"turn_action","data":{"battle_id":"battle_12a0","turn":7,"action":{"type":"attack","move_index":1}},"session_id":"m08s","player_id":"Leon","timestamp":"2026-07-05T03:55:59.821Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_12a0","turn":7,"target_side":"a","move":"Close Combat","damage":118,"fainted":true},"session_id":"m08s","player_id":"Leon","timestamp":"2026-07-05T03:56:01.821Z"}
+{"event":"turn_action","data":{"battle_id":"battle_12a0","turn":8,"action":{"type":"attack","move_index":3}},"session_id":"m08s","player_id":"Leon","timestamp":"2026-07-05T03:56:59.821Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_12a0","turn":8,"target_side":"a","move":"Thunderbolt","damage":127,"fainted":false},"session_id":"m08s","player_id":"Leon","timestamp":"2026-07-05T03:57:01.821Z"}
+{"event":"turn_action","data":{"battle_id":"battle_12a0","turn":9,"action":{"type":"attack","move_index":1}},"session_id":"m08s","player_id":"Leon","timestamp":"2026-07-05T03:57:59.821Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_12a0","turn":9,"target_side":"a","move":"Moonblast","damage":150,"fainted":false},"session_id":"m08s","player_id":"Leon","timestamp":"2026-07-05T03:58:01.821Z"}
+{"event":"turn_action","data":{"battle_id":"battle_12a0","turn":10,"action":{"type":"attack","move_index":0}},"session_id":"m08s","player_id":"Leon","timestamp":"2026-07-05T03:58:59.821Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_12a0","turn":10,"target_side":"a","move":"Iron Head","damage":121,"fainted":false},"session_id":"m08s","player_id":"Leon","timestamp":"2026-07-05T03:59:01.821Z"}
+{"event":"turn_action","data":{"battle_id":"battle_12a0","turn":11,"action":{"type":"attack","move_index":2}},"session_id":"m08s","player_id":"Leon","timestamp":"2026-07-05T03:59:59.821Z"}
+{"event":"switch_in","data":{"battle_id":"battle_12a0","turn":11,"pokemon":445,"side":"b","reason":"manual"},"session_id":"m08s","player_id":"Leon","timestamp":"2026-07-05T04:00:00.821Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_12a0","turn":11,"target_side":"a","move":"Phantom Force","damage":113,"fainted":false},"session_id":"m08s","player_id":"Leon","timestamp":"2026-07-05T04:00:01.821Z"}
+{"event":"turn_action","data":{"battle_id":"battle_12a0","turn":12,"action":{"type":"attack","move_index":1}},"session_id":"m08s","player_id":"Leon","timestamp":"2026-07-05T04:00:59.821Z"}
+{"event":"switch_in","data":{"battle_id":"battle_12a0","turn":12,"pokemon":983,"side":"b","reason":"faint_replace"},"session_id":"m08s","player_id":"Leon","timestamp":"2026-07-05T04:01:00.821Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_12a0","turn":12,"target_side":"a","move":"Giga Impact","damage":40,"fainted":true},"session_id":"m08s","player_id":"Leon","timestamp":"2026-07-05T04:01:01.821Z"}
+{"event":"faint","data":{"battle_id":"battle_12a0","turn":12,"pokemon":983,"side":"a"},"session_id":"m08s","player_id":"Leon","timestamp":"2026-07-05T04:01:02.821Z"}
+{"event":"turn_action","data":{"battle_id":"battle_12a0","turn":13,"action":{"type":"attack","move_index":3}},"session_id":"m08s","player_id":"Leon","timestamp":"2026-07-05T04:01:59.821Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_12a0","turn":13,"target_side":"a","move":"Surf","damage":38,"fainted":true},"session_id":"m08s","player_id":"Leon","timestamp":"2026-07-05T04:02:01.821Z"}
+{"event":"battle_end","data":{"battle_id":"battle_12a0","side":"b","result":"abandoned"},"session_id":"m08s","player_id":"Leon","timestamp":"2026-07-05T04:02:04.821Z"}
+{"event":"battle_start","data":{"battle_id":"battle_y5z4","side":"a","opponent_type":"bot","team_size":3},"session_id":"cjph","player_id":"Ash","timestamp":"2026-07-05T07:41:20.204Z"}
+{"event":"turn_action","data":{"battle_id":"battle_y5z4","turn":1,"action":{"type":"attack","move_index":1}},"session_id":"cjph","player_id":"Ash","timestamp":"2026-07-05T07:42:20.204Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_y5z4","turn":1,"target_side":"b","move":"Surf","damage":42,"fainted":false},"session_id":"cjph","player_id":"Ash","timestamp":"2026-07-05T07:42:22.204Z"}
+{"event":"turn_action","data":{"battle_id":"battle_y5z4","turn":2,"action":{"type":"attack","move_index":0}},"session_id":"cjph","player_id":"Ash","timestamp":"2026-07-05T07:43:20.204Z"}
+{"event":"switch_in","data":{"battle_id":"battle_y5z4","turn":2,"pokemon":448,"side":"a","reason":"manual"},"session_id":"cjph","player_id":"Ash","timestamp":"2026-07-05T07:43:21.204Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_y5z4","turn":2,"target_side":"b","move":"U-turn","damage":126,"fainted":false},"session_id":"cjph","player_id":"Ash","timestamp":"2026-07-05T07:43:22.204Z"}
+{"event":"faint","data":{"battle_id":"battle_y5z4","turn":2,"pokemon":448,"side":"b"},"session_id":"cjph","player_id":"Ash","timestamp":"2026-07-05T07:43:23.204Z"}
+{"event":"turn_action","data":{"battle_id":"battle_y5z4","turn":3,"action":{"type":"attack","move_index":0}},"session_id":"cjph","player_id":"Ash","timestamp":"2026-07-05T07:44:20.204Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_y5z4","turn":3,"target_side":"b","move":"Iron Head","damage":28,"fainted":false},"session_id":"cjph","player_id":"Ash","timestamp":"2026-07-05T07:44:22.204Z"}
+{"event":"turn_action","data":{"battle_id":"battle_y5z4","turn":4,"action":{"type":"attack","move_index":1}},"session_id":"cjph","player_id":"Ash","timestamp":"2026-07-05T07:45:20.204Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_y5z4","turn":4,"target_side":"b","move":"Close Combat","damage":64,"fainted":false},"session_id":"cjph","player_id":"Ash","timestamp":"2026-07-05T07:45:22.204Z"}
+{"event":"faint","data":{"battle_id":"battle_y5z4","turn":4,"pokemon":445,"side":"b"},"session_id":"cjph","player_id":"Ash","timestamp":"2026-07-05T07:45:23.204Z"}
+{"event":"turn_action","data":{"battle_id":"battle_y5z4","turn":5,"action":{"type":"attack","move_index":1}},"session_id":"cjph","player_id":"Ash","timestamp":"2026-07-05T07:46:20.204Z"}
+{"event":"damage_dealt","data":{"battle_id":"battle_y5z4","turn":5,"target_side":"b","move":"Earthquake","damage":22,"fainted":false},"session_id":"cjph","player_id":"Ash","timestamp":"2026-07-05T07:46:22.204Z"}
+{"event":"faint","data":{"battle_id":"battle_y5z4","turn":5,"pokemon":3,"side":"b"},"session_id":"cjph","player_id":"Ash","timestamp":"2026-07-05T07:46:23.204Z"}
+{"event":"battle_end","data":{"battle_id":"battle_y5z4","side":"a","result":"abandoned"},"session_id":"cjph","player_id":"Ash","timestamp":"2026-07-05T07:46:25.204Z"}

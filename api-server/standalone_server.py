@@ -665,7 +665,6 @@ async def _run_import_and_broadcast():
                 "item_usage": get_meta_items(),
                 "ability_usage": get_meta_abilities(),
                 "type_distribution": get_type_distribution(),
-                "survival": get_battle_survival(),
                 "summary": get_analysis_summary().get("data", {}),
             })
             logger.info(f"[live] Imported {count} rows, broadcasted stats_updated")
@@ -704,22 +703,167 @@ async def _live_watcher_loop():
 
 from config import ENABLE_WATCHER
 
+# ── JSONL events watcher (event_new format) ──
+_last_jsonl_mtime = 0.0
+_jsonl_task = None
+
+
+def _get_latest_jsonl_mtime(battle_dir: Path) -> float:
+    max_mtime = 0.0
+    for f in battle_dir.glob("events_*.jsonl"):
+        try:
+            mtime = f.stat().st_mtime
+            if mtime > max_mtime:
+                max_mtime = mtime
+        except OSError:
+            pass
+    return max_mtime
+
+
+def _import_jsonl_events() -> int:
+    """Import new events from JSONL files into output.db."""
+    import sys
+    battle_dir = PROJECT_ROOT / "battle_logs"
+    jsonl_files = sorted(battle_dir.glob("events_*.jsonl"))
+    if not jsonl_files:
+        return 0
+    # Use the most recent JSONL file
+    latest = jsonl_files[-1]
+    sys.path.insert(0, str(PROJECT_ROOT / "scripts"))
+    from events_to_db import import_events
+    return import_events(str(latest))
+
+
+async def _jsonl_watcher_loop():
+    global _last_jsonl_mtime
+    logger.info("[jsonl] Events JSONL watcher started")
+    while True:
+        await asyncio.sleep(WATCH_INTERVAL)
+        try:
+            battle_dir = PROJECT_ROOT / "battle_logs"
+            if not battle_dir.is_dir():
+                continue
+            latest = _get_latest_jsonl_mtime(battle_dir)
+            if latest > _last_jsonl_mtime:
+                _last_jsonl_mtime = latest
+                logger.info("[jsonl] New events JSONL detected, importing...")
+                loop = asyncio.get_running_loop()
+                count = await loop.run_in_executor(None, _import_jsonl_events)
+                if count > 0:
+                    from sql_analytics import invalidate
+                    invalidate()
+                    await broadcast("stats_updated", {
+                        "species_usage": get_meta_species(),
+                        "move_usage": get_meta_moves(),
+                        "item_usage": get_meta_items(),
+                        "ability_usage": get_meta_abilities(),
+                        "type_distribution": get_type_distribution(),
+                                "summary": get_analysis_summary().get("data", {}),
+                    })
+                    logger.info(f"[jsonl] Imported {count} rows, broadcasted")
+        except Exception as e:
+            logger.error(f"[jsonl] Watcher error: {e}")
+
+
 if ENABLE_WATCHER:
     @app.on_event("startup")
     async def start_live_watcher():
-        global _live_watcher_task, _last_battle_mtime
+        global _live_watcher_task, _last_battle_mtime, _jsonl_task, _last_jsonl_mtime
         battle_dir = PROJECT_ROOT / "battle_logs"
         _last_battle_mtime = _get_latest_battle_mtime(battle_dir)
+        _last_jsonl_mtime = _get_latest_jsonl_mtime(battle_dir)
         _live_watcher_task = asyncio.create_task(_live_watcher_loop())
-        logger.info("[live] Live watcher started")
+        _jsonl_task = asyncio.create_task(_jsonl_watcher_loop())
+        logger.info("[live] Live watcher + JSONL watcher started")
 
     @app.on_event("shutdown")
     async def stop_live_watcher():
-        global _live_watcher_task
+        global _live_watcher_task, _jsonl_task
         if _live_watcher_task:
             _live_watcher_task.cancel()
             _live_watcher_task = None
-            logger.info("[live] Live watcher stopped")
+        if _jsonl_task:
+            _jsonl_task.cancel()
+            _jsonl_task = None
+        logger.info("[live] Watchers stopped")
+
+
+# ── Cluster-mode periodic broadcaster (WebSocket push every 15s) ──
+_cluster_broadcast_task = None
+
+
+async def _cluster_broadcast_loop():
+    """In cluster mode, periodically broadcast stats to connected WebSocket clients."""
+    logger.info("[cluster] Periodic broadcast started (10s)")
+    while True:
+        await asyncio.sleep(10)
+        try:
+            await broadcast("stats_updated", {
+                "species_usage": get_meta_species(),
+                "move_usage": get_meta_moves(),
+                "item_usage": get_meta_items(),
+                "ability_usage": get_meta_abilities(),
+                "type_distribution": get_type_distribution(),
+                "summary": get_analysis_summary().get("data", {}),
+            })
+            logger.info("[cluster] Broadcasted stats_updated")
+        except Exception as e:
+            logger.error(f"[cluster] Broadcast error: {e}")
+
+
+@app.on_event("startup")
+async def start_cluster_broadcast():
+    global _cluster_broadcast_task
+    from config import MODE
+    if MODE == "cluster" or os.environ.get("POKEMON_MODE", "") == "cluster":
+        _cluster_broadcast_task = asyncio.create_task(_cluster_broadcast_loop())
+        logger.info("[cluster] Cluster broadcast started")
+
+
+@app.on_event("shutdown")
+async def stop_cluster_broadcast():
+    global _cluster_broadcast_task
+    if _cluster_broadcast_task:
+        _cluster_broadcast_task.cancel()
+        _cluster_broadcast_task = None
+
+
+# ── Cluster: Start/Stop data generator remotely ──
+_gen_process = None
+
+
+@app.post("/api/v1/cluster/gen/start")
+def api_gen_start():
+    global _gen_process
+    import subprocess
+    if _gen_process and _gen_process.poll() is None:
+        return {"ok": True, "msg": "Already running", "pid": _gen_process.pid}
+    log = open("/tmp/gen.log", "a")
+    _gen_process = subprocess.Popen(
+        ["python3", "-u", os.path.expanduser("~/gen_battle_stream.py"),
+         "--interval", "2", "--kafka", "100.107.105.99:9092"],
+        stdout=log, stderr=log,
+    )
+    return {"ok": True, "msg": "Started", "pid": _gen_process.pid}
+
+
+@app.post("/api/v1/cluster/gen/stop")
+def api_gen_stop():
+    global _gen_process
+    if _gen_process and _gen_process.poll() is None:
+        _gen_process.terminate()
+        _gen_process = None
+        return {"ok": True, "msg": "Stopped"}
+    # Also kill any orphaned gen processes
+    os.system("pkill -f gen_battle_stream 2>/dev/null")
+    return {"ok": True, "msg": "Stopped (cleanup)"}
+
+
+@app.get("/api/v1/cluster/gen/status")
+def api_gen_status():
+    global _gen_process
+    running = _gen_process is not None and _gen_process.poll() is None
+    return {"ok": True, "running": running, "pid": _gen_process.pid if running else None}
 
 
 @app.get("/api/v1/scout")

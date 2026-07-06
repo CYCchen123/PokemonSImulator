@@ -16,7 +16,8 @@ except ImportError:
     REDIS_HOST = "localhost"
     REDIS_PORT = 6379
 
-DB_PATH = LOCAL_DB_OUTPUT if MODE == "local" else None
+DB_PATH = os.environ.get("OUTPUT_DB_PATH") or LOCAL_DB_OUTPUT if MODE == "local" else None
+DB_PATH = DB_PATH or LOCAL_DB_OUTPUT  # fallback: always use SQLite unless Redis is wired
 _tls = threading.local()
 _cache = {}
 _cache_time = 0.0

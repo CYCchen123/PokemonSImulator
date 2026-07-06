@@ -1,201 +1,389 @@
 #!/usr/bin/env python3
 """
-每秒生成一场对战数据，模拟实时对战流。
-Ctrl+C 停止。
+Generate battle events in event_new.jsonl format.
+Supports local file output and Kafka cluster mode.
 
 Usage:
-    python3 scripts/gen_battle_stream.py [--interval 1.0] [--turns 10 20]
+    python scripts/gen_battle_stream.py [--interval 2.0] [--turns 5 15] [--kafka broker:9092]
 """
-
-import json, random, os, sys, time, argparse, sqlite3
+import json, random, os, sys, time, argparse, sqlite3, uuid
 from pathlib import Path
 
 PROJECT = Path(__file__).resolve().parent.parent
 BATTLE_LOGS = PROJECT / "battle_logs"
+try:
+    BATTLE_LOGS.mkdir(parents=True, exist_ok=True)
+except PermissionError:
+    BATTLE_LOGS = Path.home() / "battle_logs"
+    BATTLE_LOGS.mkdir(parents=True, exist_ok=True)
 DB_PATH = PROJECT / "data" / "pokemon.db"
+# Fallback: look for pokemon.db in home dir or data subdir
+if not DB_PATH.exists():
+    for alt in [Path.home() / "pokemon.db", Path.home() / "data" / "pokemon.db"]:
+        if alt.exists():
+            DB_PATH = alt
+            break
 
-# ── Load real game data from DB ─────────────────────────
+# ── Load game data ─────────────────────────
 def _load_db():
     conn = sqlite3.connect(str(DB_PATH))
     conn.row_factory = sqlite3.Row
-    # Load all species with their possible abilities and learnable moves
     species = {}
-    for r in conn.execute("SELECT id, base_hp FROM species WHERE base_hp > 0").fetchall():
-        species[r["id"]] = {"base_hp": max(100, r["base_hp"])}
-    # Load species abilities (use first available)
-    for r in conn.execute("SELECT species_id, ability_id FROM species_abilities GROUP BY species_id").fetchall():
-        if r["species_id"] in species:
-            species[r["species_id"]]["ability_id"] = r["ability_id"]
-    # Load learnsets: get all move IDs per species (lazy-loaded per species)
-    # Store just the list of species_ids that have moves
-    species_with_moves = set()
-    for r in conn.execute("SELECT DISTINCT species_id FROM learnsets").fetchall():
-        species_with_moves.add(r["species_id"])
-    conn.close()
+    for r in conn.execute("SELECT id, base_hp, name FROM species WHERE base_hp > 0").fetchall():
+        species[r["id"]] = {"base_hp": max(100, r["base_hp"]), "name": r["name"]}
 
-    # For each species, load moves lazily or use random fallback
-    ALL_MOVES = [33,34,36,38,53,59,63,85,89,94,10,52,98,22,75,76,79,163,37,38,58,126,14,24,97,87,
+    # Abilities
+    for sid in species:
+        row = conn.execute(
+            "SELECT ability_id FROM species_abilities WHERE species_id=? LIMIT 1", (sid,)
+        ).fetchone()
+        species[sid]["ability_id"] = row[0] if row else 65
+
+    # Moves — load from learnsets
+    move_map = {}
+    for r in conn.execute("SELECT species_id, move_id FROM learnsets").fetchall():
+        sid_key = r["species_id"]
+        mid_val = r["move_id"]
+        if sid_key not in move_map:
+            move_map[sid_key] = []
+        move_map[sid_key].append(mid_val)
+
+    ALL_MOVES = [33,34,36,38,53,59,63,85,89,94,10,52,98,22,75,76,79,163,37,58,126,14,24,97,87,
                  55,56,57,115,7,44,19,17,82,73,77,74,70,42,228,188,245,404,520,239,345,398,348,202]
     for sid in species:
-        species[sid]["moves"] = random.sample(ALL_MOVES, min(4, len(ALL_MOVES)))
+        moves = move_map.get(sid, [])
+        species[sid]["moves"] = random.sample(moves, min(4, len(moves))) if len(moves) >= 4 \
+            else random.sample(ALL_MOVES, min(4, len(ALL_MOVES)))
+    conn.close()
     return species
 
 _GAME_DATA = _load_db()
 SPECIES_IDS = [sid for sid in _GAME_DATA if _GAME_DATA[sid].get("moves")]
-ITEMS = [0,0,0,0,2,2,3,3,6,6,10,11,14,23,31,999]
+ITEMS = [2,3,6,10,11,14,23,31,188,221,234,240,275,287]
+PLAYERS = ["Ash", "Serena", "Leon", "Cynthia"]
+PAGES = ["/", "/matchmaking", "/teams", "/stats", "/history", "/data"]
+ELEMENTS = ["btn_battle", "btn_team", "btn_stats", "btn_matchmaking", "btn_leave"]
+MOVE_NAMES = ["Tackle","Thunderbolt","Flamethrower","Protect","Hydro Pump","Earthquake",
+              "Ice Beam","Psychic","Shadow Ball","Dragon Claw","Swords Dance","Recover"]
+ABILITIES = ["Drought","Intimidate","Levitate","Swift Swim","Chlorophyll","Mold Breaker"]
 
-def pick_random_pokemon():
-    """Pick a random species with random moves and ability from real game data."""
+
+def pick_pokemon():
     sid = random.choice(SPECIES_IDS)
     data = _GAME_DATA[sid]
-    hp = data.get("base_hp", 200)
-    ability = data.get("ability_id", 65)
-    moves = random.sample(data["moves"], min(4, len(data["moves"])))
-    return (sid, ability, moves, hp)
-
-def make_pokemon(sid, ab, moves, hp, slot, hp_pct=None):
-    pct = hp_pct if hp_pct is not None else 100.0
     return {
-        "speciesId": sid, "abilityId": ab,
-        "itemId": random.choice(ITEMS),
-        "hp": int(hp * pct / 100), "maxHp": hp,
-        "fainted": pct <= 0,
-        "moves": [{"id": m, "maxPp": 20, "pp": 15, "slot": i} for i, m in enumerate(moves)],
-        "slot": slot, "types": [random.randint(0, 17)],
-        "statStages": [0]*7, "inBattleStatus": [],
-        "evs": {"hp":0,"attack":0,"defense":0,"specialAttack":252,"specialDefense":0,"speed":252},
-        "ivs": {"hp":31,"attack":31,"defense":31,"specialAttack":31,"specialDefense":31,"speed":31},
-        "level": 50, "nature": random.randint(0, 24),
+        "speciesID": sid,
+        "moves": random.sample(data["moves"], min(4, len(data["moves"]))),
+        "item": random.choice(ITEMS),
+        "ability": data.get("ability_id", 65),
+        "nature": random.randint(0, 24),
+        "level": 50,
     }
 
-def gen_battle(battle_id, turns):
-    """Generate one battle atomically — write to tmp dir, then rename."""
-    battle_dir = BATTLE_LOGS / str(battle_id)
-    tmp_dir = BATTLE_LOGS / f".tmp_{battle_id}"
-    if tmp_dir.exists():
-        import shutil
-        shutil.rmtree(tmp_dir)
-    out = tmp_dir / "output"
-    out.mkdir(parents=True, exist_ok=True)
 
-    pa = [pick_random_pokemon() for _ in range(3)]
-    pb = [pick_random_pokemon() for _ in range(3)]
+def now_iso():
+    return time.strftime("%Y-%m-%dT%H:%M:%S.000Z", time.gmtime())
 
-    # Turn 0
-    (out / "output_0.json").write_text(json.dumps({
-        "turn": 0, "descriptions": [],
-        "battle": {"field": {"type":0,"duration":0}, "weather": {"type":0,"duration":0},
-            "sides": [
-                {"side":0,"active":0,"count":3,"name":"A","sideEffects":{},
-                 "pokemons": [make_pokemon(*pa[i], slot=i) for i in range(3)]},
-                {"side":1,"active":0,"count":3,"name":"B","sideEffects":{},
-                 "pokemons": [make_pokemon(*pb[i], slot=i) for i in range(3)]},
-            ]},
-        "events": [{"timeline_index":0,"turn_index":0,"description":"Battle start.",
-                     "details":{"event_type":"battle_start"}}],
-    }, ensure_ascii=False))
 
-    hp_tracker = {}  # (side, slot) -> hp_pct
+# ── Event generators ─────────────────────────
+
+def gen_session(player_id, session_id):
+    return {
+        "event": "session_start",
+        "data": {"player_id": player_id},
+        "session_id": session_id,
+        "player_id": player_id,
+        "timestamp": now_iso()
+    }
+
+def gen_page_view(player_id, session_id, page):
+    return {
+        "event": "page_view",
+        "data": {"page": page},
+        "session_id": session_id,
+        "player_id": player_id,
+        "timestamp": now_iso()
+    }
+
+def gen_battle_init(battle_id, player_id, session_id, side, opponent_type, team):
+    other = "b" if side == "a" else "a"
+    return {
+        "event": "battle_init",
+        "data": {
+            "battle_id": battle_id,
+            "side": side,
+            "opponent_type": opponent_type,
+            f"side_{side}": team,
+            f"side_{other}": [pick_pokemon() for _ in range(3)],
+        },
+        "session_id": session_id,
+        "player_id": player_id,
+        "timestamp": now_iso()
+    }
+
+def gen_turn_executed(battle_id, turn, player_id, session_id, side_a_move, side_b_move):
+    return {
+        "event": "turn_executed",
+        "data": {
+            "battle_id": battle_id,
+            "turn": turn,
+            "side_a": {"type": "attack", "move_id": side_a_move, "move_name": random.choice(MOVE_NAMES), "switch_to": None},
+            "side_b": {"type": "attack", "move_id": side_b_move, "move_name": random.choice(MOVE_NAMES), "switch_to": None},
+        },
+        "session_id": session_id,
+        "player_id": player_id,
+        "timestamp": now_iso()
+    }
+
+def gen_turn_damage(battle_id, turn, target_side, target_species, move, damage, fainted, player_id, session_id):
+    return {
+        "event": "turn_damage",
+        "data": {
+            "battle_id": battle_id, "turn": turn,
+            "target_side": target_side, "target_species": target_species,
+            "move": move, "damage": damage, "fainted": fainted,
+        },
+        "session_id": session_id, "player_id": player_id, "timestamp": now_iso()
+    }
+
+def gen_turn_faint(battle_id, turn, species, side, player_id, session_id):
+    return {
+        "event": "turn_faint",
+        "data": {"battle_id": battle_id, "turn": turn, "species": species, "side": side},
+        "session_id": session_id, "player_id": player_id, "timestamp": now_iso()
+    }
+
+def gen_turn_switch(battle_id, turn, species, side, reason, player_id, session_id):
+    return {
+        "event": "turn_switch",
+        "data": {"battle_id": battle_id, "turn": turn, "species": species, "side": side, "reason": reason},
+        "session_id": session_id, "player_id": player_id, "timestamp": now_iso()
+    }
+
+def gen_turn_heal(battle_id, turn, target_side, target_species, heal, player_id, session_id):
+    return {
+        "event": "turn_heal",
+        "data": {"battle_id": battle_id, "turn": turn, "target_side": target_side, "target_species": target_species, "heal": heal},
+        "session_id": session_id, "player_id": player_id, "timestamp": now_iso()
+    }
+
+def gen_turn_ability(battle_id, turn, species, side, ability, player_id, session_id):
+    return {
+        "event": "turn_ability",
+        "data": {"battle_id": battle_id, "turn": turn, "species": species, "side": side, "ability": ability},
+        "session_id": session_id, "player_id": player_id, "timestamp": now_iso()
+    }
+
+def gen_battle_result(battle_id, side, result, winner, turns, own_rem, opp_rem, player_id, session_id):
+    return {
+        "event": "battle_result",
+        "data": {
+            "battle_id": battle_id, "side": side, "result": result,
+            "winner": winner, "turns": turns,
+            "own_remaining": own_rem, "opp_remaining": opp_rem,
+        },
+        "session_id": session_id, "player_id": player_id, "timestamp": now_iso()
+    }
+
+
+# ── Battle simulation ─────────────────────────
+
+def gen_battle_events(battle_id, turns, player_a, player_b, session_a, session_b):
+    """Generate a full battle as a list of event dicts."""
+    events = []
+
+    # Build teams
+    team_a = [pick_pokemon() for _ in range(3)]
+    team_b = [pick_pokemon() for _ in range(3)]
+
+    # battle_init from both sides' perspective
+    events.append(gen_battle_init(battle_id, player_a, session_a, "a", "human", team_a))
+    events.append(gen_battle_init(battle_id, player_b, session_b, "b", "human", team_b))
+
+    hp_pct = {"a": {0:100.0,1:100.0,2:100.0}, "b": {0:100.0,1:100.0,2:100.0}}
+    faint_counts = {"a": 0, "b": 0}
 
     for turn in range(1, turns + 1):
-        sides_out = []
-        for si, team in enumerate([pa, pb]):
-            pokes = []
-            for slot, t in enumerate(team):
-                key = (si, slot)
-                if key not in hp_tracker: hp_tracker[key] = 100.0
-                loss = random.uniform(0, 35)
-                new_hp = max(0, hp_tracker[key] - loss)
-                if 0 < new_hp < 25 and random.random() < 0.2: new_hp = 0
-                hp_tracker[key] = new_hp
-                pokes.append(make_pokemon(*t, slot=slot, hp_pct=new_hp))
-            sides_out.append({"side": si, "active": 0, "count": 3,
-                              "name": "A" if si == 0 else "B", "pokemons": pokes, "sideEffects": {}})
+        # Choose moves
+        a_move = random.choice(team_a[min(turn-1, 2)]["moves"])
+        b_move = random.choice(team_b[min(turn-1, 2)]["moves"])
+        events.append(gen_turn_executed(battle_id, turn, player_a, session_a, a_move, b_move))
 
-        events = [{"timeline_index": turn*2, "turn_index": turn,
-                    "description": f"Turn {turn} attack.",
-                    "details": {"event_type": "damage", "damage": random.randint(5, 60)}}]
+        # Damage to side B (from A)
+        dmg_b = random.randint(10, 60)
+        target_slot_b = min(turn - 1, 2)
+        target_b = team_b[target_slot_b]["speciesID"]
+        prev_b = hp_pct["b"][target_slot_b]
+        new_b = max(0.0, prev_b - dmg_b / 1.5)
+        hp_pct["b"][target_slot_b] = new_b
+        fainted_b = new_b <= 0 or (new_b < 20 and random.random() < 0.15)
+        if fainted_b:
+            hp_pct["b"][target_slot_b] = 0.0
+            faint_counts["b"] += 1
+        events.append(gen_turn_damage(
+            battle_id, turn, "b", target_b,
+            random.choice(MOVE_NAMES), dmg_b, fainted_b,
+            player_a, session_a
+        ))
+        if fainted_b:
+            events.append(gen_turn_faint(battle_id, turn, target_b, "b", player_a, session_a))
+            # Switch in new mon
+            if faint_counts["b"] < 3 and target_slot_b + 1 < 3:
+                new_species = team_b[target_slot_b + 1]["speciesID"]
+                hp_pct["b"][target_slot_b + 1] = 100.0
+                events.append(gen_turn_switch(battle_id, turn + 1, new_species, "b", "faint", player_a, session_a))
 
-        (out / f"output_{turn}.json").write_text(json.dumps({
-            "turn": turn, "descriptions": [],
-            "battle": {"field": {"type":0,"duration":0}, "weather": {"type":0,"duration":0},
-                       "sides": sides_out},
-            "events": events,
-        }, ensure_ascii=False))
+        # Damage to side A (from B)
+        dmg_a = random.randint(10, 50)
+        target_slot_a = min(turn - 1, 2)
+        target_a = team_a[target_slot_a]["speciesID"]
+        prev_a = hp_pct["a"][target_slot_a]
+        new_a = max(0.0, prev_a - dmg_a / 1.5)
+        hp_pct["a"][target_slot_a] = new_a
+        fainted_a = new_a <= 0 or (new_a < 20 and random.random() < 0.15)
+        if fainted_a:
+            hp_pct["a"][target_slot_a] = 0.0
+            faint_counts["a"] += 1
+        events.append(gen_turn_damage(
+            battle_id, turn, "a", target_a,
+            random.choice(MOVE_NAMES), dmg_a, fainted_a,
+            player_b, session_b
+        ))
+        if fainted_a:
+            events.append(gen_turn_faint(battle_id, turn, target_a, "a", player_b, session_b))
+            if faint_counts["a"] < 3 and target_slot_a + 1 < 3:
+                new_species = team_a[target_slot_a + 1]["speciesID"]
+                hp_pct["a"][target_slot_a + 1] = 100.0
+                events.append(gen_turn_switch(battle_id, turn + 1, new_species, "a", "faint", player_b, session_b))
 
-    # Atomic rename — watcher sees complete battle all at once
-    if battle_dir.exists():
-        import shutil
-        shutil.rmtree(battle_dir)
-    tmp_dir.rename(battle_dir)
+        # Occasional heal
+        if random.random() < 0.2:
+            heal_side = random.choice(["a", "b"])
+            heal_slot = random.randint(0, 2)
+            team = team_a if heal_side == "a" else team_b
+            species = team[heal_slot]["speciesID"]
+            heal_amt = random.randint(30, 60)
+            hp = hp_pct[heal_side]
+            hp[heal_slot] = min(100.0, hp.get(heal_slot, 100.0) + heal_amt / 1.5)
+            events.append(gen_turn_heal(
+                battle_id, turn, heal_side, species, heal_amt,
+                player_a if heal_side == "a" else player_b,
+                session_a if heal_side == "a" else session_b
+            ))
+
+        # Occasional ability trigger
+        if random.random() < 0.15:
+            ab_side = random.choice(["a", "b"])
+            ab_team = team_a if ab_side == "a" else team_b
+            ab_slot = random.randint(0, 2)
+            events.append(gen_turn_ability(
+                battle_id, turn, ab_team[ab_slot]["speciesID"],
+                ab_side, random.choice(ABILITIES),
+                player_a if ab_side == "a" else player_b,
+                session_a if ab_side == "a" else session_b
+            ))
+
+    # battle_result
+    alive_a = 3 - faint_counts["a"]
+    alive_b = 3 - faint_counts["b"]
+    if alive_a > alive_b:
+        winner = "a"
+    elif alive_b > alive_a:
+        winner = "b"
+    else:
+        winner = random.choice(["a", "b"])
+
+    a_result = "win" if winner == "a" else "loss"
+    b_result = "win" if winner == "b" else "loss"
+
+    events.append(gen_battle_result(battle_id, "a", a_result, winner, turns, alive_a, alive_b, player_a, session_a))
+    events.append(gen_battle_result(battle_id, "b", b_result, winner, turns, alive_b, alive_a, player_b, session_b))
+
+    return events
 
 
-def _gen_to_kafka(battle_id, turns, producer):
-    """Generate battle data and send to Kafka instead of writing files."""
-    pa = [pick_random_pokemon() for _ in range(3)]
-    pb = [pick_random_pokemon() for _ in range(3)]
-    hp_tracker = {}
-    for turn in range(turns + 1):
-        sides_out = []
-        for si, team in enumerate([pa, pb]):
-            pokes = []
-            for slot, t in enumerate(team):
-                key = (si, slot)
-                if key not in hp_tracker: hp_tracker[key] = 100.0
-                if turn > 0:
-                    loss = random.uniform(0, 35)
-                    hp_tracker[key] = max(0, hp_tracker[key] - loss)
-                    if 0 < hp_tracker[key] < 25 and random.random() < 0.2:
-                        hp_tracker[key] = 0
-                pokes.append(make_pokemon(*t, slot=slot, hp_pct=hp_tracker[key]))
-            sides_out.append({"side": si, "active": 0, "count": 3,
-                              "name": "A" if si == 0 else "B", "pokemons": pokes, "sideEffects": {}})
-        msg = {"battle_id": str(battle_id), "turn": turn,
-               "battle": {"sides": sides_out, "field": {"type": 0, "duration": 0},
-                          "weather": {"type": 0, "duration": 0}}}
-        producer.send("battle.raw", msg)
-    producer.flush()
-
+# ── Main loop ─────────────────────────
 
 def main():
-    parser = argparse.ArgumentParser(description="Stream battle data every N seconds")
-    parser.add_argument("--interval", type=float, default=1.0)
-    parser.add_argument("--turns", type=int, nargs=2, default=[10, 20])
+    parser = argparse.ArgumentParser(description="Generate battle events (event_new format)")
+    parser.add_argument("--interval", type=float, default=2.0)
+    parser.add_argument("--turns", type=int, nargs=2, default=[5, 15])
     parser.add_argument("--start-id", type=int, default=100)
     parser.add_argument("--kafka", type=str, default="",
-                        help="Kafka broker address (e.g. localhost:9092). Enables cluster mode.")
+                        help="Kafka broker (e.g. 100.107.105.99:9092) — enables cluster mode")
+    parser.add_argument("--topic", type=str, default="battle.events")
     args = parser.parse_args()
+
     kafka_producer = None
     if args.kafka:
         try:
             from kafka import KafkaProducer
-            kafka_producer = KafkaProducer(bootstrap_servers=args.kafka,
-                                           value_serializer=lambda v: json.dumps(v).encode())
-            print(f"Kafka mode: {args.kafka}")
+            kafka_producer = KafkaProducer(
+                bootstrap_servers=args.kafka,
+                value_serializer=lambda v: json.dumps(v, ensure_ascii=False).encode("utf-8"),
+                key_serializer=lambda k: k.encode("utf-8") if k else None,
+            )
+            print(f"[Kafka] {args.kafka} topic={args.topic}")
         except ImportError:
-            print("kafka-python not installed. Using file mode.")
+            print("kafka-python not installed. Use file mode instead.")
             args.kafka = ""
 
+    # Generate sessions
+    sessions = {p: f"{uuid.uuid4().hex[:4]}" for p in PLAYERS}
+    session_events = []
+    for p in PLAYERS:
+        session_events.append(gen_session(p, sessions[p]))
+        for page in PAGES:
+            session_events.append(gen_page_view(p, sessions[p], page))
+
+    # Send session events first
+    for e in session_events:
+        if kafka_producer:
+            kafka_producer.send(args.topic, key=e["session_id"], value=e)
+        else:
+            pass  # session events only to Kafka
+
     bid = args.start_id
-    print(f"Streaming battles every {args.interval}s (turns {args.turns[0]}-{args.turns[1]}). Ctrl+C to stop.")
-    print(f"Starting from ID {bid}")
+    cycle = 0
+    print(f"Generating battles every {args.interval}s ({args.turns[0]}-{args.turns[1]} turns). Ctrl+C to stop.")
 
     try:
         while True:
             turns = random.randint(*args.turns)
             t0 = time.time()
+            battle_id = f"battle_{uuid.uuid4().hex[:4]}"
+
+            pa = random.choice(PLAYERS)
+            pb = random.choice([p for p in PLAYERS if p != pa])
+
+            events = gen_battle_events(battle_id, turns, pa, pb, sessions[pa], sessions[pb])
+            cycle += 1
+
+            for e in events:
+                if kafka_producer:
+                    kafka_producer.send(args.topic, key=e["session_id"], value=e)
+                else:
+                    # Local: append to daily JSONL file
+                    log_file = BATTLE_LOGS / f"events_{time.strftime('%Y-%m-%d')}.jsonl"
+                    log_file.parent.mkdir(parents=True, exist_ok=True)
+                    with open(log_file, "a", encoding="utf-8") as f:
+                        f.write(json.dumps(e, ensure_ascii=False) + "\n")
+
             if kafka_producer:
-                _gen_to_kafka(bid, turns, kafka_producer)
-            else:
-                gen_battle(bid, turns)
+                kafka_producer.flush()
+
             elapsed = time.time() - t0
-            print(f"  #{bid} | {turns}t | {elapsed*1000:.0f}ms")
+            print(f"  #{bid} | {turns}t | {len(events)} events | {elapsed*1000:.0f}ms")
             bid += 1
+
             sleep_time = args.interval - elapsed
             if sleep_time > 0:
                 time.sleep(sleep_time)
     except KeyboardInterrupt:
-        print(f"\nStopped. Generated {bid - args.start_id} battles.")
+        n = bid - args.start_id
+        print(f"\nDone. {n} battles, {n * 30}+ events generated.")
+        if kafka_producer:
+            kafka_producer.close()
 
 
 if __name__ == "__main__":

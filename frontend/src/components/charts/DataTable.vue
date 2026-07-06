@@ -294,84 +294,27 @@ async function _tickUpdate(target) {
   moved.sort((a, b) => a.newIdx - b.newIdx)
   console.log(`  moved (当前页变化): ${moved.length}行`)
 
-  // ── Build display snapshot and start per-row animation ──
+  // ── FLIP: old order → record positions → target order → all slide at once ──
+  // Update values from target into old snapshot
   const map = new Map(target.map(r => [r?.[idKey], r]).filter(([k]) => k != null))
   const displayArr = old.map(r => {
     const next = map.get(r?.[idKey])
     return next ? { ...next } : r
   })
+
+  // Step 1: render old order so Vue records FLIP "before" positions
   _display.value = displayArr
   await new Promise(r => requestAnimationFrame(r))
   if (tick !== _tick) return
 
-  // ── Dynamic per-row: recalculate target after each splice ──
-  // Use sort comparison to find where each row belongs in the current array
-  const key = sortBy.value
-  const isDesc = dir.value === 'desc'
-  const cmp = (a, b) => {
-    const va = a?.[key], vb = b?.[key]
-    if (typeof va === 'number' && typeof vb === 'number') {
-      return isDesc ? vb - va : va - vb
-    }
-    return isDesc
-      ? String(vb).localeCompare(String(va))
-      : String(va).localeCompare(String(vb))
-  }
+  // Step 2: set to correct order — Vue FLIP slides all rows simultaneously
+  _display.value = target
 
-  const movedIds = new Set(moved.map(m => m.row[idKey]))
-  let steps = 0
-  const MAX_STEPS = 10
-
-  while (movedIds.size > 0 && steps < MAX_STEPS) {
-    if (tick !== _tick) return
-
-    // Find first misplaced row on current page (top to bottom)
-    let found = null
-    const arr = _display.value
-    if (!arr) return
-    for (let i = start; i < Math.min(end, arr.length); i++) {
-      const r = arr[i]
-      if (!movedIds.has(r?.[idKey])) continue
-      // Check if row is correctly placed between neighbors
-      const beforeOk = i === 0 || cmp(arr[i - 1], r) >= 0
-      const afterOk = i >= arr.length - 1 || cmp(r, arr[i + 1]) >= 0
-      if (!beforeOk || !afterOk) {
-        found = { id: r[idKey], cur: i }
-        break
-      }
-      // Row is already in correct position
-      movedIds.delete(r[idKey])
-    }
-
-    if (!found) break
-
-    // Determine target: walk to find correct position
-    const row = arr[found.cur]
-    let to = found.cur
-    // Move up while above row should be below (above has lower sort value)
-    while (to > 0 && cmp(arr[to - 1], row) > 0) to--
-    // Move down while row should be below (below has higher sort value)
-    while (to < arr.length - 1 && cmp(row, arr[to + 1]) > 0) to++
-
-    if (to !== found.cur) {
-      const onPage = (idx) => idx >= start && idx < end
-      if (onPage(found.cur) || onPage(to)) {
-        console.log(`%c  [move] #${found.id}(${row.species_name||row.name||'?'}) ${found.cur}→${to}`, 'color:#3b82f6')
-      }
-      arr.splice(to, 0, arr.splice(found.cur, 1)[0])
-      _display.value = [...arr]
-      movedIds.delete(found.id)
-      await new Promise(r => setTimeout(r, 500))
-    } else {
-      movedIds.delete(found.id)
-    }
-    steps++
-  }
-
-  // Final alignment
+  // Wait for CSS transitions (1s)
+  await new Promise(r => setTimeout(r, 1000))
   if (tick === _tick) {
     _display.value = null
-    console.log(`%c✔ tick #${tick} 动画结束`, 'color:#10b981')
+    console.log(`%c✔ tick #${tick} updated ${moved.length} moved`, 'color:#10b981')
   }
 }
 
@@ -411,7 +354,7 @@ watch(() => props.rows, (rows) => {
   transition: opacity 0.5s linear;
 }
 .table-row-move {
-  transition: opacity 0.5s linear, transform 0.5s linear;
+  transition: opacity 1s linear, transform 1s linear;
   z-index: 0;
 }
 .table-row-enter-active {
