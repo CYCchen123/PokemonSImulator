@@ -194,14 +194,21 @@ def write_battle_results(df_rows, db_path: str):
     for row in df_rows:
         d = row.get("data", {})
         bid = d.get("battle_id", "")
+        winner = d.get("winner", "")
         if bid:
             conn.execute(
                 "INSERT INTO battles VALUES (?,?,?,?,?,?,?,?,?,?,?)",
                 (bid, d.get("side",""), row.get("player_id",""), row.get("session_id",""),
-                 "battle_result", d.get("result",""), d.get("winner",""),
+                 "battle_result", d.get("result",""), winner,
                  d.get("turns",0), d.get("own_remaining",0), d.get("opp_remaining",0),
                  row.get("timestamp","")))
             count += 1
+            # Mark losing side as fainted
+            if winner in ("a", "b"):
+                loser_idx = 1 if winner == "a" else 0
+                conn.execute(
+                    "UPDATE battle_pokemon_states SET fainted=1, hp_pct=0.0 WHERE battle_id=? AND side_index=?",
+                    (bid, loser_idx))
     conn.commit()
     conn.close()
     return count

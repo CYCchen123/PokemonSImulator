@@ -19,7 +19,6 @@
           <img v-if="result.s1_sprite" :src="result.s1_sprite" class="w-20 h-20" />
           <p class="text-lg font-bold mt-2">{{ result.s1_name }}</p>
           <p class="text-xs text-gray-500">{{ result.s1_types || '?' }}</p>
-          <p class="text-xs text-gray-400">HP {{ result.s1_avg_hp || '?' }}%</p>
           <p class="text-3xl font-extrabold mt-1" :class="(result.s1_rate||0) >= 50 ? 'text-green-500' : 'text-red-500'">{{ result.s1_rate }}%</p>
           <p class="text-xs text-gray-500">{{ result.s1_wins || 0 }}胜</p>
           <div class="w-full max-w-[120px] h-2 rounded-full bg-gray-200 mt-1 overflow-hidden">
@@ -38,7 +37,6 @@
           <img v-if="result.s2_sprite" :src="result.s2_sprite" class="w-20 h-20" />
           <p class="text-lg font-bold mt-2">{{ result.s2_name }}</p>
           <p class="text-xs text-gray-500">{{ result.s2_types || '?' }}</p>
-          <p class="text-xs text-gray-400">HP {{ result.s2_avg_hp || '?' }}%</p>
           <p class="text-3xl font-extrabold mt-1" :class="(result.s2_rate||0) >= 50 ? 'text-green-500' : 'text-red-500'">{{ result.s2_rate }}%</p>
           <p class="text-xs text-gray-500">{{ result.s2_wins || 0 }}胜</p>
           <div class="w-full max-w-[120px] h-2 rounded-full bg-gray-200 mt-1 overflow-hidden">
