@@ -625,7 +625,7 @@ async def broadcast(msg_type: str, data):
 _live_watcher_task = None
 _last_battle_mtime = 0.0
 _spark_running = False
-WATCH_INTERVAL = 10  # seconds
+WATCH_INTERVAL = 15  # seconds
 
 
 def _get_latest_battle_mtime(battle_dir: Path) -> float:
@@ -702,22 +702,24 @@ async def _live_watcher_loop():
             logger.error(f"[live] Watcher error: {e}")
 
 
-@app.on_event("startup")
-async def start_live_watcher():
-    global _live_watcher_task, _last_battle_mtime
-    battle_dir = PROJECT_ROOT / "battle_logs"
-    _last_battle_mtime = _get_latest_battle_mtime(battle_dir)
-    _live_watcher_task = asyncio.create_task(_live_watcher_loop())
-    logger.info("[live] Live watcher started")
+from config import ENABLE_WATCHER
 
+if ENABLE_WATCHER:
+    @app.on_event("startup")
+    async def start_live_watcher():
+        global _live_watcher_task, _last_battle_mtime
+        battle_dir = PROJECT_ROOT / "battle_logs"
+        _last_battle_mtime = _get_latest_battle_mtime(battle_dir)
+        _live_watcher_task = asyncio.create_task(_live_watcher_loop())
+        logger.info("[live] Live watcher started")
 
-@app.on_event("shutdown")
-async def stop_live_watcher():
-    global _live_watcher_task
-    if _live_watcher_task:
-        _live_watcher_task.cancel()
-        _live_watcher_task = None
-        logger.info("[live] Live watcher stopped")
+    @app.on_event("shutdown")
+    async def stop_live_watcher():
+        global _live_watcher_task
+        if _live_watcher_task:
+            _live_watcher_task.cancel()
+            _live_watcher_task = None
+            logger.info("[live] Live watcher stopped")
 
 
 @app.get("/api/v1/scout")

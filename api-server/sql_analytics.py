@@ -1,15 +1,22 @@
 """
 SQL-based analytics with persistent connection + TTL cache.
-Sub-millisecond reads for real-time monitoring.
+Supports local (SQLite) and cluster (Redis) modes.
 """
-
-import sqlite3, time
+import os, sqlite3, time, threading
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DB_PATH = PROJECT_ROOT / "data" / "output.db"
 
-import threading
+# DB path from config if local, or None if cluster
+try:
+    from config import MODE, LOCAL_DB_OUTPUT, REDIS_HOST, REDIS_PORT
+except ImportError:
+    MODE = os.environ.get("POKEMON_MODE", "local")
+    LOCAL_DB_OUTPUT = PROJECT_ROOT / "data" / "output.db"
+    REDIS_HOST = "localhost"
+    REDIS_PORT = 6379
+
+DB_PATH = LOCAL_DB_OUTPUT if MODE == "local" else None
 _tls = threading.local()
 _cache = {}
 _cache_time = 0.0
@@ -39,7 +46,7 @@ def invalidate():
 
 def _cached(key, fn):
     global _cache_time
-    if key in _cache and time.time() - _cache_time < 2.0 and not _changed():
+    if key in _cache and time.time() - _cache_time < 0.5 and not _changed():
         return _cache[key]
     result = fn()
     _cache[key] = result

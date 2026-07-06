@@ -30,7 +30,7 @@
     <!-- Table -->
     <div v-else class="overflow-x-auto" :class="{ 'table-wrap': stableHeight }"
       :style="stableHeight ? { height: stableHeightPx + 'px' } : {}">
-      <table class="w-full text-sm" :class="{ 'stable-table': stableHeight, 'no-anim': _skip }">
+      <table ref="tableEl" class="w-full text-sm" :class="{ 'stable-table': stableHeight, 'no-anim': _skip }">
         <thead>
           <tr class="text-left text-gray-400 text-xs border-b border-gray-200">
             <th class="pb-2 w-8 font-normal">#</th>
@@ -102,6 +102,7 @@ const sortableCols = computed(() =>
   props.columns.filter(c => c.sortable !== false).map(c => ({ key: c.key, label: c.label }))
 )
 
+const tableEl = ref(null)
 const filtered = ref([])
 const _display = ref(null)  // animation display buffer, null = use filtered
 
@@ -250,13 +251,13 @@ async function _runSwapQueue(queue, target, idKey, qid) {
   const arr = [...(_display.value || filtered.value)]
   _display.value = arr
   for (const { id, to } of queue) {
-    if (qid !== _queueId) { _display.value = null; return }
+    if (qid !== _queueId) { return }
     const curIdx = arr.findIndex(r => r?.[idKey] === id)
     if (curIdx === -1 || curIdx === to) continue
     const [row] = arr.splice(curIdx, 1)
     arr.splice(to, 0, row)
     _display.value = [...arr]
-    await new Promise(r => setTimeout(r, 1000))
+    await new Promise(r => setTimeout(r, 500))
   }
   if (qid === _queueId) _display.value = null  // animation done, restore filtered
 }
@@ -266,38 +267,116 @@ let _tick = 0
 async function _tickUpdate(target) {
   const tick = ++_tick
   const idKey = props.idKey || 'id'
-  const old = filtered.value
+  const old = [...filtered.value]                          // snapshot old order
+  console.log(`%c[tick #${tick}] ─── 新轮询到达 (${target.length}行) ───`, 'color:#f59e0b;font-weight:bold')
+
   if (old.length === 0) { filtered.value = target; applySort(); return }
 
-  // Find rows whose rank actually changed, sorted by new rank (top first)
+  // ── Step 1: set table A (filtered) = target immediately ──
+  filtered.value = target
+  applySort()
+  console.log(`  [表A] filtered → target (${target.length}行)`)
+
+  // ── Step 2: table B (_display) = old snapshot, animate toward table A ──
+  // Only animate moves visible on current page
+  const start = (page.value - 1) * perPage
+  const end = start + perPage
+  const pageSet = new Set()
+  for (let i = start; i < end; i++) pageSet.add(i)
+
   const moved = []
   old.forEach((row, oldIdx) => {
     const newIdx = target.findIndex(r => r?.[idKey] === row?.[idKey])
-    if (newIdx !== -1 && newIdx !== oldIdx) moved.push({ row, oldIdx, newIdx })
+    if (newIdx !== -1 && newIdx !== oldIdx && (pageSet.has(oldIdx) || pageSet.has(newIdx))) {
+      moved.push({ row, oldIdx, newIdx })
+    }
   })
   moved.sort((a, b) => a.newIdx - b.newIdx)
+  console.log(`  moved (当前页变化): ${moved.length}行`)
 
-  // Update values for ALL rows first (instant)
+  // ── Build display snapshot and start per-row animation ──
   const map = new Map(target.map(r => [r?.[idKey], r]).filter(([k]) => k != null))
-  for (const row of old) {
-    const next = map.get(row?.[idKey])
-    if (next) Object.assign(row, next)
+  const displayArr = old.map(r => {
+    const next = map.get(r?.[idKey])
+    return next ? { ...next } : r
+  })
+  _display.value = displayArr
+  await new Promise(r => requestAnimationFrame(r))
+  if (tick !== _tick) return
+
+  // ── Dynamic per-row: recalculate target after each splice ──
+  // Use sort comparison to find where each row belongs in the current array
+  const key = sortBy.value
+  const isDesc = dir.value === 'desc'
+  const cmp = (a, b) => {
+    const va = a?.[key], vb = b?.[key]
+    if (typeof va === 'number' && typeof vb === 'number') {
+      return isDesc ? vb - va : va - vb
+    }
+    return isDesc
+      ? String(vb).localeCompare(String(va))
+      : String(va).localeCompare(String(vb))
   }
 
-  // Move one row per second, top rank first
-  for (const { row, oldIdx, newIdx } of moved) {
+  const movedIds = new Set(moved.map(m => m.row[idKey]))
+  let steps = 0
+  const MAX_STEPS = 10
+
+  while (movedIds.size > 0 && steps < MAX_STEPS) {
     if (tick !== _tick) return
-    const arr = filtered.value
-    const cur = arr.findIndex(r => r?.[idKey] === row[idKey])
-    if (cur === -1 || cur === newIdx) continue
-    arr.splice(newIdx, 0, arr.splice(cur, 1)[0])
-    filtered.value = [...arr]
-    await new Promise(r => setTimeout(r, 1000))
+
+    // Find first misplaced row on current page (top to bottom)
+    let found = null
+    const arr = _display.value
+    if (!arr) return
+    for (let i = start; i < Math.min(end, arr.length); i++) {
+      const r = arr[i]
+      if (!movedIds.has(r?.[idKey])) continue
+      // Check if row is correctly placed between neighbors
+      const beforeOk = i === 0 || cmp(arr[i - 1], r) >= 0
+      const afterOk = i >= arr.length - 1 || cmp(r, arr[i + 1]) >= 0
+      if (!beforeOk || !afterOk) {
+        found = { id: r[idKey], cur: i }
+        break
+      }
+      // Row is already in correct position
+      movedIds.delete(r[idKey])
+    }
+
+    if (!found) break
+
+    // Determine target: walk to find correct position
+    const row = arr[found.cur]
+    let to = found.cur
+    // Move up while above row should be below (above has lower sort value)
+    while (to > 0 && cmp(arr[to - 1], row) > 0) to--
+    // Move down while row should be below (below has higher sort value)
+    while (to < arr.length - 1 && cmp(row, arr[to + 1]) > 0) to++
+
+    if (to !== found.cur) {
+      const onPage = (idx) => idx >= start && idx < end
+      if (onPage(found.cur) || onPage(to)) {
+        console.log(`%c  [move] #${found.id}(${row.species_name||row.name||'?'}) ${found.cur}→${to}`, 'color:#3b82f6')
+      }
+      arr.splice(to, 0, arr.splice(found.cur, 1)[0])
+      _display.value = [...arr]
+      movedIds.delete(found.id)
+      await new Promise(r => setTimeout(r, 500))
+    } else {
+      movedIds.delete(found.id)
+    }
+    steps++
   }
-  if (tick === _tick) { filtered.value = target; applySort() }
+
+  // Final alignment
+  if (tick === _tick) {
+    _display.value = null
+    console.log(`%c✔ tick #${tick} 动画结束`, 'color:#10b981')
+  }
 }
 
 watch(() => props.rows, (rows) => {
+  console.log(`%c[watch] props.rows 变化, ${rows.length}行`, 'color:#ec4899;font-weight:bold')
   const target = [...rows]
   if (sortableCols.value.length > 0) {
     if (!sortBy.value) {
