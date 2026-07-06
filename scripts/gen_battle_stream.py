@@ -311,7 +311,7 @@ def main():
     parser.add_argument("--start-id", type=int, default=100)
     parser.add_argument("--kafka", type=str, default="",
                         help="Kafka broker (e.g. 100.107.105.99:9092) — enables cluster mode")
-    parser.add_argument("--topic", type=str, default="battle.events")
+    parser.add_argument("--topic", type=str, default="battle.logs")
     args = parser.parse_args()
 
     kafka_producer = None

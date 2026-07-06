@@ -253,7 +253,7 @@ def process_batch(df, epoch_id, pokemon_db: str, output_db: str):
 def main():
     parser = argparse.ArgumentParser(description="PySpark frontend event processor")
     parser.add_argument("--broker", default="100.107.105.99:9092")
-    parser.add_argument("--topic", default="battle.events")
+    parser.add_argument("--topic", default="battle.logs")
     parser.add_argument("--pokemon-db", default="/home/hadoop/pokemon.db")
     parser.add_argument("--output-db", default="/home/hadoop/output.db")
     parser.add_argument("--batch", action="store_true", help="Batch mode: read all, not streaming")
