@@ -130,12 +130,51 @@ def gen_battle(battle_id, turns):
     tmp_dir.rename(battle_dir)
 
 
+def _gen_to_kafka(battle_id, turns, producer):
+    """Generate battle data and send to Kafka instead of writing files."""
+    pa = [pick_random_pokemon() for _ in range(3)]
+    pb = [pick_random_pokemon() for _ in range(3)]
+    hp_tracker = {}
+    for turn in range(turns + 1):
+        sides_out = []
+        for si, team in enumerate([pa, pb]):
+            pokes = []
+            for slot, t in enumerate(team):
+                key = (si, slot)
+                if key not in hp_tracker: hp_tracker[key] = 100.0
+                if turn > 0:
+                    loss = random.uniform(0, 35)
+                    hp_tracker[key] = max(0, hp_tracker[key] - loss)
+                    if 0 < hp_tracker[key] < 25 and random.random() < 0.2:
+                        hp_tracker[key] = 0
+                pokes.append(make_pokemon(*t, slot=slot, hp_pct=hp_tracker[key]))
+            sides_out.append({"side": si, "active": 0, "count": 3,
+                              "name": "A" if si == 0 else "B", "pokemons": pokes, "sideEffects": {}})
+        msg = {"battle_id": str(battle_id), "turn": turn,
+               "battle": {"sides": sides_out, "field": {"type": 0, "duration": 0},
+                          "weather": {"type": 0, "duration": 0}}}
+        producer.send("battle.raw", msg)
+    producer.flush()
+
+
 def main():
     parser = argparse.ArgumentParser(description="Stream battle data every N seconds")
     parser.add_argument("--interval", type=float, default=1.0)
     parser.add_argument("--turns", type=int, nargs=2, default=[10, 20])
     parser.add_argument("--start-id", type=int, default=100)
+    parser.add_argument("--kafka", type=str, default="",
+                        help="Kafka broker address (e.g. localhost:9092). Enables cluster mode.")
     args = parser.parse_args()
+    kafka_producer = None
+    if args.kafka:
+        try:
+            from kafka import KafkaProducer
+            kafka_producer = KafkaProducer(bootstrap_servers=args.kafka,
+                                           value_serializer=lambda v: json.dumps(v).encode())
+            print(f"Kafka mode: {args.kafka}")
+        except ImportError:
+            print("kafka-python not installed. Using file mode.")
+            args.kafka = ""
 
     bid = args.start_id
     print(f"Streaming battles every {args.interval}s (turns {args.turns[0]}-{args.turns[1]}). Ctrl+C to stop.")
@@ -145,7 +184,10 @@ def main():
         while True:
             turns = random.randint(*args.turns)
             t0 = time.time()
-            gen_battle(bid, turns)
+            if kafka_producer:
+                _gen_to_kafka(bid, turns, kafka_producer)
+            else:
+                gen_battle(bid, turns)
             elapsed = time.time() - t0
             print(f"  #{bid} | {turns}t | {elapsed*1000:.0f}ms")
             bid += 1

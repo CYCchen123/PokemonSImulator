@@ -108,5 +108,56 @@ def main():
     spark.streams.awaitAnyTermination()
 
 
+def process_battle_raw():
+    """Consume battle.raw topic, aggregate per-species stats, write to Redis."""
+    spark = SparkSession.builder \
+        .appName("PokemonSimulator-BattleRaw") \
+        .config("spark.sql.adaptive.enabled", "true") \
+        .getOrCreate()
+    # Redis config
+    redis_host = os.environ.get("REDIS_HOST", "localhost")
+    redis_port = int(os.environ.get("REDIS_PORT", "6379"))
+
+    raw_df = spark.readStream \
+        .format("kafka") \
+        .option("kafka.bootstrap.servers", os.environ.get("KAFKA_BROKER", "localhost:9092")) \
+        .option("subscribe", "battle.raw") \
+        .option("startingOffsets", "latest") \
+        .option("failOnDataLoss", "false") \
+        .load()
+
+    from pyspark.sql.functions import explode
+    import redis as redis_lib
+
+    def write_redis_batch(df, epoch_id):
+        r = redis_lib.Redis(host=redis_host, port=redis_port, decode_responses=True)
+        pipe = r.pipeline()
+        for row in df.collect():
+            sid = str(row.species_id)
+            cnt = row.count
+            pipe.zincrby("species:appearances", cnt, sid)
+        pipe.execute()
+        r.close()
+
+    # Parse raw battles, explode species
+    raw_df.selectExpr("CAST(value AS STRING) as json_str") \
+        .select(from_json("json_str", StructType([
+            StructField("battle_id", StringType()),
+            StructField("turn", IntegerType()),
+            StructField("battle", StructType([
+                StructField("sides", StringType())]))])).alias("data")) \
+        .writeStream \
+        .foreachBatch(write_redis_batch) \
+        .outputMode("append") \
+        .start()
+
+    spark.streams.awaitAnyTermination()
+
+
 if __name__ == "__main__":
-    main()
+    import os
+    mode = os.environ.get("POKEMON_MODE", "events")
+    if mode == "raw":
+        process_battle_raw()
+    else:
+        main()
