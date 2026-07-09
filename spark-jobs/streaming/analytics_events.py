@@ -152,7 +152,8 @@ def write_battle_init_teams(df_rows, db_path: str):
             hp_pct REAL DEFAULT 100.0, fainted INTEGER DEFAULT 0,
             ability_id INTEGER DEFAULT 0, item_id INTEGER DEFAULT 0,
             move_ids TEXT DEFAULT '[]', slot INTEGER DEFAULT 0,
-            created_at TEXT DEFAULT (datetime('now'))
+            created_at TEXT DEFAULT (datetime('now')),
+            UNIQUE(battle_id, species_id, side_index, pokemon_index)
         )
     """)
     count = 0
